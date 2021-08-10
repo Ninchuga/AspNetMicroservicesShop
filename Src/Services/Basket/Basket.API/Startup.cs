@@ -1,5 +1,3 @@
-using Catalog.API.Data;
-using Catalog.API.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Catalog.API
+namespace Basket.API
 {
     public class Startup
     {
@@ -27,13 +25,11 @@ namespace Catalog.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<ICatalogContext, CatalogContext>();
-            services.AddScoped<IProductRepository, ProductRepository>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Catalog.API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Basket.API", Version = "v1" });
             });
         }
 
@@ -44,7 +40,7 @@ namespace Catalog.API
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog.API v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Basket.API v1"));
             }
 
             app.UseRouting();
