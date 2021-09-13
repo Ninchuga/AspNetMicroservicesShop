@@ -14,6 +14,11 @@ namespace Ordering.Application.Features.Orders.Queries
     public class GetOrdersListQuery : IRequest<List<OrderDto>>
     {
         public string UserName { get; set; }
+
+        public GetOrdersListQuery(string userName)
+        {
+            UserName = userName;
+        }
     }
 
     public class GetOrdersListQueryHandler : IRequestHandler<GetOrdersListQuery, List<OrderDto>>
