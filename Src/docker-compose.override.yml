@@ -105,7 +105,6 @@ services:
     ports:
       - "8003:80"
 
-
   ordering.api:
     container_name: orderingapi
     environment:
@@ -117,4 +116,31 @@ services:
       - rabbitmq
     ports:
       - "8004:80"
+
+  ocelotapigateway:
+    container_name: ocelotapigateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - catalog.api
+      - basket.api
+      - discount.api
+      - ordering.api
+    ports:
+      - "8010:80"
+
+  shopping.aggregator:
+    container_name: shopping.aggregator
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ApiSettings:CatalogUrl=http://catalog.api"
+      - "ApiSettings:BasketUrl=http://basket.api"
+      - "ApiSettings:OrderingUrl=http://ordering.api"
+    depends_on:
+      - catalog.api
+      - basket.api
+      - discount.api
+      - ordering.api
+    ports:
+      - "8005:80"
 
