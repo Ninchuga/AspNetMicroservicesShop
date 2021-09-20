@@ -30,7 +30,8 @@ namespace Shopping.MVC.Services
         public async Task<IEnumerable<CatalogItem>> GetCatalog()
         {
             _httpClient.SetBearerToken(await GetAccessToken());
-            var responseMessage = await _httpClient.GetAsync("/api/v1/Catalog");
+            //var responseMessage = await _httpClient.GetAsync("api/v1/Catalog");
+            var responseMessage = await _httpClient.GetAsync("api"); // route is already configured from HttpClient middleware
 
             if(responseMessage.IsSuccessStatusCode)
             {
@@ -48,7 +49,7 @@ namespace Shopping.MVC.Services
         public async Task<CatalogItem> GetCatalogItemBy(string itemId)
         {
             _httpClient.SetBearerToken(await GetAccessToken());
-            var responseMessage = await _httpClient.GetAsync($"/api/v1/Catalog/{itemId}");
+            var responseMessage = await _httpClient.GetAsync($"api/{itemId}");
 
             if (responseMessage.IsSuccessStatusCode)
             {

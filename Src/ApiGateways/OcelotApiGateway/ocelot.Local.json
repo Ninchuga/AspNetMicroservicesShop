@@ -7,10 +7,11 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8000"
+          //"Port": "8000" // for docker api
+          "Port": "5000"
         }
       ],
-      "UpstreamPathTemplate": "/Catalog",
+      "UpstreamPathTemplate": "/Catalog/api",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
       "FileCacheOptions": { "TtlSeconds": 30 }
     },
@@ -20,10 +21,11 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8000"
+          //"Port": "8000" // for docker api
+          "Port": "5000"
         }
       ],
-      "UpstreamPathTemplate": "/Catalog/{id}",
+      "UpstreamPathTemplate": "/Catalog/api/{id}",
       "UpstreamHttpMethod": [ "GET", "DELETE" ]
     },
     {
@@ -32,23 +34,25 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8000"
+          //"Port": "8000" // for docker api
+          "Port": "5000"
         }
       ],
-      "UpstreamPathTemplate": "/Catalog/GetProductByCategory/{category}",
+      "UpstreamPathTemplate": "/Catalog/api/GetProductByCategory/{category}",
       "UpstreamHttpMethod": [ "GET" ]
     },
     //Basket API
     {
-      "DownstreamPathTemplate": "/api/v1/Basket/{userName}",
+      "DownstreamPathTemplate": "/api/v1/Basket/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8001"
+          //"Port": "8001" // for docker api
+          "Port": "5001"
         }
       ],
-      "UpstreamPathTemplate": "/Basket/{userName}",
+      "UpstreamPathTemplate": "/Basket/api/{userId}",
       "UpstreamHttpMethod": [ "GET", "DELETE" ]
     },
     {
@@ -57,10 +61,11 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8001"
+          //"Port": "8001" // for docker api
+          "Port": "5001"
         }
       ],
-      "UpstreamPathTemplate": "/Basket",
+      "UpstreamPathTemplate": "/Basket/api",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -69,10 +74,11 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8001"
+          //"Port": "8001" // for docker api
+          "Port": "5001"
         }
       ],
-      "UpstreamPathTemplate": "/Basket/Checkout",
+      "UpstreamPathTemplate": "/Basket/api/Checkout",
       "UpstreamHttpMethod": [ "POST" ],
       "RateLimitOptions": {
         "ClientWhitelist": [],
@@ -89,10 +95,11 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8002"
+          //"Port": "8002" // for docker api
+          "Port": "5002"
         }
       ],
-      "UpstreamPathTemplate": "/Discount/{productName}",
+      "UpstreamPathTemplate": "/Discount/api/{productName}",
       "UpstreamHttpMethod": [ "GET", "DELETE" ]
     },
     {
@@ -101,23 +108,25 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8002"
+          //"Port": "8002" // for docker api
+          "Port": "5002"
         }
       ],
-      "UpstreamPathTemplate": "/Discount",
+      "UpstreamPathTemplate": "/Discount/api",
       "UpstreamHttpMethod": [ "PUT", "POST" ]
     },
     //Order API
     {
-      "DownstreamPathTemplate": "/api/v1/Order/{userName}",
+      "DownstreamPathTemplate": "/api/v1/Order/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "8004"
+          //"Port": "8004" // for docker api
+          "Port": "5004"
         }
       ],
-      "UpstreamPathTemplate": "/Order/{userName}",
+      "UpstreamPathTemplate": "/Order/api/{userId}",
       "UpstreamHttpMethod": [ "GET" ]
     }
   ],

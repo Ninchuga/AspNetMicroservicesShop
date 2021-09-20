@@ -94,7 +94,7 @@ namespace Shopping.MVC
 
             services.AddHttpClient<CatalogService>(client =>
             {
-                client.BaseAddress = new Uri(Configuration["ApiSettings:CatalogUrl"]);
+                client.BaseAddress = new Uri(Configuration["ApiSettings:Catalog:CatalogGatewayUrl"]);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
@@ -104,7 +104,7 @@ namespace Shopping.MVC
 
             services.AddHttpClient<BasketService>(client =>
             {
-                client.BaseAddress = new Uri(Configuration["ApiSettings:BasketUrl"]);
+                client.BaseAddress = new Uri(Configuration["ApiSettings:Basket:BasketGatewayUrl"]);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });

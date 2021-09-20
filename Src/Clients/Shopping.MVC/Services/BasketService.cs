@@ -35,7 +35,8 @@ namespace Shopping.MVC.Services
 
             //var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
             //_httpClient.SetBearerToken(accessToken);
-            var responseMessage = await _httpClient.GetAsync($"/api/v1/Basket/{userId}");
+            //var responseMessage = await _httpClient.GetAsync($"/api/v1/Basket/{userId}");
+            var responseMessage = await _httpClient.GetAsync($"api/{userId}"); // call from api gateway
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -78,7 +79,8 @@ namespace Shopping.MVC.Services
             var requestContent = new StringContent(JsonSerializer.Serialize(basket), Encoding.UTF8, "application/json");
 
             _httpClient.SetBearerToken(await GetAccessToken());
-            var response = await _httpClient.PostAsync("/api/v1/Basket", requestContent);
+            //var response = await _httpClient.PostAsync("/api/v1/Basket", requestContent);
+            var response = await _httpClient.PostAsync("api", requestContent);
             response.EnsureSuccessStatusCode();
         }
 
