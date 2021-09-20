@@ -1,5 +1,6 @@
 ﻿using Catalog.API.Entities;
 using Catalog.API.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,6 +13,7 @@ namespace Catalog.API.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
+    [Authorize(Policy = "CanRead")]
     public class CatalogController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
@@ -71,6 +73,7 @@ namespace Catalog.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(Product), (int)HttpStatusCode.OK)]
+        [Authorize(Roles = "PremiumUser", Policy = "HasFullAccess")]
         public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
         {
             await _productRepository.CreateProduct(product);
@@ -80,6 +83,7 @@ namespace Catalog.API.Controllers
 
         [HttpPut]
         [ProducesResponseType(typeof(Product), (int)HttpStatusCode.OK)]
+        [Authorize(Roles = "PremiumUser", Policy = "HasFullAccess")]
         public async Task<IActionResult> UpdateProduct([FromBody] Product product)
         {
             return Ok(await _productRepository.UpdateProduct(product));
@@ -87,6 +91,7 @@ namespace Catalog.API.Controllers
 
         [HttpDelete("{id:length(24)}", Name = "DeleteProduct")]
         [ProducesResponseType(typeof(Product), (int)HttpStatusCode.OK)]
+        [Authorize(Roles = "PremiumUser", Policy = "HasFullAccess")]
         public async Task<IActionResult> DeleteProductById(string id)
         {
             return Ok(await _productRepository.DeleteProduct(id));

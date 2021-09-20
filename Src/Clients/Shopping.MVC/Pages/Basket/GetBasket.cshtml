@@ -1,0 +1,50 @@
+﻿@page
+@model Shopping.MVC.Pages.Basket.GetBasketModel
+@{
+    ViewData["Title"] = "Basket";
+}
+
+<h1>@Model.UserBasket.UserName basket</h1>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr class="table-secondary">
+                <th>
+                    Product Name
+                </th>
+                <th>
+                    Quantity
+                </th>
+                <th>
+                    Color
+                </th>
+                <th>
+                    Price
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.UserBasket.Items)
+            {
+                <tr>
+                    <td>
+                        @item.ProductName
+                    </td>
+                    <td>
+                        @item.Quantity
+                    </td>
+                    <td>
+                        @item.Color
+                    </td>
+                    <td>
+                        @item.Price
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div>
+    <h3>Total price: @Model.UserBasket.TotalPrice</h3>
+</div>

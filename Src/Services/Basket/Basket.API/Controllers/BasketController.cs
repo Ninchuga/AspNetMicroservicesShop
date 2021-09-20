@@ -4,6 +4,7 @@ using Basket.API.GrpcServices;
 using Basket.API.Repositories;
 using EventBus.Messages.Events;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -30,12 +31,12 @@ namespace Basket.API.Controllers
             _publishEndpoint = publishEndpoint;
         }
 
-        [HttpGet("{userName}", Name = "GetBasket")]
+        [HttpGet("{userId}", Name = "GetBasket")]
         [ProducesResponseType(typeof(ShoppingCart), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ShoppingCart>> GetBasket(string userName)
+        public async Task<ActionResult<ShoppingCart>> GetBasket(Guid userId)
         {
-            var basket = await _repository.GetBasket(userName);
-            return Ok(basket ?? new ShoppingCart(userName));
+            var basket = await _repository.GetBasket(userId);
+            return Ok(basket ?? new ShoppingCart(userId));
         }
 
         [HttpPost]
@@ -48,15 +49,14 @@ namespace Basket.API.Controllers
                 item.Price -= coupon.Amount;
             }
             
-
             return Ok(await _repository.UpdateBasket(basket));
         }
 
         [HttpDelete("{userName}", Name = "DeleteBasket")]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> DeleteBasket(string userName)
+        public async Task<IActionResult> DeleteBasket(Guid userId)
         {
-            await _repository.DeleteBasket(userName);
+            await _repository.DeleteBasket(userId);
             return Ok();
         }
 
@@ -66,7 +66,7 @@ namespace Basket.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Checkout([FromBody] BasketCheckout basketCheckout)
         {
-            var basket = await _repository.GetBasket(basketCheckout.UserName);
+            var basket = await _repository.GetBasket(basketCheckout.UserId);
             if (basket == null)
                 return BadRequest();
 
@@ -74,7 +74,7 @@ namespace Basket.API.Controllers
             eventMessage.TotalPrice = basket.TotalPrice;
             await _publishEndpoint.Publish(eventMessage);
 
-            await _repository.DeleteBasket(basket.UserName);
+            await _repository.DeleteBasket(basket.UserId);
 
             return Accepted();
         }

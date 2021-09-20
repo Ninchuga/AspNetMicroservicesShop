@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Shopping.Aggregator.Contracts;
 using Shopping.Aggregator.Models;
 using System;
@@ -25,6 +26,7 @@ namespace Shopping.Aggregator.Controllers
         }
 
         [HttpGet("{userName}", Name = "GetShopping")]
+        [Authorize]
         [ProducesResponseType(typeof(ShoppingModel), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ShoppingModel>> GetShopping(string userName)
         {
