@@ -70,8 +70,9 @@ namespace Shopping.MVC
                 options.ClientSecret = "authorizationInteractiveSecret";
                 options.ResponseType = "code";
                 options.Scope.Add("roles");
-                options.Scope.Add("basketapi.fullaccess");
+                options.Scope.Add("shoppinggateway.fullaccess");
                 //options.Scope.Add("catalogapi.fullaccess");
+                //options.Scope.Add("basketapi.fullaccess");
                 options.ClaimActions.DeleteClaim("sid");
                 options.ClaimActions.DeleteClaim("idp");
                 options.ClaimActions.DeleteClaim("s_hash");

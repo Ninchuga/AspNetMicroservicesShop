@@ -35,6 +35,13 @@ namespace Basket.API.Controllers
         [ProducesResponseType(typeof(ShoppingCart), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ShoppingCart>> GetBasket(Guid userId)
         {
+            // UserId passed from the API Gateway through request headers
+            // There token was taken from sub claim of the authenticated user
+            //Guid usId = Guid.Parse(HttpContext.Request.Headers["CurrentUser"][0]);
+
+            // Now that we are passing scopes from the API Gateway we can extract this info from the Claims object
+            Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid usrId);
+
             var basket = await _repository.GetBasket(userId);
             return Ok(basket ?? new ShoppingCart(userId));
         }
@@ -66,7 +73,13 @@ namespace Basket.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Checkout([FromBody] BasketCheckout basketCheckout)
         {
-            var basket = await _repository.GetBasket(basketCheckout.UserId);
+            // we take user id from the header because it's more safer than fetching it from the basketCheckout dto
+            //Guid userId = Guid.Parse(HttpContext.Request.Headers["CurrentUser"][0]);
+
+            // Now that we are passing scopes from the API Gateway we can extract this info from the Claims object
+            Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid userId);
+
+            var basket = await _repository.GetBasket(userId);
             if (basket == null)
                 return BadRequest();
 
@@ -74,7 +87,7 @@ namespace Basket.API.Controllers
             eventMessage.TotalPrice = basket.TotalPrice;
             await _publishEndpoint.Publish(eventMessage);
 
-            await _repository.DeleteBasket(basket.UserId);
+            await _repository.DeleteBasket(userId);
 
             return Accepted();
         }

@@ -25,7 +25,10 @@ namespace Catalog.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // clear mappings dictionary and preserve original type claims
+
+            // clear Microsoft changed claim names from dictionary and preserve original ones
+            // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         }
 
         public IConfiguration Configuration { get; }

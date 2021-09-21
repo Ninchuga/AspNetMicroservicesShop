@@ -25,11 +25,6 @@ namespace Shopping.IDP
         public static IEnumerable<ApiResource> ApiResources =>
             new ApiResource[]
             {
-                new ApiResource("shopping", "Shopping APIs")
-                {
-                    Scopes = { "shopping.fullaccess" },
-                    UserClaims = new List<string> { "role" } // optionally include some user claims in access token that will be available in the API
-                },
                 new ApiResource("catalogapi", "Catalog API")
                 {
                     Scopes = { "catalogapi.read", "catalogapi.fullaccess" },
@@ -41,8 +36,12 @@ namespace Shopping.IDP
                 },
                 new ApiResource("basketapi", "Basket API")
                 {
-                    Scopes = { "basketapi.read", "basketapi.fullaccess"},
+                    Scopes = { "basketapi.fullaccess"},
                     UserClaims = new List<string> { "role" }
+                },
+                new ApiResource("shoppinggateway", "Shopping Gateway")
+                {
+                    Scopes = { "shoppinggateway.fullaccess" }
                 }
             };
 
@@ -51,12 +50,12 @@ namespace Shopping.IDP
         public static IEnumerable<ApiScope> ApiScopes =>
             new ApiScope[]
             { 
-                new ApiScope("shopping.fullaccess", "Shopping APIs Full Access"),
                 new ApiScope("catalogapi.fullaccess", "Catalog API Full Access"),
                 new ApiScope("catalogapi.read", "Catalog API Read Operations"),
                 new ApiScope("basketapi.read", "Basket API Read Operations"),
                 new ApiScope("basketapi.fullaccess", "Basket API Full Access"),
-                new ApiScope("discount.fullaccess", "Discount API Full Access")
+                new ApiScope("discount.fullaccess", "Discount API Full Access"),
+                new ApiScope("shoppinggateway.fullaccess", "Shopping Gateway Full Access")
                 
             };
 
@@ -115,10 +114,9 @@ namespace Shopping.IDP
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Address,
                         "roles",
-                        "catalogapi.fullaccess",
-                        "catalogapi.read",
-                        "basketapi.read",
-                        "basketapi.fullaccess"
+                        // "catalogapi.fullaccess", // disallow to request this scope because api gateway will request it through token exchange
+                        "basketapi.fullaccess",
+                        "shoppinggateway.fullaccess"
                     },
                     ClientSecrets =
                     {
@@ -138,6 +136,20 @@ namespace Shopping.IDP
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         "discount.fullaccess"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "gatewaytodownstreamtokenexchangeclient",
+                    ClientName = "Gateway To Downstream Token Exchange Client",
+                    AllowedGrantTypes = new[] { "urn:ietf:params:oauth:grant-type:token-exchange" },
+                    ClientSecrets = { new Secret("379a2304-28d6-486e-bec4-862f4bb0bf88".Sha256()) },
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "catalogapi.fullaccess",
+                        "basketapi.fullaccess"
                     }
                 }
             };

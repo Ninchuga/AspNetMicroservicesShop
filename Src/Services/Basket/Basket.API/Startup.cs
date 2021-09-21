@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 
 namespace Basket.API
@@ -26,10 +27,13 @@ namespace Basket.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            // clear Microsoft changed claim names from dictionary and preserve original ones
+            // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         }
 
         public IConfiguration Configuration { get; }
-        //public IServiceProvider ServiceProvider { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -59,30 +63,8 @@ namespace Basket.API
             {
                 o.Address = new Uri(Configuration["GrpcSettings:DiscountUrl"]);
             });
-            //.ConfigureChannel(async o =>
-            //{
-            //    // Build the intermediate service provider
-            //    var sp = services.BuildServiceProvider();
-            //    //var tokenService = ServiceProvider.GetService<ITokenService>();
-            //    var grpcChannelHelper = sp.GetService<GrpcChannelHelper>();
-            //    await grpcChannelHelper.CreateAuthorizedChannel();
-
-            //    //var accessToken = await tokenService.GetAccessTokenForDownstreamServices();
-
-            //    //var credentials = CallCredentials.FromInterceptor((context, metadata) =>
-            //    //{
-            //    //    if (!string.IsNullOrEmpty(accessToken))
-            //    //    {
-            //    //        metadata.Add("Authorization", $"Bearer {accessToken}");
-            //    //    }
-            //    //    return Task.CompletedTask;
-            //    //});
-
-            //    //o.Credentials = ChannelCredentials.Create(new SslCredentials(), credentials);
-            //    o.Credentials = ChannelCredentials.Insecure; // use to allow HTTP calls
-            //});
-
-            
+            //.AddPolicyHandler(GetRetryPolicy())
+            //    .AddPolicyHandler(GetCircuitBreakerPolicy());
 
             // MassTransit-RabbitMQ Configuration
             services.AddMassTransit(config =>
@@ -160,5 +142,23 @@ namespace Basket.API
                 endpoints.MapControllers();
             });
         }
+
+        //private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+        //{
+        //    return HttpPolicyExtensions.HandleTransientHttpError()
+        //        .WaitAndRetryAsync(5,
+        //            retryAttempt => TimeSpan.FromMilliseconds(Math.Pow(1.5, retryAttempt) * 1000),
+        //            (_, waitingTime) =>
+        //            {
+        //                Console.WriteLine("Retrying due to Polly retry policy");
+        //            });
+        //}
+
+        //private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+        //{
+        //    return HttpPolicyExtensions
+        //        .HandleTransientHttpError()
+        //        .CircuitBreakerAsync(3, TimeSpan.FromSeconds(15));
+        //}
     }
 }

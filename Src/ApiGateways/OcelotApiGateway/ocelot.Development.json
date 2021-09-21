@@ -123,5 +123,8 @@
   ],
   "GlobalConfiguration": {
     "BaseUrl": "http://localhost:5010"
+  },
+  "IdentityProviderSettings": {
+    "IdentityServiceUrl": "https://localhost:44318"
   }
 }

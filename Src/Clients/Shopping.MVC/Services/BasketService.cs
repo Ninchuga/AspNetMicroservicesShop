@@ -33,9 +33,6 @@ namespace Shopping.MVC.Services
         {
             _httpClient.SetBearerToken(await GetAccessToken());
 
-            //var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
-            //_httpClient.SetBearerToken(accessToken);
-            //var responseMessage = await _httpClient.GetAsync($"/api/v1/Basket/{userId}");
             var responseMessage = await _httpClient.GetAsync($"api/{userId}"); // call from api gateway
 
             if (responseMessage.IsSuccessStatusCode)
@@ -53,7 +50,6 @@ namespace Shopping.MVC.Services
 
         public async Task AddItemToBasket(CatalogItem catalogItem)
         {
-            //var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
             // extract User Id from 'sub' (subject) claim
             var userId =
                     Guid.Parse(
@@ -79,8 +75,7 @@ namespace Shopping.MVC.Services
             var requestContent = new StringContent(JsonSerializer.Serialize(basket), Encoding.UTF8, "application/json");
 
             _httpClient.SetBearerToken(await GetAccessToken());
-            //var response = await _httpClient.PostAsync("/api/v1/Basket", requestContent);
-            var response = await _httpClient.PostAsync("api", requestContent);
+            var response = await _httpClient.PostAsync("api", requestContent); // gateway api uri
             response.EnsureSuccessStatusCode();
         }
 
@@ -90,6 +85,7 @@ namespace Shopping.MVC.Services
 
             return token;
 
+            // Used before API gateway was implemented
             //if (!string.IsNullOrWhiteSpace(_accessToken))
             //    return _accessToken;
 

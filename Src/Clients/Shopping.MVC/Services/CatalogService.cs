@@ -30,7 +30,6 @@ namespace Shopping.MVC.Services
         public async Task<IEnumerable<CatalogItem>> GetCatalog()
         {
             _httpClient.SetBearerToken(await GetAccessToken());
-            //var responseMessage = await _httpClient.GetAsync("api/v1/Catalog");
             var responseMessage = await _httpClient.GetAsync("api"); // route is already configured from HttpClient middleware
 
             if(responseMessage.IsSuccessStatusCode)
@@ -66,35 +65,35 @@ namespace Shopping.MVC.Services
 
         private async Task<string> GetAccessToken()
         {
-            //var token = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+            var token = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
 
-            //return token;
+            return token;
 
-            if (!string.IsNullOrWhiteSpace(_accessToken))
-                return _accessToken;
+            //if (!string.IsNullOrWhiteSpace(_accessToken))
+            //    return _accessToken;
 
-            var discoveryDocumentResponse = await _httpClient.GetDiscoveryDocumentAsync(_configuration["IdentityProviderSettings:IdentityServiceUrl"]);
+            //var discoveryDocumentResponse = await _httpClient.GetDiscoveryDocumentAsync(_configuration["IdentityProviderSettings:IdentityServiceUrl"]);
 
-            if (discoveryDocumentResponse.IsError)
-            {
-                throw new Exception(discoveryDocumentResponse.Error);
-            }
+            //if (discoveryDocumentResponse.IsError)
+            //{
+            //    throw new Exception(discoveryDocumentResponse.Error);
+            //}
 
-            var tokenResponse = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = discoveryDocumentResponse.TokenEndpoint,
-                ClientId = "shopping_web_client", // "shoppingm2m",
-                ClientSecret = "authorizationInteractiveSecret", //"m2msecret",
-                Scope = "catalogapi.read catalogapi.fullaccess" // require multiple scopes
-            });
+            //var tokenResponse = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            //{
+            //    Address = discoveryDocumentResponse.TokenEndpoint,
+            //    ClientId = "shopping_web_client", // "shoppingm2m",
+            //    ClientSecret = "authorizationInteractiveSecret", //"m2msecret",
+            //    Scope = "catalogapi.read catalogapi.fullaccess" // require multiple scopes
+            //});
 
-            if (tokenResponse.IsError)
-            {
-                throw new Exception(tokenResponse.Error);
-            }
+            //if (tokenResponse.IsError)
+            //{
+            //    throw new Exception(tokenResponse.Error);
+            //}
 
-            _accessToken = tokenResponse.AccessToken;
-            return _accessToken;
+            //_accessToken = tokenResponse.AccessToken;
+            //return _accessToken;
         }
     }
 }
