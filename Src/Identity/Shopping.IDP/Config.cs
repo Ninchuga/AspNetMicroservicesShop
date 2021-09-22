@@ -42,6 +42,10 @@ namespace Shopping.IDP
                 new ApiResource("shoppinggateway", "Shopping Gateway")
                 {
                     Scopes = { "shoppinggateway.fullaccess" }
+                },
+                new ApiResource("orderapi", "Order API")
+                {
+                    Scopes = { "orderapi.read", "orderapi.write" }
                 }
             };
 
@@ -55,7 +59,9 @@ namespace Shopping.IDP
                 new ApiScope("basketapi.read", "Basket API Read Operations"),
                 new ApiScope("basketapi.fullaccess", "Basket API Full Access"),
                 new ApiScope("discount.fullaccess", "Discount API Full Access"),
-                new ApiScope("shoppinggateway.fullaccess", "Shopping Gateway Full Access")
+                new ApiScope("shoppinggateway.fullaccess", "Shopping Gateway Full Access"),
+                new ApiScope("orderapi.read", "Order API Read Operations"),
+                new ApiScope("orderapi.write", "Order API Write Operations")
                 
             };
 
@@ -98,6 +104,8 @@ namespace Shopping.IDP
                     ClientName = "Shopping Web App Client",
                     ClientId = "shopping_web_client",
                     AllowedGrantTypes = GrantTypes.CodeAndClientCredentials, 
+                    AllowOfflineAccess = true, // we are allowing the client to use refresh token
+                    AccessTokenLifetime = 60, // never use it less than 5 minutes in production, these 60 seconds are just for the dev purpose
                     RedirectUris = new List<string>()
                     {
                         // host address of our web application (MVC client)
@@ -115,8 +123,8 @@ namespace Shopping.IDP
                         IdentityServerConstants.StandardScopes.Address,
                         "roles",
                         // "catalogapi.fullaccess", // disallow to request this scope because api gateway will request it through token exchange
-                        "basketapi.fullaccess",
-                        "shoppinggateway.fullaccess"
+                        // "basketapi.fullaccess",
+                        "shoppinggateway.fullaccess",
                     },
                     ClientSecrets =
                     {
@@ -135,7 +143,8 @@ namespace Shopping.IDP
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "discount.fullaccess"
+                        "discount.fullaccess",
+                        "orderapi.write"
                     }
                 },
                 new Client
@@ -149,7 +158,8 @@ namespace Shopping.IDP
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         "catalogapi.fullaccess",
-                        "basketapi.fullaccess"
+                        "basketapi.fullaccess",
+                        "orderapi.read"
                     }
                 }
             };

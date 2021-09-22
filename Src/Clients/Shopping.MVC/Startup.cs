@@ -39,12 +39,16 @@ namespace Shopping.MVC
             services.AddRazorPages(options => 
             {
                 options.Conventions.AuthorizePage("/Catalog");
+                options.Conventions.AuthorizePage("/Basket/GetBasket");
                 options.Conventions.AuthorizePage("/OrderItem", "PremiumUserRolePolicy");
             });
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("PremiumUserRolePolicy", policy => policy.RequireRole("PremiumUser"));
             });
+
+            // Used for refresh token
+            services.AddAccessTokenManagement();
 
             // Response Type Values
             // code -> Authorization Code flow
@@ -71,6 +75,7 @@ namespace Shopping.MVC
                 options.ResponseType = "code";
                 options.Scope.Add("roles");
                 options.Scope.Add("shoppinggateway.fullaccess");
+                options.Scope.Add("offline_access"); // scope for refresh token
                 //options.Scope.Add("catalogapi.fullaccess");
                 //options.Scope.Add("basketapi.fullaccess");
                 options.ClaimActions.DeleteClaim("sid");
@@ -89,6 +94,7 @@ namespace Shopping.MVC
 
             services.AddScoped<CatalogService>();
             services.AddScoped<BasketService>();
+            services.AddScoped<OrderService>();
             services.AddTransient<BearerTokenHandler>();
 
             services.AddHttpContextAccessor();
@@ -98,7 +104,8 @@ namespace Shopping.MVC
                 client.BaseAddress = new Uri(Configuration["ApiSettings:Catalog:CatalogGatewayUrl"]);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
-            });
+            })
+            .AddUserAccessTokenHandler(); // used for refresh token flow
             //.AddHttpMessageHandler<BearerTokenHandler>(); // call access token middleware and get/set access token to request message
             //        .AddPolicyHandler(GetRetryPolicy())
             //.AddPolicyHandler(GetCircuitBreakerPolicy());
@@ -108,7 +115,17 @@ namespace Shopping.MVC
                 client.BaseAddress = new Uri(Configuration["ApiSettings:Basket:BasketGatewayUrl"]);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
-            });
+            })
+            .AddUserAccessTokenHandler(); // used for refresh token flow
+            //.AddHttpMessageHandler<BearerTokenHandler>(); // call access token middleware and get/set access token to request message;
+
+            services.AddHttpClient<OrderService>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration["ApiSettings:Order:OrderGatewayUrl"]);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            })
+            .AddUserAccessTokenHandler(); // used for refresh token flow
             //.AddHttpMessageHandler<BearerTokenHandler>(); // call access token middleware and get/set access token to request message;
 
             // Used to get addition UserInfo (e.g. address) from IdentityServer

@@ -1,4 +1,6 @@
-﻿using Basket.API.Helpers;
+﻿using Basket.API.Constants;
+using Basket.API.Factories;
+using Basket.API.Helpers;
 using Basket.API.Services;
 using Discount.Grpc.Protos;
 using Grpc.Core;
@@ -18,34 +20,26 @@ namespace Basket.API.GrpcServices
     public class DiscountGrpcService
     {
         private readonly DiscountProtoService.DiscountProtoServiceClient _discountProtoService;
-        private readonly ITokenService _tokenService;
-        private readonly GrpcChannelHelper _grpcChannelHelper;
-        private readonly IConfiguration _configuration;
+        private readonly ITokenExchangeServiceFactory _tokenExchangeServiceFactory;
 
-        public DiscountGrpcService(DiscountProtoService.DiscountProtoServiceClient discountProtoService, GrpcChannelHelper grpcChannelHelper, IConfiguration configuration, ITokenService tokenService)
+        public DiscountGrpcService(DiscountProtoService.DiscountProtoServiceClient discountProtoService, ITokenExchangeServiceFactory tokenExchangeServiceFactory)
         {
             _discountProtoService = discountProtoService;
-            _grpcChannelHelper = grpcChannelHelper;
-            _configuration = configuration;
-            _tokenService = tokenService;
+            _tokenExchangeServiceFactory = tokenExchangeServiceFactory;
         }
 
         public async Task<CouponModel> GetDiscount(string productName)
         {
             var discountRequest = new GetDiscountRequest { ProductName = productName };
 
-            //var channel = await _grpcChannelHelper.CreateAuthorizedChannel(_configuration["GrpcSettings:DiscountUrl"]);
-            //var client = new DiscountProtoService.DiscountProtoServiceClient(channel);
-            //return await client.GetDiscountAsync(discountRequest);
-
             var headers = new Metadata();
-            var token = await _tokenService.GetAccessTokenForDownstreamServices();
+            var tokenExchangeService = _tokenExchangeServiceFactory.GetTokenExchangeServiceInstance(DownstreamServices.DiscountApi);
+            var token = await tokenExchangeService.GetAccessTokenForDownstreamService();
             headers.Add("Authorization", $"Bearer {token}");
 
             // In the .NET gRPC client, the token can be sent with calls by using the Metadata collection.\
             // Entries in the Metadata collection are sent with a gRPC call as HTTP headers:
             return await _discountProtoService.GetDiscountAsync(discountRequest, headers);
-            //return await _discountProtoService.GetDiscountAsync(discountRequest);
         }
     }
 }

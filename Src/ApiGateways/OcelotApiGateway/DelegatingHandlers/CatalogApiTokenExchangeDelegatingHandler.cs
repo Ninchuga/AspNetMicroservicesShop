@@ -1,4 +1,5 @@
-﻿using IdentityModel.Client;
+﻿using IdentityModel.AspNetCore.AccessTokenManagement;
+using IdentityModel.Client;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,31 @@ namespace OcelotApiGateway.DelegatingHandlers
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+        private readonly IClientAccessTokenCache _clientAccessTokenCache;
 
-
-        public CatalogApiTokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public CatalogApiTokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration, IClientAccessTokenCache clientAccessTokenCache)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+            _clientAccessTokenCache = clientAccessTokenCache;
+        }
+
+        // Return non expired access token from the cache
+        // If it doesn't exist call IndetityService for another one
+        public async Task<string> GetAccessToken(string incomingToken)
+        {
+            // GetAsync() will only return access token if it's not expired
+            var item = await _clientAccessTokenCache.GetAsync("gatewaytodownstreamtokenexchangeclient_catalogapi"); // prepend audience name of the downstream service to the ClientId
+            if(item != null)
+            {
+                return item.AccessToken;
+            }
+
+            var (accessToken, expiresIn) = await ExchangeToken(incomingToken);
+
+            await _clientAccessTokenCache.SetAsync("gatewaytodownstreamtokenexchangeclient_catalogapi", accessToken, expiresIn);
+
+            return accessToken;
         }
 
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -27,16 +47,20 @@ namespace OcelotApiGateway.DelegatingHandlers
             // extract the current token
             var incomingToken = request.Headers.Authorization.Parameter;
 
+            var accessToken = await GetAccessToken(incomingToken);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
             // exchange it
-            var newToken = await ExchangeToken(incomingToken, request.RequestUri);
+            //var (accessToken, expiresIn) = await ExchangeToken(incomingToken);
 
             // replace incoming bearer token with our new one
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newToken);
+            // request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             return await base.SendAsync(request, cancellationToken);
         }
 
-        private async Task<string> ExchangeToken(string incomingToken, Uri uri)
+        private async Task<(string, int)> ExchangeToken(string incomingToken)
         {
             var httpClient = _httpClientFactory.CreateClient();
 
@@ -69,8 +93,7 @@ namespace OcelotApiGateway.DelegatingHandlers
                 throw new Exception(tokenResponse.Error);
             }
 
-            var accessToken = tokenResponse.AccessToken;
-            return accessToken;
+            return (tokenResponse.AccessToken, tokenResponse.ExpiresIn);
         }
     }
 }

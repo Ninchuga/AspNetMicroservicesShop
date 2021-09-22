@@ -1,4 +1,5 @@
 {
+  // These routes are used for Docker containers
   "Routes": [
     //Catalog API
     {
@@ -12,7 +13,12 @@
       ],
       "UpstreamPathTemplate": "/Catalog/api",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
-      "FileCacheOptions": { "TtlSeconds": 30 }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "catalogapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "FileCacheOptions": { "TtlSeconds": 30 },
+      "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ]
     },
     {
       "DownstreamPathTemplate": "/api/v1/Catalog/{id}",
@@ -24,7 +30,12 @@
         }
       ],
       "UpstreamPathTemplate": "/Catalog/api/{id}",
-      "UpstreamHttpMethod": [ "GET", "DELETE" ]
+      "UpstreamHttpMethod": [ "GET", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "catalogapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ]
     },
     {
       "DownstreamPathTemplate": "/api/v1/Catalog/GetProductByCategory/{category}",
@@ -36,7 +47,12 @@
         }
       ],
       "UpstreamPathTemplate": "/Catalog/api/GetProductByCategory/{category}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "catalogapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ]
     },
     //Basket API
     {
@@ -49,10 +65,63 @@
         }
       ],
       "UpstreamPathTemplate": "/Basket/api/{userId}",
-      "UpstreamHttpMethod": [ "GET", "DELETE" ]
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": { // authenticatiin key that Ocelot takes when firing a request to a route. If there is no key associated Ocelot will not start up
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ]
+      // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
+      //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
+      //  "CurrentUser": "Claims[sub] > value"
+      //}
     },
     {
-      "DownstreamPathTemplate": "/api/v1/Basket",
+      "DownstreamPathTemplate": "/api/v1/Basket/DeleteBasketItem/{itemId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "basket.api",
+          //"Port": "8001" // for docker api
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Basket/api/DeleteBasketItem/{itemId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": { // authenticatiin key that Ocelot takes when firing a request to a route. If there is no key associated Ocelot will not start up
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ]
+      // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
+      //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
+      //  "CurrentUser": "Claims[sub] > value"
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/Basket/Delete/{userId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "basket.api",
+          //"Port": "8001" // for docker api
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Basket/api/Delete/{userId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": { // authenticatiin key that Ocelot takes when firing a request to a route. If there is no key associated Ocelot will not start up
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ]
+      // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
+      //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
+      //  "CurrentUser": "Claims[sub] > value"
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/Basket/UpdateBasket",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -60,8 +129,39 @@
           "Port": "80"
         }
       ],
-      "UpstreamPathTemplate": "/Basket/api",
-      "UpstreamHttpMethod": [ "POST" ]
+      "UpstreamPathTemplate": "/Basket/api/UpdateBasket",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ]
+      // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
+      //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
+      //  "CurrentUser": "Claims[sub] > value"
+      //}
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/Basket/AddBasketItem",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "basket.api",
+          //"Port": "8001" // for docker api
+          "Port": "80"
+        }
+      ],
+      "UpstreamPathTemplate": "/Basket/api/AddBasketItem",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ]
+      // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
+      //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
+      //  "CurrentUser": "Claims[sub] > value"
+      //}
     },
     {
       "DownstreamPathTemplate": "/api/v1/Basket/Checkout",
@@ -74,6 +174,15 @@
       ],
       "UpstreamPathTemplate": "/Basket/api/Checkout",
       "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ],
+      // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
+      //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
+      //  "CurrentUser": "Claims[sub] > value"
+      //},
       "RateLimitOptions": {
         "ClientWhitelist": [],
         "EnableRateLimiting": true,
@@ -82,31 +191,33 @@
         "Limit": 1
       }
     },
+    // TODO: Remove Discount API configuration because it will never be accessed through API Gateway directly but from the Basket API
     //Discount API
-    {
-      "DownstreamPathTemplate": "/api/v1/Discount/{productName}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "discount.api",
-          "Port": "80"
-        }
-      ],
-      "UpstreamPathTemplate": "/Discount/api/{productName}",
-      "UpstreamHttpMethod": [ "GET", "DELETE" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/v1/Discount",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "discount.api",
-          "Port": "80"
-        }
-      ],
-      "UpstreamPathTemplate": "/Discount/api",
-      "UpstreamHttpMethod": [ "PUT", "POST" ]
-    },
+    //{
+    //  "DownstreamPathTemplate": "/api/v1/Discount/{productName}",
+    //  "DownstreamScheme": "http",
+    //  "DownstreamHostAndPorts": [
+    //    {
+    //      "Host": "discount.api",
+    //      "Port": "80"
+    //    }
+    //  ],
+    //  "UpstreamPathTemplate": "/Discount/api/{productName}",
+    //  "UpstreamHttpMethod": [ "GET", "DELETE" ]
+    //},
+    //{
+    //  "DownstreamPathTemplate": "/api/v1/Discount",
+    //  "DownstreamScheme": "http",
+    //  "DownstreamHostAndPorts": [
+    //    {
+    //      "Host": "discount.api",
+    //      "Port": "80"
+    //    }
+    //  ],
+    //  "UpstreamPathTemplate": "/Discount/api",
+    //  "UpstreamHttpMethod": [ "PUT", "POST" ]
+    //},
+
     //Order API
     {
       "DownstreamPathTemplate": "/api/v1/Order/{userId}",

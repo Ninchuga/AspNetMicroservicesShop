@@ -30,34 +30,31 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Catalog">Catalog</a>
                         </li>
 
-                        @if (User.IsInRole("PremiumUser"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/OrderItem">Order Item</a>
-                            </li>
-                        }
-
                         @if (User.Identity.IsAuthenticated)
                         {
-                            var userNameClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("name", StringComparison.OrdinalIgnoreCase));
-
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="Identity" asp-page="">Hello @userNameClaim?.Value!</a>
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Basket/UserBasket">Basket</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/UserAddress">Address</a>
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Orders/UserOrders">Orders</a>
+                            </li>
+                        }
+                    </ul>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        var userNameClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("name", StringComparison.OrdinalIgnoreCase));
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="">Hello @userNameClaim?.Value!</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Basket/GetBasket">Basket</a>
-                            </li>
-                            <li class="nav-item">
-                                <form class="form-inline" asp-area="Identity" asp-page="/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                                <form class="form-inline" asp-page="/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
                                     <button type="submit" class="nav-link btn btn-link">Logout</button>
                                 </form>
                             </li>
-                        }
+                        </ul>
+                    }
 
-                    </ul>
                 </div>
             </div>
         </nav>

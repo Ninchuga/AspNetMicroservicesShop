@@ -15,11 +15,11 @@ namespace Ordering.Infrastructure.Repositories
         {
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersByUserName(string userName)
+        public async Task<IEnumerable<Order>> GetOrdersBy(Guid userId)
         {
             var orderList = await _orderContext
                 .Set<Order>()
-                .Where(order => order.UserName == userName)
+                .Where(order => order.UserId == userId)
                 .ToListAsync();
 
             return orderList;

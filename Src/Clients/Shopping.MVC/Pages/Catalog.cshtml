@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{handler?}"
 @model Shopping.MVC.Pages.CatalogModel
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
@@ -40,7 +40,7 @@
         <tbody>
             @foreach (var item in Model.CatalogItems)
             {
-                <form class="form" method="post">
+                <form class="form" method="post" asp-page-handler="addItemToBasket">
                     <tr>
                         <td>
                             @item.Name

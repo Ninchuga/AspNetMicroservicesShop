@@ -8,15 +8,15 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Basket.API.Services
+namespace Basket.API.Services.Tokens
 {
-    public class TokenService : ITokenService
+    public class DiscountTokenService : ITokenExchangeService
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TokenService(HttpClient httpClient,
+        public DiscountTokenService(HttpClient httpClient,
             IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
@@ -24,7 +24,7 @@ namespace Basket.API.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<string> GetAccessTokenForDownstreamServices()
+        public async Task<string> GetAccessTokenForDownstreamService()
         {
             var discoveryDocumentResponse = await _httpClient.GetDiscoveryDocumentAsync(_configuration["IdentityProviderSettings:IdentityServiceUrl"]);
 

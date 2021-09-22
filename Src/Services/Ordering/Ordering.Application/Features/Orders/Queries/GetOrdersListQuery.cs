@@ -13,11 +13,11 @@ namespace Ordering.Application.Features.Orders.Queries
 {
     public class GetOrdersListQuery : IRequest<List<OrderDto>>
     {
-        public string UserName { get; set; }
+        public Guid UserId { get; set; }
 
-        public GetOrdersListQuery(string userName)
+        public GetOrdersListQuery(Guid userId)
         {
-            UserName = userName;
+            UserId = userId;
         }
     }
 
@@ -34,7 +34,7 @@ namespace Ordering.Application.Features.Orders.Queries
 
         public async Task<List<OrderDto>> Handle(GetOrdersListQuery request, CancellationToken cancellationToken)
         {
-            var orders = await _orderRepository.GetOrdersByUserName(request.UserName);
+            var orders = await _orderRepository.GetOrdersBy(request.UserId);
             return _mapper.Map<List<OrderDto>>(orders);
         }
     }

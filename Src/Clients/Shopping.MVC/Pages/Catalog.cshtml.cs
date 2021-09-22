@@ -27,15 +27,13 @@ namespace Shopping.MVC.Pages
         }
 
         // Add selected item to basket
-        public async Task<IActionResult> OnPost(int itemQuantity, string itemId)
+        public async Task<IActionResult> OnPostAddItemToBasket(int itemQuantity, string itemId)
         {
             var catalogItem = await _catalogService.GetCatalogItemBy(itemId);
             catalogItem.Quantity = itemQuantity;
             await _basketService.AddItemToBasket(catalogItem);
 
-            CatalogItems = await _catalogService.GetCatalog();
-
-            return RedirectToPage("/Basket/GetBasket");
+            return RedirectToPage("/Basket/UserBasket");
         }
 
         public async Task<IActionResult> OnGet()

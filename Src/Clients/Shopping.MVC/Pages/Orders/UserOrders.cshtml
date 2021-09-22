@@ -1,0 +1,38 @@
+﻿@page
+@model Shopping.MVC.Pages.Orders.UserOrdersModel
+@{
+}
+
+<h2>Your orders</h2>
+<h4>Here is an overview of your orders.</h4>
+
+<table class="table">
+    <thead>
+        <tr class="columnHeader">
+            <th>FIRST NAME</th>
+            <th>LAST NAME</th>
+            <th>ADDRESS</th>
+            <th>ORDER PLACED</th>
+            <th>TOTAL</th>
+            <th>PAID?</th>
+            <th>EMAIL</th>
+            <th>CARD NUMBER</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var line in Model.Orders)
+        {
+        <tr>
+            @*<td>@line.Id</td>*@
+            <td>@line.FirstName</td>
+            <td>@line.LastName</td>
+            <td class="bold">@line.Address</td>
+            <td>@line.OrderPlaced.ToShortDateString()</td>
+            <td class="bold">$@line.TotalPrice</td>
+            <td class="bold">@line.OrderPaid</td>
+            <td class="bold">@line.Email</td>
+            <td class="bold">@line.CardNumber</td>
+        </tr>
+        }
+    </tbody>
+</table>

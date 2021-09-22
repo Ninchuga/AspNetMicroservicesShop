@@ -23,11 +23,11 @@ namespace Ordering.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("{userName}", Name = "GetOrder")]
+        [HttpGet("{userId}", Name = "GetOrder")]
         [ProducesResponseType(typeof(IEnumerable<OrderDto>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrdersByUserName(string userName)
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrdersFor(Guid userId)
         {
-            var query = new GetOrdersListQuery(userName);
+            var query = new GetOrdersListQuery(userId);
             var orders = await _mediator.Send(query);
             return Ok(orders);
         }

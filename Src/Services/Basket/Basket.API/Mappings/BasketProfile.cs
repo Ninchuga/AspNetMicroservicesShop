@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Basket.API.DTOs;
 using Basket.API.Entities;
 using EventBus.Messages.Events;
 using System;

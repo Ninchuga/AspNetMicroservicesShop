@@ -33,11 +33,6 @@ namespace Basket.API.Repositories
 
         public async Task<ShoppingCart> UpdateBasket(ShoppingCart basket)
         {
-            var existingUserBasket = await GetBasket(basket.UserId);
-
-            if (existingUserBasket != null)
-                basket.Items.AddRange(existingUserBasket.Items);
-
             await _redisCache.SetStringAsync(basket.UserId.ToString(), JsonConvert.SerializeObject(basket));
 
             return await GetBasket(basket.UserId);

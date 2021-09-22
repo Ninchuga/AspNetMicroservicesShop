@@ -9,26 +9,31 @@ using Shopping.MVC.Services;
 
 namespace Shopping.MVC.Pages.Basket
 {
-    public class GetBasketModel : PageModel
+    public class CheckoutModel : PageModel
     {
-        public BasketWithItems UserBasket { get; set; }
-
+        
         private readonly BasketService _basketService;
 
-        public GetBasketModel(BasketService basketService)
+        public CheckoutModel(BasketService basketService)
         {
             _basketService = basketService;
         }
 
-        public async Task<IActionResult> OnGet()
+        [BindProperty]
+        public BasketCheckout BasketCheckout { get; set; }
+
+        public void OnGet()
+        {
+        }
+
+        public async Task<IActionResult> OnPost(BasketCheckout basketCheckout)
         {
             var userIdClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("sub", StringComparison.OrdinalIgnoreCase));
-            UserBasket = await _basketService.GetBasketFor(new Guid(userIdClaim.Value));
+            basketCheckout.UserId = new Guid(userIdClaim.Value);
 
-            var userNameClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("given_name", StringComparison.OrdinalIgnoreCase));
-            UserBasket.UserName = userNameClaim.Value;
+            await _basketService.Checkout(basketCheckout);
 
-            return Page();
+            return RedirectToPage("/Basket/CheckoutComplete");
         }
     }
 }

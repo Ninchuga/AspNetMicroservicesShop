@@ -18,6 +18,9 @@ namespace OcelotApiGateway
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // Used for storing access tokens in the cache in a delegating handlers
+            services.AddAccessTokenManagement();
+
             // clear Microsoft changed claim names from dictionary and preserve original ones
             // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -41,7 +44,8 @@ namespace OcelotApiGateway
 
             services.AddOcelot()
                 .AddDelegatingHandler<CatalogApiTokenExchangeDelegatingHandler>()
-                .AddDelegatingHandler<BasketApiTokenExchangeDelegatingHandler>();
+                .AddDelegatingHandler<BasketApiTokenExchangeDelegatingHandler>()
+                .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>();
                 //.AddCacheManager(settings => settings.WithDictionaryHandle());
         }
 

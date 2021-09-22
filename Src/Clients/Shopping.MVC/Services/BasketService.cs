@@ -20,7 +20,6 @@ namespace Shopping.MVC.Services
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private string _accessToken;
 
         public BasketService(HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
@@ -29,9 +28,32 @@ namespace Shopping.MVC.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
+        public async Task Checkout(BasketCheckout basketCheckout)
+        {
+            BasketWithItems basket = await GetBasketFor(basketCheckout.UserId);
+            basketCheckout.TotalPrice = basket.TotalPrice;
+
+            var requestContent = new StringContent(JsonSerializer.Serialize(basketCheckout), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("api/Checkout", requestContent); // gateway api uri
+            response.EnsureSuccessStatusCode();
+        }
+
+        //public async Task AddItemToBasket(int itemQuantity, string itemId)
+        //{
+        //    var requestContent = new StringContent(JsonSerializer.Serialize(userBasket), Encoding.UTF8, "application/json");
+
+        //    // we don't need this when we are using AddUserAccessTokenHandler() for refresh token flow
+        //    // this handler do all the work for us
+        //    //_httpClient.SetBearerToken(await GetAccessToken());
+        //    var response = await _httpClient.PostAsync("api/AddBasketItem", requestContent); // gateway api uri
+        //    response.EnsureSuccessStatusCode();
+        //}
+
         public async Task<BasketWithItems> GetBasketFor(Guid userId)
         {
-            _httpClient.SetBearerToken(await GetAccessToken());
+            // we don't need this when we are using AddUserAccessTokenHandler() for refresh token flow
+            // this handler do all the work for us
+            //_httpClient.SetBearerToken(await GetAccessToken());
 
             var responseMessage = await _httpClient.GetAsync($"api/{userId}"); // call from api gateway
 
@@ -50,32 +72,44 @@ namespace Shopping.MVC.Services
 
         public async Task AddItemToBasket(CatalogItem catalogItem)
         {
-            // extract User Id from 'sub' (subject) claim
-            var userId =
-                    Guid.Parse(
-                        _httpContextAccessor.HttpContext
-                        .User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value);
-
-            var basket = new BasketWithItems
+            var basketItem = new BasketItem
             {
-                UserId = userId,
-                Items = new List<BasketItem>
-                {
-                    new BasketItem
-                    {
-                        ProductName = catalogItem.Name,
-                        ProductId = catalogItem.Id,
-                        Quantity = catalogItem.Quantity,
-                        Color = "Red",
-                        Price = catalogItem.Price
-                    }
-                }
+                ProductName = catalogItem.Name,
+                ProductId = catalogItem.Id,
+                Quantity = catalogItem.Quantity,
+                Color = "Red",
+                Price = catalogItem.Price * catalogItem.Quantity
             };
 
-            var requestContent = new StringContent(JsonSerializer.Serialize(basket), Encoding.UTF8, "application/json");
+            var requestContent = new StringContent(JsonSerializer.Serialize(basketItem), Encoding.UTF8, "application/json");
 
-            _httpClient.SetBearerToken(await GetAccessToken());
-            var response = await _httpClient.PostAsync("api", requestContent); // gateway api uri
+            // we don't need this when we are using AddUserAccessTokenHandler() for refresh token flow
+            // this handler do all the work for us
+            //_httpClient.SetBearerToken(await GetAccessToken());
+            var response = await _httpClient.PostAsync("api/AddBasketItem", requestContent); // gateway api uri
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<BasketWithItems> DeleteBasketItem(string itemId)
+        {
+            var responseMessage = await _httpClient.DeleteAsync($"api/DeleteBasketItem/{itemId}"); // gateway api uri
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return await responseMessage.ReadContentAs<BasketWithItems>();
+            }
+            else if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+                responseMessage.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                return null;
+            }
+
+            throw new Exception("Unhadled exception occurred while retreiving catalog");
+        }
+
+        public async Task DeleteBasket(Guid userId)
+        {
+            var response = await _httpClient.DeleteAsync($"api/Delete/{userId}"); // gateway api uri
             response.EnsureSuccessStatusCode();
         }
 
