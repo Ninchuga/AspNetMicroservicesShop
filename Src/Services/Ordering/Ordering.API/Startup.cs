@@ -4,20 +4,16 @@ using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Ordering.API.EventBusConsumer;
+using Ordering.API.Helpers;
 using Ordering.Application;
 using Ordering.Infrastructure;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Ordering.API
 {
@@ -43,6 +39,7 @@ namespace Ordering.API
                 options.Audience = "orderapi";
             });
 
+            services.AddHttpClient<ITokenValidationService, TokenValidationService>();
             services.AddScoped<BasketCheckoutConsumer>();
             services.AddAutoMapper(typeof(Startup));
 

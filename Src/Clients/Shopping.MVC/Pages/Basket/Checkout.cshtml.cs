@@ -28,12 +28,12 @@ namespace Shopping.MVC.Pages.Basket
 
         public async Task<IActionResult> OnPost(BasketCheckout basketCheckout)
         {
-            var userIdClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("sub", StringComparison.OrdinalIgnoreCase));
-            basketCheckout.UserId = new Guid(userIdClaim.Value);
+            var userNameClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("preferred_userName", StringComparison.OrdinalIgnoreCase));
+            basketCheckout.UserName = userNameClaim.Value;
 
-            await _basketService.Checkout(basketCheckout);
+            var response = await _basketService.Checkout(basketCheckout);
 
-            return RedirectToPage("/Basket/CheckoutComplete");
+            return response.Success ? RedirectToPage("/Basket/CheckoutComplete") : RedirectToPage("/Error");
         }
     }
 }

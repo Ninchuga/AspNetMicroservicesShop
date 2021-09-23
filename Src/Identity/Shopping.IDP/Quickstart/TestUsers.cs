@@ -35,6 +35,7 @@ namespace IdentityServerHost.Quickstart.UI
                         Claims =
                         {
                             new Claim(JwtClaimTypes.Name, "Alice Smith"),
+                            new Claim(JwtClaimTypes.PreferredUserName, "alice in wonderland"),
                             new Claim(JwtClaimTypes.GivenName, "Alice"),
                             new Claim(JwtClaimTypes.FamilyName, "Smith"),
                             new Claim(JwtClaimTypes.Email, "AliceSmith@email.com"),
@@ -52,6 +53,7 @@ namespace IdentityServerHost.Quickstart.UI
                         Claims =
                         {
                             new Claim(JwtClaimTypes.Name, "Nino Djukic"),
+                            new Claim(JwtClaimTypes.PreferredUserName, "ninchuga"),
                             new Claim(JwtClaimTypes.GivenName, "Ninoslav"),
                             new Claim(JwtClaimTypes.FamilyName, "Djukic"),
                             new Claim(JwtClaimTypes.Email, "ninoslav90@hotmail.com"),

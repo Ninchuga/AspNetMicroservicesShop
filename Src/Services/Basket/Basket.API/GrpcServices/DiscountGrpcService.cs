@@ -1,18 +1,7 @@
 ﻿using Basket.API.Constants;
 using Basket.API.Factories;
-using Basket.API.Helpers;
-using Basket.API.Services;
 using Discount.Grpc.Protos;
 using Grpc.Core;
-using Grpc.Net.Client;
-using IdentityModel.Client;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Basket.API.GrpcServices

@@ -1,13 +1,10 @@
-﻿using IdentityModel.Client;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Shopping.MVC.Extensions;
 using Shopping.MVC.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -16,13 +13,11 @@ namespace Shopping.MVC.Services
     public class CatalogService
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CatalogService(HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public CatalogService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
-            _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
         }
 

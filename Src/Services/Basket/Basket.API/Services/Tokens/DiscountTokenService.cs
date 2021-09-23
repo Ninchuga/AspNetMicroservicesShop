@@ -1,4 +1,5 @@
-﻿using IdentityModel.Client;
+﻿using IdentityModel.AspNetCore.AccessTokenManagement;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -15,17 +16,27 @@ namespace Basket.API.Services.Tokens
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IClientAccessTokenCache _clientAccessTokenCache;
+        private const string DiscountApiAccessTokenCacheKey = "shoppingbasketdownastreamtokenexchangeclient_discountapi";
 
         public DiscountTokenService(HttpClient httpClient,
-            IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+            IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IClientAccessTokenCache clientAccessTokenCache)
         {
             _httpClient = httpClient;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _clientAccessTokenCache = clientAccessTokenCache;
         }
 
         public async Task<string> GetAccessTokenForDownstreamService()
         {
+            // GetAsync() will only return access token if it's not expired
+            var item = await _clientAccessTokenCache.GetAsync(DiscountApiAccessTokenCacheKey); // prepend audience name of the downstream service to the ClientId
+            if (item != null)
+            {
+                return item.AccessToken;
+            }
+
             var discoveryDocumentResponse = await _httpClient.GetDiscoveryDocumentAsync(_configuration["IdentityProviderSettings:IdentityServiceUrl"]);
 
             if (discoveryDocumentResponse.IsError)
@@ -54,8 +65,12 @@ namespace Basket.API.Services.Tokens
                 throw new Exception(tokenResponse.Error);
             }
 
-            var accessToken = tokenResponse.AccessToken;
-            return accessToken;
+            await _clientAccessTokenCache.SetAsync(
+                DiscountApiAccessTokenCacheKey,
+                tokenResponse.AccessToken,
+                tokenResponse.ExpiresIn);
+
+            return tokenResponse.AccessToken;
         }
     }
 }

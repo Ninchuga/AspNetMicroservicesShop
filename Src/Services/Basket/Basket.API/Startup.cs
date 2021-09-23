@@ -2,10 +2,8 @@ using Basket.API.Factories;
 using Basket.API.GrpcServices;
 using Basket.API.Helpers;
 using Basket.API.Repositories;
-using Basket.API.Services;
 using Basket.API.Services.Basket;
 using Discount.Grpc.Protos;
-using Grpc.Core;
 using IdentityServer4.AccessTokenValidation;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
@@ -15,12 +13,10 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Threading.Tasks;
 
 namespace Basket.API
 {
@@ -41,6 +37,7 @@ namespace Basket.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
+            services.AddAccessTokenManagement(); // for token cache
 
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
              .AddJwtBearer(options =>
@@ -57,8 +54,8 @@ namespace Basket.API
 
             services.AddScoped<IBasketRepository, BasketRepository>();
             services.AddScoped<IBasketService, BasketService>();
-            services.AddTransient<DiscountGrpcService>();
-            services.AddTransient<GrpcChannelHelper>();
+            services.AddScoped<DiscountGrpcService>();
+            services.AddTransient<GrpcChannelHelper>(); // not in use currently
             services.AddScoped<ITokenExchangeServiceFactory, TokenExchangeServiceFactory>();
             services.AddAutoMapper(typeof(Startup));
 

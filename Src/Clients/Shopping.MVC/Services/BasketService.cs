@@ -1,13 +1,10 @@
-﻿using IdentityModel.Client;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Shopping.MVC.Extensions;
 using Shopping.MVC.Models;
+using Shopping.MVC.Responses;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -18,36 +15,21 @@ namespace Shopping.MVC.Services
     public class BasketService
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BasketService(HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public BasketService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
-            _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task Checkout(BasketCheckout basketCheckout)
+        public async Task<BasketCheckoutResponse> Checkout(BasketCheckout basketCheckout)
         {
-            BasketWithItems basket = await GetBasketFor(basketCheckout.UserId);
-            basketCheckout.TotalPrice = basket.TotalPrice;
-
             var requestContent = new StringContent(JsonSerializer.Serialize(basketCheckout), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/Checkout", requestContent); // gateway api uri
-            response.EnsureSuccessStatusCode();
+
+            return new BasketCheckoutResponse { Success = response.IsSuccessStatusCode, ErrorMessage = response.ReasonPhrase };
         }
-
-        //public async Task AddItemToBasket(int itemQuantity, string itemId)
-        //{
-        //    var requestContent = new StringContent(JsonSerializer.Serialize(userBasket), Encoding.UTF8, "application/json");
-
-        //    // we don't need this when we are using AddUserAccessTokenHandler() for refresh token flow
-        //    // this handler do all the work for us
-        //    //_httpClient.SetBearerToken(await GetAccessToken());
-        //    var response = await _httpClient.PostAsync("api/AddBasketItem", requestContent); // gateway api uri
-        //    response.EnsureSuccessStatusCode();
-        //}
 
         public async Task<BasketWithItems> GetBasketFor(Guid userId)
         {

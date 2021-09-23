@@ -54,7 +54,7 @@ namespace Basket.API.Services.Basket
 
             var eventMessage = _mapper.Map<BasketCheckoutEvent>(basketCheckout);
             eventMessage.UserId = userId;
-            eventMessage.AccessToken = await tokenExchangeService.GetAccessTokenForDownstreamService();
+            eventMessage.SecurityContext.AccessToken = await tokenExchangeService.GetAccessTokenForDownstreamService();
             eventMessage.TotalPrice = basket.TotalPrice;
             await _publishEndpoint.Publish(eventMessage);
 

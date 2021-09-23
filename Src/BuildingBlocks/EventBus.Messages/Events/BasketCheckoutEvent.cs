@@ -4,8 +4,6 @@ namespace EventBus.Messages.Events
 {
     public class BasketCheckoutEvent : IntegrationBaseEvent
     {
-        public string AccessToken { get; set; }
-
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
@@ -20,7 +18,5 @@ namespace EventBus.Messages.Events
         // Payment
         public string CardName { get; set; }
         public string CardNumber { get; set; }
-        //public string Expiration { get; set; }
-        //public string CVV { get; set; }
     }
 }

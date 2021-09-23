@@ -2,6 +2,11 @@
 
 namespace EventBus.Messages.Events
 {
+    public class SecurityContext
+    {
+        public string AccessToken { get; set; }
+    }
+
     public class IntegrationBaseEvent
     {
         public IntegrationBaseEvent()
@@ -18,5 +23,6 @@ namespace EventBus.Messages.Events
 
         public Guid Id { get; private set; }
         public DateTime CreationDate { get; private set; }
+        public SecurityContext SecurityContext { get; set; } = new SecurityContext();
     }
 }
