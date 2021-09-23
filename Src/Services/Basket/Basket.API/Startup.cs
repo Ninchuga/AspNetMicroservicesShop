@@ -1,6 +1,5 @@
 using Basket.API.Factories;
 using Basket.API.GrpcServices;
-using Basket.API.Helpers;
 using Basket.API.Repositories;
 using Basket.API.Services.Basket;
 using Discount.Grpc.Protos;
@@ -55,7 +54,6 @@ namespace Basket.API
             services.AddScoped<IBasketRepository, BasketRepository>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<DiscountGrpcService>();
-            services.AddTransient<GrpcChannelHelper>(); // not in use currently
             services.AddScoped<ITokenExchangeServiceFactory, TokenExchangeServiceFactory>();
             services.AddAutoMapper(typeof(Startup));
 

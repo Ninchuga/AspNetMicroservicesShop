@@ -15,6 +15,13 @@ namespace Ordering.Infrastructure.Repositories
         {
         }
 
+        public async Task<Order> GetOrderBy(Guid orderId)
+        {
+            return await _orderContext
+               .Set<Order>()
+               .FirstOrDefaultAsync(order => order.Id == orderId);
+        }
+
         public async Task<IEnumerable<Order>> GetOrdersBy(Guid userId)
         {
             var orderList = await _orderContext

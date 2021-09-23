@@ -1,12 +1,9 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Exceptions;
 using Ordering.Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +11,7 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class DeleteOrderCommand : IRequest
     {
-        public int Id { get; set; }
+        public Guid OrderId { get; set; }
     }
 
     public class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderCommand>
@@ -30,10 +27,10 @@ namespace Ordering.Application.Features.Orders.Commands
 
         public async Task<Unit> Handle(DeleteOrderCommand request, CancellationToken cancellationToken)
         {
-            var orderToDelete = await _orderRepository.GetByIdAsync(request.Id);
+            var orderToDelete = await _orderRepository.GetOrderBy(request.OrderId);
             if (orderToDelete == null)
             {
-                throw new NotFoundException(nameof(Order), request.Id);
+                throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
             await _orderRepository.DeleteAsync(orderToDelete);

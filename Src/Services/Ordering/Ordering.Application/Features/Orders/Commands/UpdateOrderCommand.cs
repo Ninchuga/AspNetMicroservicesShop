@@ -14,7 +14,7 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class UpdateOrderCommand : IRequest
     {
-        public int Id { get; set; }
+        public Guid OrderId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
 
@@ -30,9 +30,6 @@ namespace Ordering.Application.Features.Orders.Commands
         // Payment
         public string CardName { get; set; }
         public string CardNumber { get; set; }
-        public string Expiration { get; set; }
-        public string CVV { get; set; }
-        public int PaymentMethod { get; set; }
     }
 
     public class UpdateOrderCommandHandler : IRequestHandler<UpdateOrderCommand>
@@ -50,10 +47,10 @@ namespace Ordering.Application.Features.Orders.Commands
 
         public async Task<Unit> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
         {
-            var orderToUpdate = await _orderRepository.GetByIdAsync(request.Id);
+            var orderToUpdate = await _orderRepository.GetOrderBy(request.OrderId);
             if (orderToUpdate == null)
             {
-                throw new NotFoundException(nameof(Order), request.Id);
+                throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
             _mapper.Map(request, orderToUpdate, typeof(UpdateOrderCommand), typeof(Order));

@@ -28,21 +28,6 @@ namespace Ordering.Infrastructure.Persistence
 
         public async Task<int> SaveChanges(CancellationToken cancellationToken = default)
         {
-            foreach (var entry in ChangeTracker.Entries<EntityBase>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.Entity.CreatedDate = DateTime.Now;
-                        entry.Entity.CreatedBy = "swn";
-                        break;
-                    case EntityState.Modified:
-                        entry.Entity.LastModifiedDate = DateTime.Now;
-                        entry.Entity.LastModifiedBy = "swn";
-                        break;
-                }
-            }
-
             return await base.SaveChangesAsync(cancellationToken);
         }
 

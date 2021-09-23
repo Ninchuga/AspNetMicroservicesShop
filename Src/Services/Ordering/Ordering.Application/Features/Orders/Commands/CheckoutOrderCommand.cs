@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Ordering.Application.Features.Orders.Commands
 {
-    public class CheckoutOrderCommand : IRequest<int>
+    public class CheckoutOrderCommand : IRequest
     {
         public Guid UserId { get; set; }
         public string UserName { get; set; }
@@ -29,11 +29,9 @@ namespace Ordering.Application.Features.Orders.Commands
         // Payment
         public string CardName { get; set; }
         public string CardNumber { get; set; }
-        //public string Expiration { get; set; }
-        //public string CVV { get; set; }
     }
 
-    public class CheckoutOrderCommandHandler : IRequestHandler<CheckoutOrderCommand, int>
+    public class CheckoutOrderCommandHandler : IRequestHandler<CheckoutOrderCommand>
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IMapper _mapper;
@@ -48,9 +46,10 @@ namespace Ordering.Application.Features.Orders.Commands
             _logger = logger;
         }
 
-        public async Task<int> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
         {
             var orderEntity = _mapper.Map<Order>(request);
+            orderEntity.Id = Guid.NewGuid();
             orderEntity.OrderPaid = false;
             orderEntity.OrderPlaced = DateTime.UtcNow;
             var newOrder = await _orderRepository.AddAsync(orderEntity);
@@ -59,7 +58,7 @@ namespace Ordering.Application.Features.Orders.Commands
 
             //await SendMail(newOrder);
 
-            return newOrder.Id;
+            return Unit.Value;
         }
 
         private async Task SendMail(Order order)
