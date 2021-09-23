@@ -40,8 +40,6 @@ namespace OcelotApiGateway
 
             services.AddHttpClient();
 
-            services.AddScoped<CatalogApiTokenExchangeDelegatingHandler>();
-
             services.AddOcelot()
                 .AddDelegatingHandler<CatalogApiTokenExchangeDelegatingHandler>()
                 .AddDelegatingHandler<BasketApiTokenExchangeDelegatingHandler>()

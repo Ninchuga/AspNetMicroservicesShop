@@ -1,21 +1,16 @@
-using IdentityServer4.AccessTokenValidation;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shopping.Aggregator.Contracts;
+using Shopping.Aggregator.DelegatingHandlers;
 using Shopping.Aggregator.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Shopping.Aggregator
 {
@@ -24,6 +19,10 @@ namespace Shopping.Aggregator
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            // clear Microsoft changed claim names from dictionary and preserve original ones
+            // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         }
 
         public IConfiguration Configuration { get; }
@@ -31,44 +30,33 @@ namespace Shopping.Aggregator
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //var identityAuthorityUrl = "https://localhost:5020";
-            //services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-            //.AddIdentityServerAuthentication(options =>
-            //{
-            //    // base-address of your identityserver
-            //    options.Authority = identityAuthorityUrl;
-            //    // name of the API resource
-            //    options.ApiName = "identity-server-demo-api";
-            //});
+            // Used for storing access tokens in the cache in a delegating handlers
+            services.AddAccessTokenManagement();
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            })
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
-            {
-                options.Authority = "https://localhost:5020";
+            services.AddHttpContextAccessor();
 
-                options.ClientId = "shopping_web";
-                options.ClientSecret = "49C1A7E1-0C79-4A89-A3D6-A37998FB86B0";
-                options.ResponseType = "code";
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+             .AddJwtBearer(options =>
+             {
+                 options.Authority = "https://localhost:44318";
+                 options.Audience = "shoppingaggregator";
+             });
 
-                options.Scope.Add("openid");
-                options.Scope.Add("profile");
-                options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
-            });
+            services.AddTransient<CatalogApiTokenExchangeDelegatingHandler>();
+            services.AddTransient<BasketApiTokenExchangeDelegatingHandler>();
+            services.AddTransient<OrderApiTokenExchangeDelegatingHandler>();
 
-            services.AddHttpClient<ICatalogService, CatalogService>(client =>
-                client.BaseAddress = new Uri(Configuration["ApiSettings:CatalogUrl"]));
+            services.AddHttpClient<ICatalogService, CatalogService>()
+                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:CatalogUrl"]))
+                .AddHttpMessageHandler<CatalogApiTokenExchangeDelegatingHandler>();
 
-            services.AddHttpClient<IBasketService, BasketService>(client =>
-                client.BaseAddress = new Uri(Configuration["ApiSettings:BasketUrl"]));
+            services.AddHttpClient<IBasketService, BasketService>()
+                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:BasketUrl"]))
+                .AddHttpMessageHandler<BasketApiTokenExchangeDelegatingHandler>();
 
-            services.AddHttpClient<IOrderService, OrderService>(client =>
-                client.BaseAddress = new Uri(Configuration["ApiSettings:OrderingUrl"]));
+            services.AddHttpClient<IOrderService, OrderService>()
+                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:OrderingUrl"]))
+                .AddHttpMessageHandler<OrderApiTokenExchangeDelegatingHandler>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -103,8 +91,6 @@ namespace Shopping.Aggregator
                         new List<string>()
                     }
                 });
-
-                //c.OperationFilter<SecurityRequirementsOperationFilter>();
             });
         }
 
@@ -120,8 +106,8 @@ namespace Shopping.Aggregator
 
             app.UseRouting();
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

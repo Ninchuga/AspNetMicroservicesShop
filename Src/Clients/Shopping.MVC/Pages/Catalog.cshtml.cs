@@ -19,14 +19,12 @@ namespace Shopping.MVC.Pages
 
         public IEnumerable<CatalogItem> CatalogItems { get; set; } = new List<CatalogItem>();
 
-
         public CatalogModel(CatalogService catalogService, BasketService basketService)
         {
             _catalogService = catalogService;
             _basketService = basketService;
         }
 
-        // Add selected item to basket
         public async Task<IActionResult> OnPostAddItemToBasket(int itemQuantity, string itemId)
         {
             var catalogItem = await _catalogService.GetCatalogItemBy(itemId);

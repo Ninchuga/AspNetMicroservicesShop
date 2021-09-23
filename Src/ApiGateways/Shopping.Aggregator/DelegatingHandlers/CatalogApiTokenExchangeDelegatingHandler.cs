@@ -1,5 +1,7 @@
 ﻿using IdentityModel.AspNetCore.AccessTokenManagement;
 using IdentityModel.Client;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -9,20 +11,23 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OcelotApiGateway.DelegatingHandlers
+namespace Shopping.Aggregator.DelegatingHandlers
 {
-    public class BasketApiTokenExchangeDelegatingHandler : DelegatingHandler
+    public class CatalogApiTokenExchangeDelegatingHandler : DelegatingHandler
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IClientAccessTokenCache _clientAccessTokenCache;
-        private const string BasketApiTokenExchangeCacheKey = "gatewayandaggregatortodownstreamtokenexchangeclient_basketapi";
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private const string CatalogApiTokenExchangeCacheKey = "gatewayandaggregatortodownstreamtokenexchangeclient_catalogapi";
 
-        public BasketApiTokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration, IClientAccessTokenCache clientAccessTokenCache)
+        public CatalogApiTokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration, 
+            IClientAccessTokenCache clientAccessTokenCache, IHttpContextAccessor httpContextAccessor)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _clientAccessTokenCache = clientAccessTokenCache;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // Return non expired access token from the cache
@@ -30,15 +35,15 @@ namespace OcelotApiGateway.DelegatingHandlers
         public async Task<string> GetAccessToken(string incomingToken)
         {
             // GetAsync() will only return access token if it's not expired
-            var item = await _clientAccessTokenCache.GetAsync(BasketApiTokenExchangeCacheKey); // prepend audience name of the downstream service to the ClientId
-            if (item != null)
+            var item = await _clientAccessTokenCache.GetAsync(CatalogApiTokenExchangeCacheKey); // prepend audience name of the downstream service to the ClientId
+            if(item != null)
             {
                 return item.AccessToken;
             }
 
             var (accessToken, expiresIn) = await ExchangeToken(incomingToken);
 
-            await _clientAccessTokenCache.SetAsync(BasketApiTokenExchangeCacheKey, accessToken, expiresIn);
+            await _clientAccessTokenCache.SetAsync(CatalogApiTokenExchangeCacheKey, accessToken, expiresIn);
 
             return accessToken;
         }
@@ -46,17 +51,18 @@ namespace OcelotApiGateway.DelegatingHandlers
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // extract the current token
-            var incomingToken = request.Headers.Authorization.Parameter;
+            //var incomingToken = request.Headers.Authorization.Parameter;
+            var incomingToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
             var accessToken = await GetAccessToken(incomingToken);
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             // exchange it
-            //var newToken = await ExchangeToken(incomingToken);
+            //var (accessToken, expiresIn) = await ExchangeToken(incomingToken);
 
             // replace incoming bearer token with our new one
-            //request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newToken);
+            // request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             return await base.SendAsync(request, cancellationToken);
         }
@@ -72,12 +78,12 @@ namespace OcelotApiGateway.DelegatingHandlers
             {
                 throw new Exception(discoveryDocumentResponse.Error);
             }
-
+            
             var customParams = new Dictionary<string, string>
             {
                 { "subject_token_type", "urn:ietf:params:oauth:token-type:access_token" },
                 { "subject_token", incomingToken }, // subject_token is an access token passed from the Client App (MVC)
-                { "scope", "openid profile basketapi.fullaccess" }
+                { "scope", "openid profile catalogapi.fullaccess" }
             };
 
             var tokenResponse = await httpClient.RequestTokenAsync(new TokenRequest

@@ -18,9 +18,9 @@ namespace Shopping.Aggregator.Services
             _httpClient = httpClient;
         }
 
-        public async Task<BasketModel> GetBasket(string userName)
+        public async Task<BasketModel> GetBasket(Guid userId)
         {
-            var responseMessage = await _httpClient.GetAsync($"/api/v1/Basket/{userName}");
+            var responseMessage = await _httpClient.GetAsync($"/api/v1/Basket/{userId}");
             return await responseMessage.ReadContentAs<BasketModel>();
         }
     }

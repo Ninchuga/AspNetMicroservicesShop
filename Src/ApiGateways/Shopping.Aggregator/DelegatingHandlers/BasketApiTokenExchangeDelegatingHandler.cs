@@ -1,5 +1,7 @@
 ﻿using IdentityModel.AspNetCore.AccessTokenManagement;
 using IdentityModel.Client;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -9,20 +11,23 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OcelotApiGateway.DelegatingHandlers
+namespace Shopping.Aggregator.DelegatingHandlers
 {
     public class BasketApiTokenExchangeDelegatingHandler : DelegatingHandler
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IClientAccessTokenCache _clientAccessTokenCache;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private const string BasketApiTokenExchangeCacheKey = "gatewayandaggregatortodownstreamtokenexchangeclient_basketapi";
 
-        public BasketApiTokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration, IClientAccessTokenCache clientAccessTokenCache)
+        public BasketApiTokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration, 
+            IClientAccessTokenCache clientAccessTokenCache, IHttpContextAccessor httpContextAccessor)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _clientAccessTokenCache = clientAccessTokenCache;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // Return non expired access token from the cache
@@ -46,7 +51,8 @@ namespace OcelotApiGateway.DelegatingHandlers
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // extract the current token
-            var incomingToken = request.Headers.Authorization.Parameter;
+            //var incomingToken = request.Headers.Authorization.Parameter;
+            var incomingToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
             var accessToken = await GetAccessToken(incomingToken);
 

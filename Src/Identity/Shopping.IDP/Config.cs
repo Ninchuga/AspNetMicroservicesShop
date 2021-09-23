@@ -46,6 +46,10 @@ namespace Shopping.IDP
                 new ApiResource("orderapi", "Order API")
                 {
                     Scopes = { "orderapi.read", "orderapi.write" }
+                },
+                new ApiResource("shoppingaggregator", "Shopping Aggregator")
+                {
+                    Scopes = { "shoppingaggregator.fullaccess" }
                 }
             };
 
@@ -61,8 +65,8 @@ namespace Shopping.IDP
                 new ApiScope("discount.fullaccess", "Discount API Full Access"),
                 new ApiScope("shoppinggateway.fullaccess", "Shopping Gateway Full Access"),
                 new ApiScope("orderapi.read", "Order API Read Operations"),
-                new ApiScope("orderapi.write", "Order API Write Operations")
-                
+                new ApiScope("orderapi.write", "Order API Write Operations"),
+                new ApiScope("shoppingaggregator.fullaccess", "Shopping Aggregator Full Access")
             };
 
         // This is defined in Client applications (e.g. MVC client app)
@@ -105,7 +109,7 @@ namespace Shopping.IDP
                     ClientId = "shopping_web_client",
                     AllowedGrantTypes = GrantTypes.CodeAndClientCredentials, 
                     AllowOfflineAccess = true, // we are allowing the client to use refresh token
-                    AccessTokenLifetime = 60, // never use it less than 5 minutes in production, these 60 seconds are just for the dev purpose
+                    //AccessTokenLifetime = 60, // never use it less than 5 minutes in production, these 60 seconds are just for the dev purpose
                     RedirectUris = new List<string>()
                     {
                         // host address of our web application (MVC client)
@@ -125,6 +129,7 @@ namespace Shopping.IDP
                         // "catalogapi.fullaccess", // disallow to request this scope because api gateway will request it through token exchange
                         // "basketapi.fullaccess",
                         "shoppinggateway.fullaccess",
+                        "shoppingaggregator.fullaccess"
                     },
                     ClientSecrets =
                     {
@@ -149,8 +154,8 @@ namespace Shopping.IDP
                 },
                 new Client
                 {
-                    ClientId = "gatewaytodownstreamtokenexchangeclient",
-                    ClientName = "Gateway To Downstream Token Exchange Client",
+                    ClientId = "gatewayandaggregatortodownstreamtokenexchangeclient",
+                    ClientName = "Gateway And Aggregator To Downstream Token Exchange Client",
                     AllowedGrantTypes = new[] { "urn:ietf:params:oauth:grant-type:token-exchange" },
                     ClientSecrets = { new Secret("379a2304-28d6-486e-bec4-862f4bb0bf88".Sha256()) },
                     AllowedScopes =

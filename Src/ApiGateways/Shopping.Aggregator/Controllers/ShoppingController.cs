@@ -25,18 +25,19 @@ namespace Shopping.Aggregator.Controllers
             _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
         }
 
-        [HttpGet("{userName}", Name = "GetShopping")]
         [Authorize]
+        [HttpGet]
+        [Route("[action]/{userId}")]
         [ProducesResponseType(typeof(ShoppingModel), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ShoppingModel>> GetShopping(string userName)
+        public async Task<ActionResult<ShoppingModel>> GetUserShoppingDetails(Guid userId)
         {
-            // get basket with username
+            // get basket with userId
             // iterate basket items and consume products with basket item productId member
             // map product related members into basketitem dto with extended columns
             // consume ordering microservices in order to retrieve order list
             // return root ShoppngModel dto class which including all responses
 
-            var basket = await _basketService.GetBasket(userName);
+            var basket = await _basketService.GetBasket(userId);
 
             foreach (var item in basket.Items)
             {
@@ -50,11 +51,11 @@ namespace Shopping.Aggregator.Controllers
                 item.ImageFile = product.ImageFile;
             }
 
-            var orders = await _orderService.GetOrdersByUserName(userName);
+            var orders = await _orderService.GetOrdersBy(userId);
 
             var shoppingModel = new ShoppingModel
             {
-                UserName = userName,
+                //UserName = userName,
                 BasketWithProducts = basket,
                 Orders = orders
             };

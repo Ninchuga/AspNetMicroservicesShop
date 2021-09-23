@@ -75,6 +75,7 @@ namespace Shopping.MVC
                 options.ResponseType = "code";
                 options.Scope.Add("roles");
                 options.Scope.Add("shoppinggateway.fullaccess");
+                options.Scope.Add("shoppingaggregator.fullaccess");
                 options.Scope.Add("offline_access"); // scope for refresh token
                 //options.Scope.Add("catalogapi.fullaccess");
                 //options.Scope.Add("basketapi.fullaccess");
@@ -93,10 +94,11 @@ namespace Shopping.MVC
                 };
             });
 
-            services.AddScoped<CatalogService>();
-            services.AddScoped<BasketService>();
-            services.AddScoped<OrderService>();
-            services.AddTransient<BearerTokenHandler>();
+            //services.AddScoped<CatalogService>();
+            //services.AddScoped<BasketService>();
+            //services.AddScoped<OrderService>();
+            //services.AddScoped<ShoppingService>();
+            //services.AddTransient<BearerTokenHandler>();
 
             services.AddHttpContextAccessor();
 
@@ -123,6 +125,15 @@ namespace Shopping.MVC
             services.AddHttpClient<OrderService>(client =>
             {
                 client.BaseAddress = new Uri(Configuration["ApiSettings:Order:OrderGatewayUrl"]);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            })
+            .AddUserAccessTokenHandler(); // used for refresh token flow
+            //.AddHttpMessageHandler<BearerTokenHandler>(); // call access token middleware and get/set access token to request message;
+
+            services.AddHttpClient<ShoppingService>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration["ApiSettings:Aggreagtors:ShoppingAggregatorUrl"]);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             })

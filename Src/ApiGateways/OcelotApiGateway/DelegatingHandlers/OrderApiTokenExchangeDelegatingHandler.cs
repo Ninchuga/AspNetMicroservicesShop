@@ -16,6 +16,7 @@ namespace OcelotApiGateway.DelegatingHandlers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IClientAccessTokenCache _clientAccessTokenCache;
+        private const string OrderApiTokenExchangeCacheKey = "gatewayandaggregatortodownstreamtokenexchangeclient_orderapi";
 
         public OrderApiTokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration, IClientAccessTokenCache clientAccessTokenCache)
         {
@@ -29,7 +30,7 @@ namespace OcelotApiGateway.DelegatingHandlers
         public async Task<string> GetAccessToken(string incomingToken)
         {
             // GetAsync() will only return access token if it's not expired
-            var item = await _clientAccessTokenCache.GetAsync("gatewaytodownstreamtokenexchangeclient_orderapi"); // prepend audience name of the downstream service to the ClientId
+            var item = await _clientAccessTokenCache.GetAsync(OrderApiTokenExchangeCacheKey); // prepend audience name of the downstream service to the ClientId
             if (item != null)
             {
                 return item.AccessToken;
@@ -37,7 +38,7 @@ namespace OcelotApiGateway.DelegatingHandlers
 
             var (accessToken, expiresIn) = await ExchangeToken(incomingToken);
 
-            await _clientAccessTokenCache.SetAsync("gatewaytodownstreamtokenexchangeclient_orderapi", accessToken, expiresIn);
+            await _clientAccessTokenCache.SetAsync(OrderApiTokenExchangeCacheKey, accessToken, expiresIn);
 
             return accessToken;
         }
@@ -84,7 +85,7 @@ namespace OcelotApiGateway.DelegatingHandlers
                 Address = discoveryDocumentResponse.TokenEndpoint,
                 GrantType = "urn:ietf:params:oauth:grant-type:token-exchange", // token exchange grant type
                 Parameters = new Parameters(customParams),
-                ClientId = "gatewaytodownstreamtokenexchangeclient",
+                ClientId = "gatewayandaggregatortodownstreamtokenexchangeclient",
                 ClientSecret = "379a2304-28d6-486e-bec4-862f4bb0bf88",
             });
 

@@ -8,6 +8,6 @@ namespace Shopping.Aggregator.Contracts
 {
     public interface IOrderService
     {
-        Task<IEnumerable<OrderResponseModel>> GetOrdersByUserName(string userName);
+        Task<IEnumerable<OrderResponseModel>> GetOrdersBy(Guid userId);
     }
 }

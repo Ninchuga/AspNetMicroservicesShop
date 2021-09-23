@@ -1,10 +1,11 @@
 ﻿using Shopping.Aggregator.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace Shopping.Aggregator.Contracts
 {
     public interface IBasketService
     {
-        Task<BasketModel> GetBasket(string userName);
+        Task<BasketModel> GetBasket(Guid userId);
     }
 }
