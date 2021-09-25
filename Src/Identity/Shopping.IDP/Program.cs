@@ -42,7 +42,7 @@ namespace Shopping.IDP
             try
             {
                 Log.Information("Starting host...");
-                //CreateHostBuilder(args).Build().Run();
+                
                 CreateHostBuilder(args)
                 .Build()
                 .MigrateDatabase<PersistedGrantDbContext>((context, service) =>
