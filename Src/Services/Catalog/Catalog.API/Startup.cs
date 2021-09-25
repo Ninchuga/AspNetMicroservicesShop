@@ -39,7 +39,7 @@ namespace Catalog.API
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.Authority = "https://localhost:44318";
+                options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                 options.Audience = "catalogapi";
             });
 

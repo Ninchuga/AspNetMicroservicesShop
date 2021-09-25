@@ -69,7 +69,7 @@ namespace Shopping.MVC
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // this ensures that valid authentication will be stored in cookie
-                options.Authority = "https://localhost:44318";
+                options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                 options.ClientId = "shopping_web_client";
                 options.ClientSecret = "authorizationInteractiveSecret";
                 options.ResponseType = "code";

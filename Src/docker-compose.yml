@@ -13,6 +13,9 @@ services:
   orderdb:
     image: mcr.microsoft.com/mssql/server:2017-latest
 
+  identitydb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
 
@@ -64,9 +67,16 @@ services:
       context: .
       dockerfile: ApiGateways/Shopping.Aggregator/Dockerfile
 
+  shopping.idp:
+    image: ${DOCKER_REGISTRY-}shoppingidp
+    build:
+      context: .
+      dockerfile: Identity/Shopping.IDP/Dockerfile
+
 volumes:
   mongo_data:
   portainer_data:
   postgres_data:
   pgadmin_data:
   order_data:
+  identity_data:

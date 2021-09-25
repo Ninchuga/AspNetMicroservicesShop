@@ -9,11 +9,12 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using IdentityServer4.Test;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Shopping.IDP.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,7 +30,8 @@ namespace IdentityServerHost.Quickstart.UI
     [AllowAnonymous]
     public class AccountController : Controller
     {
-        private readonly TestUserStore _users;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
@@ -40,16 +42,15 @@ namespace IdentityServerHost.Quickstart.UI
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
-            TestUserStore users = null)
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
-            // if the TestUserStore is not in DI, then we'll just use the global users collection
-            // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-            _users = users ?? new TestUserStore(TestUsers.Users);
-
             _interaction = interaction;
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
             _events = events;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         /// <summary>
@@ -109,63 +110,62 @@ namespace IdentityServerHost.Quickstart.UI
 
             if (ModelState.IsValid)
             {
-                // validate username/password against in-memory store
-                if (_users.ValidateCredentials(model.Username, model.Password))
+                var user = await _userManager.FindByNameAsync(model.Username);
+                if (user == null || (await _signInManager.CheckPasswordSignInAsync(user, model.Password, true)) == Microsoft.AspNetCore.Identity.SignInResult.Failed)
                 {
-                    var user = _users.FindByUsername(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
+                    await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.Client.ClientId));
+                    ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
 
-                    // only set explicit expiration here if user chooses "remember me". 
-                    // otherwise we rely upon expiration configured in cookie middleware.
-                    AuthenticationProperties props = null;
-                    if (AccountOptions.AllowRememberLogin && model.RememberLogin)
-                    {
-                        props = new AuthenticationProperties
-                        {
-                            IsPersistent = true,
-                            ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
-                        };
-                    };
-
-                    // issue authentication cookie with subject ID and username
-                    var isuser = new IdentityServerUser(user.SubjectId)
-                    {
-                        DisplayName = user.Username
-                    };
-
-                    await HttpContext.SignInAsync(isuser, props);
-
-                    if (context != null)
-                    {
-                        if (context.IsNativeClient())
-                        {
-                            // The client is native, so this change in how to
-                            // return the response is for better UX for the end user.
-                            return this.LoadingPage("Redirect", model.ReturnUrl);
-                        }
-
-                        // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                        return Redirect(model.ReturnUrl);
-                    }
-
-                    // request for a local page
-                    if (Url.IsLocalUrl(model.ReturnUrl))
-                    {
-                        return Redirect(model.ReturnUrl);
-                    }
-                    else if (string.IsNullOrEmpty(model.ReturnUrl))
-                    {
-                        return Redirect("~/");
-                    }
-                    else
-                    {
-                        // user might have clicked on a malicious link - should be logged
-                        throw new Exception("invalid return URL");
-                    }
+                    // show form with error
+                    var loginView = await BuildLoginViewModelAsync(model);
+                    return View(loginView);
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId:context?.Client.ClientId));
-                ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
+                await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName, clientId: context?.Client.ClientId));
+
+                // only set explicit expiration here if user chooses "remember me". 
+                // otherwise we rely upon expiration configured in cookie middleware.
+                AuthenticationProperties props = null;
+                if (AccountOptions.AllowRememberLogin && model.RememberLogin)
+                {
+                    props = new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
+                    };
+                };
+
+                // issue authentication cookie with subject ID and username
+                var isuser = new IdentityServerUser(user.Id) { DisplayName = user.UserName };
+                await HttpContext.SignInAsync(isuser, props);
+
+                if (context != null)
+                {
+                    if (context.IsNativeClient())
+                    {
+                        // The client is native, so this change in how to
+                        // return the response is for better UX for the end user.
+                        return this.LoadingPage("Redirect", model.ReturnUrl);
+                    }
+
+                    // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
+                    return Redirect(model.ReturnUrl);
+                }
+
+                // request for a local page
+                if (Url.IsLocalUrl(model.ReturnUrl))
+                {
+                    return Redirect(model.ReturnUrl);
+                }
+                else if (string.IsNullOrEmpty(model.ReturnUrl))
+                {
+                    return Redirect("~/");
+                }
+                else
+                {
+                    // user might have clicked on a malicious link - should be logged
+                    throw new Exception("invalid return URL");
+                }
             }
 
             // something went wrong, show form with error
@@ -173,7 +173,7 @@ namespace IdentityServerHost.Quickstart.UI
             return View(vm);
         }
 
-        
+
         /// <summary>
         /// Show logout page
         /// </summary>

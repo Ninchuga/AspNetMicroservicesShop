@@ -35,6 +35,19 @@ services:
     restart: always
     ports:
       - 1433:1433
+    volumes:
+      - order_data:/var/opt/mssql
+
+  identitydb:
+    container_name: identitydb
+    environment:
+      SA_PASSWORD: "September24#"
+      ACCEPT_EULA: "Y"
+    restart: always
+    ports:
+      - 1444:1433
+    volumes:
+      - identity_data:/var/opt/mssql
 
   rabbitmq:
     container_name: rabbitmq
@@ -71,6 +84,7 @@ services:
       - "DatabaseSettings:ConnectionString=mongodb://catalogdb:27017"
     depends_on:
       - catalogdb
+      - shopping.idp
     ports:
       - "8000:80"
 
@@ -81,9 +95,11 @@ services:
       - "CacheSettings:ConnectionString=basketdb:6379"
       - "GrpcSettings:DiscountUrl=http://discount.grpc"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity"
     depends_on:
       - basketdb
       - rabbitmq
+      - shopping.idp
     ports:
       - "8001:80"
 
@@ -94,6 +110,7 @@ services:
       - "DatabaseSettings:ConnectionString=Server=discountdb;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
     depends_on:
       - discountdb
+      - shopping.idp
     ports:
       - "8002:80"
 
@@ -102,6 +119,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "DatabaseSettings:ConnectionString=Server=discountdb;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
+    depends_on:
+      - discountdb
+      - shopping.idp
     ports:
       - "8003:80"
 
@@ -111,9 +131,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:OrderingConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=SwN12345678;"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity"
     depends_on:
       - orderdb
       - rabbitmq
+      - shopping.idp
     ports:
       - "8004:80"
 
@@ -121,11 +143,13 @@ services:
     container_name: ocelotapigateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity"
     depends_on:
       - catalog.api
       - basket.api
       - discount.api
       - ordering.api
+      - shopping.idp
     ports:
       - "8010:80"
 
@@ -136,11 +160,27 @@ services:
       - "ApiSettings:CatalogUrl=http://catalog.api"
       - "ApiSettings:BasketUrl=http://basket.api"
       - "ApiSettings:OrderingUrl=http://ordering.api"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity"
     depends_on:
       - catalog.api
       - basket.api
       - discount.api
       - ordering.api
+      - shopping.idp
     ports:
       - "8005:80"
 
+  shopping.idp:
+    container_name: shopping.identity
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - "IdentityIssuer=http://:80"
+      - "ConnectionStrings:IdentityDb=Server=identitydb;Database=IdentityDb;User Id=sa;Password=September24#;"
+    depends_on:
+      - identitydb
+    ports:
+      - "8020:80"
+      - "8030:443"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
