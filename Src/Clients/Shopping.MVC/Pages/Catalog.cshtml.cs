@@ -46,7 +46,8 @@ namespace Shopping.MVC.Pages
         public async Task WriteOutIdentityInformation()
         {
             // get the saved indetity token
-            var identityToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.IdToken);
+           // var identityToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.IdToken);
+            var identityToken = await HttpContext.GetTokenAsync("id_token");
 
             // write it out
             Debug.WriteLine($"Identity token: {identityToken}");

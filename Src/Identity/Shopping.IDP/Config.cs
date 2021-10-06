@@ -107,17 +107,20 @@ namespace Shopping.IDP
                 {
                     ClientName = "Shopping Web App Client",
                     ClientId = "shopping_web_client",
-                    AllowedGrantTypes = GrantTypes.CodeAndClientCredentials, 
+                    AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
+                    //AllowedCorsOrigins = new[] { "https://localhost:8999", "https://shopping.web:8999" },
                     AllowOfflineAccess = true, // we are allowing the client to use refresh token
                     //AccessTokenLifetime = 60, // never use it less than 5 minutes in production, these 60 seconds are just for the dev purpose
                     RedirectUris = new List<string>()
                     {
                         // host address of our web application (MVC client)
-                        "https://localhost:4999/signin-oidc"
+                        //"https://localhost:4999/signin-oidc"
+                        $"{Startup.StaticConfiguration["WebClientUrls:SignInUrl"]}"
                     },
                     PostLogoutRedirectUris = new List<string>()
                     {
-                        "https://localhost:4999/signout-callback-oidc"
+                        //"https://localhost:4999/signout-callback-oidc"
+                        $"{Startup.StaticConfiguration["WebClientUrls:SignOutUrl"]}"
                     },
                     AllowedScopes =
                     {

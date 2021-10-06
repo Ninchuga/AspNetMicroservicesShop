@@ -130,6 +130,7 @@ namespace Basket.API
 
             }
 
+            //app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthentication();

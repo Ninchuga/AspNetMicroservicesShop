@@ -82,11 +82,23 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "DatabaseSettings:ConnectionString=mongodb://catalogdb:27017"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      #- ASPNETCORE_URLS=https://+;http://+
+      #- ASPNETCORE_HTTPS_PORT=8000
+      #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      #- ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Catalog.API.pfx
     depends_on:
       - catalogdb
-      - shopping.idp
+      #- shopping.idp
+    volumes:
+      - ./Services/Catalog/Catalog.API:/root/Catalog
+      - ./Services/Catalog/Catalog.API/certs:/https/
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./Certificates/Root/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
     ports:
       - "8000:80"
+      #- "8000:443"
 
   basket.api:
     container_name: basket.api
@@ -95,13 +107,24 @@ services:
       - "CacheSettings:ConnectionString=basketdb:6379"
       - "GrpcSettings:DiscountUrl=http://discount.grpc"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
-      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      #- ASPNETCORE_URLS=https://+;http://+
+      #- ASPNETCORE_HTTPS_PORT=8001
+      #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      #- ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Basket.API.pfx
     depends_on:
       - basketdb
       - rabbitmq
-      - shopping.idp
+      #- shopping.idp
+    volumes:
+      - ./Services/Basket/Basket.API:/root/Basket
+      - ./Services/Basket/Basket.API/certs:/https/
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./Certificates/Root/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
     ports:
       - "8001:80"
+      #- "8001:443"
 
   discount.api:
     container_name: discount.api
@@ -110,7 +133,7 @@ services:
       - "DatabaseSettings:ConnectionString=Server=discountdb;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
     depends_on:
       - discountdb
-      - shopping.idp
+      #- shopping.idp
     ports:
       - "8002:80"
 
@@ -119,39 +142,74 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "DatabaseSettings:ConnectionString=Server=discountdb;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      #- ASPNETCORE_URLS=https://+;http://+
+      #- ASPNETCORE_HTTPS_PORT=8003
+      #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      #- ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Discount.Grpc.pfx    
     depends_on:
       - discountdb
-      - shopping.idp
+      #- shopping.idp
+    volumes:
+      - ./Services/Discount/Discount.Grpc:/root/DiscountGrpc
+      - ./Services/Discount/Discount.Grpc/certs:/https/
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./Certificates/Root/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
     ports:
       - "8003:80"
+      #- "8003:443"
 
   ordering.api:
-    container_name: orderingapi
+    container_name: ordering.api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:OrderingConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=SwN12345678;"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
-      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      #- ASPNETCORE_URLS=https://+;http://+
+      #- ASPNETCORE_HTTPS_PORT=8004
+      #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      #- ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Ordering.API.pfx            
     depends_on:
       - orderdb
       - rabbitmq
-      - shopping.idp
+      #- shopping.idp
+    volumes:
+      - ./Services/Ordering/Ordering.API:/root/Ordering
+      - ./Services/Ordering/Ordering.API/certs:/https/
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./Certificates/Root/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
     ports:
       - "8004:80"
+      #- "8004:443"
 
   ocelotapigateway:
     container_name: ocelotapigateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      #- ASPNETCORE_URLS=https://+;http://+
+      #- ASPNETCORE_HTTPS_PORT=8010
+      #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      #- ASPNETCORE_Kestrel__Certificates__Default__Path=/https/OcelotApiGateway.pfx
     depends_on:
       - catalog.api
       - basket.api
       - discount.api
+      - discount.grpc
       - ordering.api
-      - shopping.idp
+      #- shopping.idp
+    volumes:
+      - ./ApiGateways/OcelotApiGateway:/root/OcelotApiGateway
+      - ./ApiGateways/OcelotApiGateway/certs:/https/
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./Certificates/Root/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
     ports:
       - "8010:80"
+      #- "8010:443"
 
   shopping.aggregator:
     container_name: shopping.aggregator
@@ -160,27 +218,83 @@ services:
       - "ApiSettings:CatalogUrl=http://catalog.api"
       - "ApiSettings:BasketUrl=http://basket.api"
       - "ApiSettings:OrderingUrl=http://ordering.api"
-      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity"
+      - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      #- ASPNETCORE_URLS=https://+;http://+
+      #- ASPNETCORE_HTTPS_PORT=8005
+      #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      #- ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.Aggregator.pfx
     depends_on:
       - catalog.api
       - basket.api
       - discount.api
+      - discount.grpc
       - ordering.api
-      - shopping.idp
+      #- shopping.idp
+    volumes:
+      - ./ApiGateways/Shopping.Aggregator:/root/ShoppingAggregator
+      - ./ApiGateways/Shopping.Aggregator/certs:/https/
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./Certificates/Root/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
     ports:
       - "8005:80"
+      #- "8005:443"
 
   shopping.idp:
     container_name: shopping.identity
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - "IdentityIssuer=http://:80"
+      #- ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+
+      - ASPNETCORE_HTTPS_PORT=8021
+      - "IdentityIssuer=https://shopping.identity:8021"
       - "ConnectionStrings:IdentityDb=Server=identitydb;Database=IdentityDb;User Id=sa;Password=September24#;"
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.IDP.pfx
+      - "WebClientUrls:SignInUrl=https://shopping.web:8999/signin-oidc"
+      - "WebClientUrls:SignOutUrl=https://shopping.web:8999/signout-callback-oidc"
     depends_on:
       - identitydb
     ports:
-      - "8020:80"
-      - "8030:443"
+      #- "8021:80"
+      - 8021:443
+    expose:
+      - '8021'
     volumes:
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ./Src/Identity/Shopping.IDP:/root/Identity
+      - ./Src/Identity/Shopping.IDP/certs:/https/
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./certs/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
+
+  shopping.mvc:
+    container_name: shopping.web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "IdentityProviderSettings:IdentityServiceUrl=https://shopping.identity:8021"
+      - "ApiSettings:Catalog:CatalogUrl=http://catalog.api"
+      - "ApiSettings:Catalog:CatalogGatewayUrl=http://ocelotapigateway/Catalog/"
+      - "ApiSettings:Basket:BasketUrl=http://basket.api"
+      - "ApiSettings:Basket:BasketGatewayUrl=http://ocelotapigateway/Basket/"
+      - "ApiSettings:Order:OrderUrl=http://order.api/Order/"
+      - "ApiSettings:Order:OrderGatewayUrl=http://ocelotapigateway/Order/"
+      - "ApiSettings:Aggregators:ShoppingAggregatorUrl=http://shopping.aggregator"
+      #- ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+
+      - ASPNETCORE_HTTPS_PORT=8999
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.MVC.pfx
+    volumes:
+      - ./Src/Clients/Shopping.MVC:/root/ShoppingMVC
+      - ./Src/Clients/Shopping.MVC/certs:/https/
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./certs/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
+    #depends_on:
+      #- shopping.idp
+      #- shopping.aggregator
+      #- ocelotapigateway
+    ports:
+      #- 8999:80
+      - 8999:443
+

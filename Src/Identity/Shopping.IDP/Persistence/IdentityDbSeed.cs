@@ -94,7 +94,6 @@ namespace Shopping.IDP.Persistence
 
                 var claims = new List<Claim>
                 {
-                    new Claim(JwtClaimTypes.Subject, premiumUser.Id),
                     new Claim(JwtClaimTypes.Name, $"{premiumUser.FirstName} {premiumUser.LastName}"),
                     new Claim(JwtClaimTypes.PreferredUserName, premiumUser.UserName),
                     new Claim(JwtClaimTypes.GivenName, premiumUser.FirstName),
@@ -141,7 +140,6 @@ namespace Shopping.IDP.Persistence
 
                 var claims = new List<Claim>
                 {
-                    new Claim(JwtClaimTypes.Subject, freeUser.Id),
                     new Claim(JwtClaimTypes.Name, $"{freeUser.FirstName} {freeUser.LastName}"),
                     new Claim(JwtClaimTypes.PreferredUserName, freeUser.UserName),
                     new Claim(JwtClaimTypes.GivenName, freeUser.FirstName),

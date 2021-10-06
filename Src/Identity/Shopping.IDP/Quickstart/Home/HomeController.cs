@@ -51,6 +51,8 @@ namespace IdentityServerHost.Quickstart.UI
             if (message != null)
             {
                 vm.Error = message;
+                _logger.LogError(message.ErrorDescription);
+                _logger.LogError(message.Error);
 
                 if (!_environment.IsDevelopment())
                 {

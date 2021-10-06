@@ -4,19 +4,17 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using Shopping.MVC.HttpHandlers;
+using Shopping.MVC.Extensions;
 using Shopping.MVC.Services;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Net;
 
 namespace Shopping.MVC
 {
@@ -28,7 +26,7 @@ namespace Shopping.MVC
 
             // clear Microsoft changed claim names from dictionary and preserve original ones
             // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); 
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         }
 
         public IConfiguration Configuration { get; }
@@ -50,6 +48,8 @@ namespace Shopping.MVC
             // Used for refresh token
             services.AddAccessTokenManagement();
 
+            services.AddCors();
+
             // Response Type Values
             // code -> Authorization Code flow
             // id_token -> Implicit flow
@@ -68,6 +68,8 @@ namespace Shopping.MVC
             })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
+                //options.MetadataAddress = "https://localhost:8021/.well-known/openid-configuration";
+                options.RequireHttpsMetadata = false; // to disable HTTPS when calling identity authority
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // this ensures that valid authentication will be stored in cookie
                 options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                 options.ClientId = "shopping_web_client";
@@ -91,14 +93,11 @@ namespace Shopping.MVC
                 {
                     NameClaimType = JwtClaimTypes.GivenName,
                     RoleClaimType = JwtClaimTypes.Role
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("AppSettings:ClientSecret")))
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("authorizationInteractiveSecret"))
+                    //ValidateIssuerSigningKey = false
                 };
             });
-
-            //services.AddScoped<CatalogService>();
-            //services.AddScoped<BasketService>();
-            //services.AddScoped<OrderService>();
-            //services.AddScoped<ShoppingService>();
-            //services.AddTransient<BearerTokenHandler>();
 
             services.AddHttpContextAccessor();
 
@@ -133,7 +132,7 @@ namespace Shopping.MVC
 
             services.AddHttpClient<ShoppingService>(client =>
             {
-                client.BaseAddress = new Uri(Configuration["ApiSettings:Aggreagtors:ShoppingAggregatorUrl"]);
+                client.BaseAddress = new Uri(Configuration["ApiSettings:Aggregators:ShoppingAggregatorUrl"]);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             })
@@ -156,11 +155,27 @@ namespace Shopping.MVC
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                IdentityModelEventSource.ShowPII = true;
             }
             else
             {
                 app.UseExceptionHandler("/Error");
             }
+
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls
+            | SecurityProtocolType.Tls11
+            | SecurityProtocolType.Tls12
+            | SecurityProtocolType.Tls13;
+
+            app.UseMiddleware<ErrorHandlerMiddleware>();
+
+            //app.UseCors(
+            //    builder => builder
+            //        .AllowAnyHeader()
+            //        .AllowAnyMethod()
+            //        .AllowAnyOrigin());
+            //        //.WithOrigins("http://localhost:32773"));
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -169,8 +184,6 @@ namespace Shopping.MVC
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            //app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Strict });
 
             app.UseEndpoints(endpoints =>
             {

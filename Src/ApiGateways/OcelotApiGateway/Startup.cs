@@ -9,11 +9,19 @@ using Ocelot.Cache.CacheManager;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
 using OcelotApiGateway.DelegatingHandlers;
+using Microsoft.Extensions.Configuration;
 
 namespace OcelotApiGateway
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -34,7 +42,7 @@ namespace OcelotApiGateway
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(authenticationScheme, options =>
              {
-                 options.Authority = "https://localhost:44318";
+                 options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                  options.Audience = "shoppinggateway";
              });
 

@@ -73,6 +73,12 @@ services:
       context: .
       dockerfile: Identity/Shopping.IDP/Dockerfile
 
+  shopping.mvc:
+    image: ${DOCKER_REGISTRY-}shoppingmvc
+    build:
+      context: .
+      dockerfile: Clients/Shopping.MVC/Dockerfile
+
 volumes:
   mongo_data:
   portainer_data:
@@ -80,3 +86,4 @@ volumes:
   pgadmin_data:
   order_data:
   identity_data:
+
