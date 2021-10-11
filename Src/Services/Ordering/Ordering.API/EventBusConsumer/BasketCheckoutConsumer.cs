@@ -31,16 +31,16 @@ namespace Ordering.API.EventBusConsumer
             var messageReceivedAt = DateTime.UtcNow;
             if (!await _tokenValidationService.ValidateTokenAsync(context.Message.SecurityContext.AccessToken, messageReceivedAt))
             {
-                _logger.LogInformation($"Access Token received by {nameof(BasketCheckoutConsumer)} is not valid.");
+                _logger.LogInformation("Access Token received by {ConsumerName} is not valid.", nameof(BasketCheckoutConsumer));
 
                 // don't throw exception as that will result in the message not being regarded as handled
                 return;
             }
 
+            _logger.LogInformation("{EventName} consumed successfully.", nameof(BasketCheckoutEvent));
+
             var command = _mapper.Map<CheckoutOrderCommand>(context.Message);
             await _mediator.Send(command);
-
-            _logger.LogInformation($"{nameof(BasketCheckoutEvent)} consumed successfully. Checkout of the order processed.");
         }
     }
 }

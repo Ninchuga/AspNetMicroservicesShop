@@ -1,11 +1,8 @@
 using Discount.Grpc.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using Serilog;
+using Shopping.Common.Logging;
 
 namespace Discount.Grpc
 {
@@ -25,6 +22,7 @@ namespace Discount.Grpc
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .UseSerilog(LoggingConfiguration.Configure);
     }
 }

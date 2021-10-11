@@ -20,10 +20,17 @@ RUN dotnet publish "Shopping.IDP.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+COPY ./Certificates/Root/shopping-root-cert.crt /usr/local/share/ca-certificates/shopping-root-cert.crt
+COPY ./Certificates/Root/shopping-root-cert.crt /etc/ssl/certs/shopping-root-cert.crt
+RUN chmod 644 /usr/local/share/ca-certificates/shopping-root-cert.crt
+RUN update-ca-certificates
+
 ENTRYPOINT ["dotnet", "Shopping.IDP.dll"]
 #ENTRYPOINT ["./docker-entrypoint.sh"]
 
-#COPY docker-entrypoint.sh ./
-#RUN chmod +x ./docker-entrypoint.sh
+#COPY ./docker-entrypoint.sh /root/ShoppingMVC/docker-entrypoint.sh <- no need for this
+#RUN chmod +x /root/ShoppingMVC/docker-entrypoint.sh #it's already mounted via volume in docker compose, no need to copy it
+
 #WORKDIR /root/Identity
 #ENTRYPOINT ["./docker-entrypoint.sh"]

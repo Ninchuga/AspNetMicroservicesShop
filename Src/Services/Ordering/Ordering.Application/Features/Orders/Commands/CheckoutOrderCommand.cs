@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Destructurama.Attributed;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Infrastrucutre;
@@ -27,7 +28,9 @@ namespace Ordering.Application.Features.Orders.Commands
         public string Country { get; set; }
 
         // Payment
+        [NotLogged]
         public string CardName { get; set; }
+        [LogMasked(ShowLast = 4)]
         public string CardNumber { get; set; }
     }
 
@@ -48,13 +51,15 @@ namespace Ordering.Application.Features.Orders.Commands
 
         public async Task<Unit> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Processing order {@Order}...", request);
+
             var orderEntity = _mapper.Map<Order>(request);
             orderEntity.Id = Guid.NewGuid();
             orderEntity.OrderPaid = false;
             orderEntity.OrderPlaced = DateTime.UtcNow;
             var newOrder = await _orderRepository.AddAsync(orderEntity);
 
-            _logger.LogInformation($"Order {newOrder.Id} is successfully created.");
+            _logger.LogInformation("Order {OrderId} successfully created.", newOrder.Id);
 
             //await SendMail(newOrder);
 

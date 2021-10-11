@@ -25,6 +25,12 @@ services:
   portainer:
     image: portainer/portainer-ce
 
+  elasticsearch:
+    image: elasticsearch:7.14.1
+
+  kibana:
+    image: kibana:7.14.1
+
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
     build:
@@ -86,4 +92,10 @@ volumes:
   pgadmin_data:
   order_data:
   identity_data:
+  logging_data:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge
 

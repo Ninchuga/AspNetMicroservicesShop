@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Ordering.Application.Features.Orders.Commands;
 using Ordering.Application.Features.Orders.Queries;
 using Ordering.Application.Models;
@@ -29,6 +30,7 @@ namespace Ordering.API.Controllers
         {
             var query = new GetOrdersListQuery(userId);
             var orders = await _mediator.Send(query);
+
             return Ok(orders);
         }
 

@@ -77,6 +77,35 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
 
+  elasticsearch:
+    container_name: elastics
+    environment:
+      - node.name=elastic
+      - cluster.name=es-docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - logging_data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+
+  kibana:
+    container_name: kibana
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_URL: http://elastics:9200
+      ELASTICSEARCH_HOSTS: http://elastics:9200
+    networks:
+      - elastic
+
   catalog.api:
     container_name: catalog.api
     environment:
@@ -261,8 +290,8 @@ services:
     expose:
       - '8021'
     volumes:
-      - ./Src/Identity/Shopping.IDP:/root/Identity
-      - ./Src/Identity/Shopping.IDP/certs:/https/
+      - ./Identity/Shopping.IDP:/root/Identity
+      - ./Identity/Shopping.IDP/certs:/https/
       - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
@@ -285,8 +314,8 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.MVC.pfx
     volumes:
-      - ./Src/Clients/Shopping.MVC:/root/ShoppingMVC
-      - ./Src/Clients/Shopping.MVC/certs:/https/
+      - ./Clients/Shopping.MVC:/root/ShoppingMVC
+      - ./Clients/Shopping.MVC/certs:/https/
       - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer

@@ -10,6 +10,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using Shopping.Common.Correlations;
+using Shopping.Common.Logging;
 using Shopping.MVC.Extensions;
 using Shopping.MVC.Services;
 using System;
@@ -48,7 +50,7 @@ namespace Shopping.MVC
             // Used for refresh token
             services.AddAccessTokenManagement();
 
-            services.AddCors();
+            //services.AddCors();
 
             // Response Type Values
             // code -> Authorization Code flow
@@ -100,6 +102,8 @@ namespace Shopping.MVC
             });
 
             services.AddHttpContextAccessor();
+            services.AddTransient<LoggingDelegatingHandler>();
+            services.AddTransient<CorrelationIdDelegatingHandler>();
 
             services.AddHttpClient<CatalogService>(client =>
             {
@@ -107,6 +111,8 @@ namespace Shopping.MVC
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             })
+            .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+            .AddHttpMessageHandler<LoggingDelegatingHandler>()
             .AddUserAccessTokenHandler(); // used for refresh token flow
             //.AddHttpMessageHandler<BearerTokenHandler>(); // call access token middleware and get/set access token to request message
             //        .AddPolicyHandler(GetRetryPolicy())
@@ -118,6 +124,8 @@ namespace Shopping.MVC
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             })
+            .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+            .AddHttpMessageHandler<LoggingDelegatingHandler>()
             .AddUserAccessTokenHandler(); // used for refresh token flow
             //.AddHttpMessageHandler<BearerTokenHandler>(); // call access token middleware and get/set access token to request message;
 
@@ -127,6 +135,8 @@ namespace Shopping.MVC
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             })
+            .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+            .AddHttpMessageHandler<LoggingDelegatingHandler>()
             .AddUserAccessTokenHandler(); // used for refresh token flow
             //.AddHttpMessageHandler<BearerTokenHandler>(); // call access token middleware and get/set access token to request message;
 
@@ -136,10 +146,12 @@ namespace Shopping.MVC
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             })
+            .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+            .AddHttpMessageHandler<LoggingDelegatingHandler>()
             .AddUserAccessTokenHandler(); // used for refresh token flow
             //.AddHttpMessageHandler<BearerTokenHandler>(); // call access token middleware and get/set access token to request message;
 
-            // Used to get addition UserInfo (e.g. address) from IdentityServer
+            // Used to get additional UserInfo (e.g. address) from IdentityServer
             services.AddHttpClient("IDPClient", client =>
             {
                 client.BaseAddress = new Uri("https://localhost:44318");
@@ -169,6 +181,7 @@ namespace Shopping.MVC
             | SecurityProtocolType.Tls13;
 
             app.UseMiddleware<ErrorHandlerMiddleware>();
+            app.UseMiddleware<CorrelationIdMiddleware>();
 
             //app.UseCors(
             //    builder => builder

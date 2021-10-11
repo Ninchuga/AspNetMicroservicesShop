@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
 using OcelotApiGateway.DelegatingHandlers;
 using Microsoft.Extensions.Configuration;
+using OcelotApiGateway.Extensions;
+using Shopping.Common.Correlations;
 
 namespace OcelotApiGateway
 {
@@ -51,7 +53,8 @@ namespace OcelotApiGateway
             services.AddOcelot()
                 .AddDelegatingHandler<CatalogApiTokenExchangeDelegatingHandler>()
                 .AddDelegatingHandler<BasketApiTokenExchangeDelegatingHandler>()
-                .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>();
+                .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>()
+                .AddDelegatingHandler<CorrelationIdDelegatingHandler>();
                 //.AddCacheManager(settings => settings.WithDictionaryHandle());
         }
 
@@ -62,6 +65,8 @@ namespace OcelotApiGateway
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.AddCorrelationLoggingMiddleware();
 
             // Ocelot will not pass request to any middleware so we can delete anything after it
             // Ocelot will handle the request all by itself

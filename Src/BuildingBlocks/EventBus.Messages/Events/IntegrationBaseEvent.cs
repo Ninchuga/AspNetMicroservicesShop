@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MassTransit;
+using System;
 
 namespace EventBus.Messages.Events
 {
@@ -7,7 +8,7 @@ namespace EventBus.Messages.Events
         public string AccessToken { get; set; }
     }
 
-    public class IntegrationBaseEvent
+    public class IntegrationBaseEvent : CorrelatedBy<Guid>
     {
         public IntegrationBaseEvent()
         {
@@ -24,5 +25,6 @@ namespace EventBus.Messages.Events
         public Guid Id { get; private set; }
         public DateTime CreationDate { get; private set; }
         public SecurityContext SecurityContext { get; set; } = new SecurityContext();
+        public Guid CorrelationId { get; set; }
     }
 }

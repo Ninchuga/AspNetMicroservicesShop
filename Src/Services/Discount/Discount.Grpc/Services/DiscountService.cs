@@ -29,14 +29,16 @@ namespace Discount.Grpc.Services
         public override async Task<CouponModel> GetDiscount(GetDiscountRequest request, ServerCallContext context)
         {
             var coupon = await _repository.GetDiscount(request.ProductName);
-
             if(coupon == null)
             {
-                throw new RpcException(new Status(StatusCode.NotFound, $"Discount with ProductName={request.ProductName} is not found."));
+                _logger.LogInformation("Discount for product name: {ProductName} was not found.", coupon.ProductName);
+                throw new RpcException(new Status(StatusCode.NotFound, $"Discount for product name: {request.ProductName} was not found."));
             }
-            _logger.LogInformation("Discount is retrieved for ProductName: {ProductName}, Amount: {Amount}", coupon.ProductName, coupon.Amount);
 
             var couponModel = _mapper.Map<CouponModel>(coupon);
+
+            _logger.LogInformation("Retrieving coupon discount {@Coupon}", coupon);
+
             return couponModel;
         }
 

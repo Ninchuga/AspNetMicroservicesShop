@@ -1,4 +1,5 @@
 using Catalog.API.Data;
+using Catalog.API.Extensions;
 using Catalog.API.Repositories;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -30,6 +31,8 @@ namespace Catalog.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -100,6 +103,8 @@ namespace Catalog.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog.API v1"));
             }
+
+            app.AddCorrelationLoggingMiddleware();
 
             app.UseHttpsRedirection();
             app.UseRouting();

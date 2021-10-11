@@ -1,4 +1,5 @@
-﻿using Discount.Grpc.Repositories;
+﻿using Discount.Grpc.Extensions;
+using Discount.Grpc.Repositories;
 using Discount.Grpc.Services;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
@@ -7,6 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Shopping.Common;
+using Shopping.Common.Correlations;
+using Shopping.Common.Logging;
 
 namespace Discount.Grpc
 {
@@ -23,9 +27,12 @@ namespace Discount.Grpc
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
             services.AddScoped<IDiscountRepository, DiscountRepository>();
             services.AddAutoMapper(typeof(Startup));
             services.AddGrpc();
+            services.AddTransient<LoggingDelegatingHandler>();
+            services.AddTransient<CorrelationIdDelegatingHandler>();
 
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -44,6 +51,8 @@ namespace Discount.Grpc
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.AddCorrelationLoggingMiddleware();
 
             //app.UseHttpsRedirection();
             app.UseRouting();

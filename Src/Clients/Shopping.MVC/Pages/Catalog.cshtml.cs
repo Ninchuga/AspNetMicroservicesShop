@@ -43,6 +43,13 @@ namespace Shopping.MVC.Pages
             return CatalogItems == null ? RedirectToPage("/Authorization/AccessDenied") : Page();
         }
 
+        public async Task<IActionResult> OnGetCatalogItem(string itemId)
+        {
+            var catalogItem = await _catalogService.GetCatalogItemBy(itemId);
+
+            return RedirectToPage("/");
+        }
+
         public async Task WriteOutIdentityInformation()
         {
             // get the saved indetity token

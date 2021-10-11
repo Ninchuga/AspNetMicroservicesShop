@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Destructurama.Attributed" Version="3.0.0" />
     <PackageReference Include="IdentityModel" Version="5.1.0" />
     <PackageReference Include="IdentityModel.AspNetCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.1" />
@@ -30,6 +31,10 @@
 
   <ItemGroup>
     <None Include="Pages\Authorization\AccessDenied.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Shopping.Common\Shopping.Common.csproj" />
   </ItemGroup>
 
 </Project>

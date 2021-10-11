@@ -8,6 +8,7 @@ using Basket.API.Repositories;
 using Basket.API.Responses;
 using EventBus.Messages.Events;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,15 +22,18 @@ namespace Basket.API.Services.Basket
         private readonly ITokenExchangeServiceFactory _tokenExchangeServiceFactory;
         private readonly DiscountGrpcService _discountGrpcService;
         private readonly IBasketRepository _basketRepository;
+        private readonly ILogger<BasketService> _logger;
 
         public BasketService(IMapper mapper, IPublishEndpoint publishEndpoint,
-            ITokenExchangeServiceFactory tokenExchangeServiceFactory, DiscountGrpcService discountGrpcService, IBasketRepository basketRepository)
+            ITokenExchangeServiceFactory tokenExchangeServiceFactory, DiscountGrpcService discountGrpcService, 
+            IBasketRepository basketRepository, ILogger<BasketService> logger)
         {
             _mapper = mapper;
             _publishEndpoint = publishEndpoint;
             _tokenExchangeServiceFactory = tokenExchangeServiceFactory;
             _discountGrpcService = discountGrpcService;
             _basketRepository = basketRepository;
+            _logger = logger;
         }
 
         public async Task<ShoppingCart> GetBasketBy(Guid userId)
@@ -38,11 +42,14 @@ namespace Basket.API.Services.Basket
             return basket ?? new ShoppingCart(userId);
         }
 
-        public async Task<CheckoutBasketResponse> CheckoutBasket(BasketCheckout basketCheckout, Guid userId)
+        public async Task<CheckoutBasketResponse> CheckoutBasket(BasketCheckout basketCheckout, Guid userId, string correlationId)
         {
             var basket = await _basketRepository.GetBasket(userId);
             if (basket == null)
+            {
+                _logger.LogInformation("There is no basket for user id: {UserId}", userId);
                 return new CheckoutBasketResponse { Success = false, ErrorMessage = $"Basket for userId: {userId} doesn't exist." };
+            }
 
             foreach (var item in basket.Items)
             {
@@ -50,22 +57,35 @@ namespace Basket.API.Services.Basket
                 item.Price -= coupon.Amount;
             }
 
-            var tokenExchangeService = _tokenExchangeServiceFactory.GetTokenExchangeServiceInstance(DownstreamServices.OrderApi);
+            try
+            {
+                var tokenExchangeService = _tokenExchangeServiceFactory.GetTokenExchangeServiceInstance(DownstreamServices.OrderApi);
 
-            var eventMessage = _mapper.Map<BasketCheckoutEvent>(basketCheckout);
-            eventMessage.UserId = userId;
-            eventMessage.SecurityContext.AccessToken = await tokenExchangeService.GetAccessTokenForDownstreamService();
-            eventMessage.TotalPrice = basket.TotalPrice;
-            await _publishEndpoint.Publish(eventMessage);
+                var eventMessage = _mapper.Map<BasketCheckoutEvent>(basketCheckout);
+                eventMessage.UserId = userId;
+                eventMessage.SecurityContext.AccessToken = await tokenExchangeService.GetAccessTokenForDownstreamService();
+                eventMessage.TotalPrice = basket.TotalPrice;
+                eventMessage.CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid() : new Guid(correlationId);
+                await _publishEndpoint.Publish(eventMessage);
 
-            await _basketRepository.DeleteBasket(userId);
+                _logger.LogDebug("Message successfully published from {MethodName} to order api for further processing.", nameof(CheckoutBasket));
 
-            return new CheckoutBasketResponse { Success = true };
+                await _basketRepository.DeleteBasket(userId);
+
+                _logger.LogInformation("Basket for user id: {UserId} deleted after checkout.", userId);
+
+                return new CheckoutBasketResponse { Success = true };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking out basket.");
+
+                return new CheckoutBasketResponse { Success = false, ErrorMessage = ex.Message };
+            }
         }
 
         public async Task<ShoppingCart> UpdateBasket(ShoppingCart basket)
         {
-            // TODO: place in here logic for updating the basket instead on the client app
             return await _basketRepository.UpdateBasket(basket);
         }
 

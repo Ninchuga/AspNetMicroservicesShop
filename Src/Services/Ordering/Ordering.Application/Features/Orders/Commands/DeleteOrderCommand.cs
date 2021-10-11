@@ -30,11 +30,13 @@ namespace Ordering.Application.Features.Orders.Commands
             var orderToDelete = await _orderRepository.GetOrderBy(request.OrderId);
             if (orderToDelete == null)
             {
+                _logger.LogWarning("There is no order with id: {OrderId} to update.", request.OrderId);
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
             await _orderRepository.DeleteAsync(orderToDelete);
-            _logger.LogInformation($"Order {orderToDelete.Id} is successfully deleted.");
+
+            _logger.LogInformation($"Order {orderToDelete.Id} successfully deleted.");
 
             return Unit.Value;
         }

@@ -1,3 +1,4 @@
+using Basket.API.Extensions;
 using Basket.API.Factories;
 using Basket.API.GrpcServices;
 using Basket.API.Repositories;
@@ -13,6 +14,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Shopping.Common;
+using Shopping.Common.Correlations;
+using Shopping.Common.Logging;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -56,20 +60,25 @@ namespace Basket.API
             services.AddScoped<DiscountGrpcService>();
             services.AddScoped<ITokenExchangeServiceFactory, TokenExchangeServiceFactory>();
             services.AddAutoMapper(typeof(Startup));
+            services.AddTransient<LoggingDelegatingHandler>();
+            services.AddTransient<CorrelationIdDelegatingHandler>();
 
             services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(o =>
             {
                 o.Address = new Uri(Configuration["GrpcSettings:DiscountUrl"]);
-            });
+            })
+            .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
             //.AddPolicyHandler(GetRetryPolicy())
             //    .AddPolicyHandler(GetCircuitBreakerPolicy());
 
             // MassTransit-RabbitMQ Configuration
             services.AddMassTransit(config =>
             {
-                config.UsingRabbitMq((ctx, config) => 
-                { 
+                config.UsingRabbitMq((ctx, config) =>
+                {
                     config.Host(Configuration["EventBusSettings:HostAddress"]);
+                    //config.UseSerilog();
+                    //config.UseSerilogMessagePropertiesEnricher();
                 });
             });
             services.AddMassTransitHostedService();
@@ -127,8 +136,9 @@ namespace Basket.API
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Basket.API v1"));
-
             }
+
+            app.AddCorrelationLoggingMiddleware();
 
             //app.UseHttpsRedirection();
             app.UseRouting();

@@ -17,7 +17,15 @@ namespace Ordering.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<OrderContext>(options => options.UseSqlServer(configuration.GetConnectionString("OrderingConnectionString")));
+            services.AddDbContext<OrderContext>(options =>
+                    options.UseSqlServer(configuration.GetConnectionString("OrderingConnectionString"), option =>
+                    {
+                        // EF connection resiliency
+                        option.EnableRetryOnFailure(
+                            maxRetryCount: 10,
+                            maxRetryDelay: TimeSpan.FromSeconds(10),
+                            errorNumbersToAdd: null);
+                    }));
 
             // loaded once per HTTP request
             services.AddScoped<IOrderContext>(provider => provider.GetService<OrderContext>());

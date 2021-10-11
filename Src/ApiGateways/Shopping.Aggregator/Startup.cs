@@ -7,7 +7,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Shopping.Aggregator.Contracts;
 using Shopping.Aggregator.DelegatingHandlers;
+using Shopping.Aggregator.Extensions;
 using Shopping.Aggregator.Services;
+using Shopping.Common.Correlations;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -45,18 +47,22 @@ namespace Shopping.Aggregator
             services.AddTransient<CatalogApiTokenExchangeDelegatingHandler>();
             services.AddTransient<BasketApiTokenExchangeDelegatingHandler>();
             services.AddTransient<OrderApiTokenExchangeDelegatingHandler>();
+            services.AddTransient<CorrelationIdDelegatingHandler>();
 
             services.AddHttpClient<ICatalogService, CatalogService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:CatalogUrl"]))
-                .AddHttpMessageHandler<CatalogApiTokenExchangeDelegatingHandler>();
+                .AddHttpMessageHandler<CatalogApiTokenExchangeDelegatingHandler>()
+                .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
 
             services.AddHttpClient<IBasketService, BasketService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:BasketUrl"]))
-                .AddHttpMessageHandler<BasketApiTokenExchangeDelegatingHandler>();
+                .AddHttpMessageHandler<BasketApiTokenExchangeDelegatingHandler>()
+                .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
 
             services.AddHttpClient<IOrderService, OrderService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:OrderingUrl"]))
-                .AddHttpMessageHandler<OrderApiTokenExchangeDelegatingHandler>();
+                .AddHttpMessageHandler<OrderApiTokenExchangeDelegatingHandler>()
+                .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -103,6 +109,8 @@ namespace Shopping.Aggregator
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shopping.Aggregator v1"));
             }
+
+            app.AddCorrelationLoggingMiddleware();
 
             //app.UseHttpsRedirection();
             app.UseRouting();

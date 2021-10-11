@@ -1,6 +1,8 @@
 ﻿using Basket.API.DTOs;
 using Basket.API.Entities;
+using Basket.API.Responses;
 using Basket.API.Services.Basket;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -34,6 +36,8 @@ namespace Basket.API.Controllers
             // Now that we are passing scopes from the API Gateway we can extract this info from the Claims object
             Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid usrId);
 
+            _logger.LogDebug("Retrieving basket for the user {UserId}", usrId);
+
             return Ok(await _basketService.GetBasketBy(userId));
         }
 
@@ -52,7 +56,11 @@ namespace Basket.API.Controllers
         {
             Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid userId);
 
-            return Ok(await _basketService.DeleteBasketItem(userId, itemId));
+            var response = await _basketService.DeleteBasketItem(userId, itemId);
+
+            _logger.LogInformation("Basket item with id: {ItemId} deleted.", itemId);
+
+            return Ok(response);
         }
 
         [HttpDelete()]
@@ -61,36 +69,39 @@ namespace Basket.API.Controllers
         public async Task<IActionResult> DeleteBasket(Guid userId)
         {
             await _basketService.DeleteBasket(userId);
+
+            _logger.LogInformation("Basket for the user with id: {UserId} deleted.", userId);
+
             return Ok();
         }
 
         [HttpPost]
         [Route("[action]")]
+        [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddBasketItem([FromBody] ShoppingCartItem item)
         {
             Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid userId);
 
             await _basketService.AddItemToBasket(userId, item);
 
+            _logger.LogInformation("Item {ItemName} added to basket.", item.ProductName);
+
             return Ok();
         }
 
         [HttpPost]
         [Route("[action]")]
-        [ProducesResponseType((int)HttpStatusCode.Accepted)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Checkout([FromBody] BasketCheckout basketCheckout)
+        [ProducesResponseType(typeof(CheckoutBasketResponse), (int)HttpStatusCode.Accepted)]
+        [ProducesResponseType(typeof(CheckoutBasketResponse), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<CheckoutBasketResponse>> Checkout([FromBody] BasketCheckout basketCheckout)
         {
             // Now that we are passing scopes from the API Gateway we can extract this info from the Claims object
             Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid userId);
 
-            var response = await _basketService.CheckoutBasket(basketCheckout, userId);
+            var correlationId = HttpContext.Request.Headers["CorrelationId"];
+            var response = await _basketService.CheckoutBasket(basketCheckout, userId, correlationId);
 
-            if (response.Success)
-                return Accepted();
-
-            _logger.LogError(response.ErrorMessage);
-            return BadRequest();
+            return response.Success ? Accepted(response) : BadRequest(response);
         }
     }
 }

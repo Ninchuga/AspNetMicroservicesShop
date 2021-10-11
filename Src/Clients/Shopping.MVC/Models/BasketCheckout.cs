@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Destructurama.Attributed;
+using System;
 
 namespace Shopping.MVC.Models
 {
@@ -20,9 +18,13 @@ namespace Shopping.MVC.Models
         public string City { get; set; }
 
         // Payment
+        [NotLogged] // with this attribute we say Serilog not to log this property
         public string CardName { get; set; }
+        [LogMasked(ShowLast = 4)] // show only 4 last digits
         public string CardNumber { get; set; }
+        [NotLogged]
         public string CardExpiration { get; set; }
+        [NotLogged]
         public string CVV { get; set; }
     }
 }

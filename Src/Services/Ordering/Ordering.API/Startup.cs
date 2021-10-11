@@ -10,9 +10,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Ordering.API.EventBusConsumer;
+using Ordering.API.Extensions;
 using Ordering.API.Helpers;
 using Ordering.Application;
 using Ordering.Infrastructure;
+using Shopping.Common;
+using Shopping.Common.Correlations;
+using Shopping.Common.Logging;
 using System.Collections.Generic;
 
 namespace Ordering.API
@@ -29,6 +33,7 @@ namespace Ordering.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
             services.AddApplicationServices();
             services.AddInfrastructureServices(Configuration);
 
@@ -42,6 +47,8 @@ namespace Ordering.API
             services.AddHttpClient<ITokenValidationService, TokenValidationService>();
             services.AddScoped<BasketCheckoutConsumer>();
             services.AddAutoMapper(typeof(Startup));
+            services.AddTransient<LoggingDelegatingHandler>();
+            services.AddTransient<CorrelationIdDelegatingHandler>();
 
             // MassTransit-RabbitMQ Configuration
             services.AddMassTransit(config =>
@@ -113,6 +120,8 @@ namespace Ordering.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ordering.API v1"));
             }
+
+            app.AddCorrelationLoggingMiddleware();
 
             //app.UseHttpsRedirection();
             app.UseRouting();

@@ -50,6 +50,7 @@ namespace Ordering.Application.Features.Orders.Commands
             var orderToUpdate = await _orderRepository.GetOrderBy(request.OrderId);
             if (orderToUpdate == null)
             {
+                _logger.LogWarning("There is no order with id: {OrderId} to update.", request.OrderId);
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
@@ -57,7 +58,7 @@ namespace Ordering.Application.Features.Orders.Commands
 
             await _orderRepository.UpdateAsync(orderToUpdate);
 
-            _logger.LogInformation($"Order {orderToUpdate.Id} is successfully updated.");
+            _logger.LogInformation("Order with id: {OrderId} successfully updated.", orderToUpdate.Id);
 
             return Unit.Value;
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Shopping.MVC.Extensions;
 using Shopping.MVC.Models;
@@ -16,15 +17,19 @@ namespace Shopping.MVC.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<BasketService> _logger;
 
-        public BasketService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
+        public BasketService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, ILogger<BasketService> logger)
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         public async Task<BasketCheckoutResponse> Checkout(BasketCheckout basketCheckout)
         {
+            _logger.LogDebug("Checking out basket {@BasketCheckout}", basketCheckout);
+
             var requestContent = new StringContent(JsonSerializer.Serialize(basketCheckout), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/Checkout", requestContent); // gateway api uri
 
@@ -36,6 +41,10 @@ namespace Shopping.MVC.Services
             // we don't need this when we are using AddUserAccessTokenHandler() for refresh token flow
             // this handler do all the work for us
             //_httpClient.SetBearerToken(await GetAccessToken());
+
+            //await GetAccessToken();
+
+            _logger.LogDebug("Getting basket for the user id: {UserId}", userId);
 
             var responseMessage = await _httpClient.GetAsync($"api/{userId}"); // call from api gateway
 
@@ -54,6 +63,9 @@ namespace Shopping.MVC.Services
 
         public async Task AddItemToBasket(CatalogItem catalogItem)
         {
+            // @ preffix in Serilog is used for complex object
+            _logger.LogDebug("Adding catalog item to basket {@CatalogItem}", catalogItem);
+
             var basketItem = new BasketItem
             {
                 ProductName = catalogItem.Name,
@@ -74,6 +86,8 @@ namespace Shopping.MVC.Services
 
         public async Task<BasketWithItems> DeleteBasketItem(string itemId)
         {
+            _logger.LogDebug("Deleting basket item with id: {ItemId}", itemId);
+
             var responseMessage = await _httpClient.DeleteAsync($"api/DeleteBasketItem/{itemId}"); // gateway api uri
 
             if (responseMessage.IsSuccessStatusCode)
@@ -91,6 +105,8 @@ namespace Shopping.MVC.Services
 
         public async Task DeleteBasket(Guid userId)
         {
+            _logger.LogDebug("Deleting basket for the user id: {UserId}", userId);
+
             var response = await _httpClient.DeleteAsync($"api/Delete/{userId}"); // gateway api uri
             response.EnsureSuccessStatusCode();
         }
