@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using Destructurama.Attributed;
+using MassTransit;
 using System;
 
 namespace EventBus.Messages.Events
@@ -24,6 +25,7 @@ namespace EventBus.Messages.Events
 
         public Guid Id { get; private set; }
         public DateTime CreationDate { get; private set; }
+        [NotLogged]
         public SecurityContext SecurityContext { get; set; } = new SecurityContext();
         public Guid CorrelationId { get; set; }
     }

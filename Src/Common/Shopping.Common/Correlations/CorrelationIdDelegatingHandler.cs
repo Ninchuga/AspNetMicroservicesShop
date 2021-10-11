@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Shopping.Common.Constants;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,6 @@ namespace Shopping.Common.Correlations
 {
     public class CorrelationIdDelegatingHandler : DelegatingHandler
     {
-        private const string CorrelationIdHeader = "X-Correlation-ID";
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CorrelationIdDelegatingHandler(IHttpContextAccessor httpContextAccessor)
@@ -19,17 +19,17 @@ namespace Shopping.Common.Correlations
         {
             string correlationId = string.Empty;
 
-            if(_httpContextAccessor.HttpContext.Items.ContainsKey(CorrelationIdHeader))
+            if(_httpContextAccessor.HttpContext.Items.ContainsKey(Headers.CorrelationIdHeader))
             {
-                correlationId = _httpContextAccessor.HttpContext.Items[CorrelationIdHeader].ToString();
-                request.Headers.Add(CorrelationIdHeader, correlationId);
+                correlationId = _httpContextAccessor.HttpContext.Items[Headers.CorrelationIdHeader].ToString();
+                request.Headers.Add(Headers.CorrelationIdHeader, correlationId);
             }
 
             var response = await base.SendAsync(request, cancellationToken);
 
-            if (!_httpContextAccessor.HttpContext.Response.Headers.ContainsKey(CorrelationIdHeader))
+            if (!_httpContextAccessor.HttpContext.Response.Headers.ContainsKey(Headers.CorrelationIdHeader))
             {
-                _httpContextAccessor.HttpContext.Response.Headers.Add(CorrelationIdHeader, correlationId);
+                _httpContextAccessor.HttpContext.Response.Headers.Add(Headers.CorrelationIdHeader, correlationId);
             }
 
             return response;

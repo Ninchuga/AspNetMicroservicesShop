@@ -72,7 +72,7 @@ namespace Basket.API.Services.Basket
 
                 await _basketRepository.DeleteBasket(userId);
 
-                _logger.LogInformation("Basket for user id: {UserId} deleted after checkout.", userId);
+                _logger.LogInformation("Basket for the user id: {UserId} deleted after checkout.", userId);
 
                 return new CheckoutBasketResponse { Success = true };
             }

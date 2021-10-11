@@ -7,8 +7,6 @@ using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Models;
 using Ordering.Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,6 +14,7 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class CheckoutOrderCommand : IRequest
     {
+        public Guid CorrelationId { get; set; }
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
@@ -51,7 +50,8 @@ namespace Ordering.Application.Features.Orders.Commands
 
         public async Task<Unit> Handle(CheckoutOrderCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Processing order {@Order}...", request);
+            using var loggerScope = _logger.BeginScope("{CorrelationId} {UserId}", request.CorrelationId, request.UserId);
+            _logger.LogInformation("Creating order ...");
 
             var orderEntity = _mapper.Map<Order>(request);
             orderEntity.Id = Guid.NewGuid();

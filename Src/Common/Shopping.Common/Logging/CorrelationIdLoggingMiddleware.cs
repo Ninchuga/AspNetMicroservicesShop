@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Shopping.Common.Constants;
 using System.Threading.Tasks;
 
 namespace Shopping.Common.Logging
@@ -9,7 +10,6 @@ namespace Shopping.Common.Logging
     /// </summary>
     public class CorrelationIdLoggingMiddleware
     {
-        private const string CorrelationIdHeader = "X-Correlation-ID";
         private readonly RequestDelegate _next;
         private readonly ILogger<CorrelationIdLoggingMiddleware> _logger;
 
@@ -21,9 +21,9 @@ namespace Shopping.Common.Logging
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Headers.ContainsKey(CorrelationIdHeader))
+            if (context.Request.Headers.ContainsKey(Headers.CorrelationIdHeader))
             {
-                string correlationId = context.Request.Headers[CorrelationIdHeader][0];
+                string correlationId = context.Request.Headers[Headers.CorrelationIdHeader][0];
                 using (_logger.BeginScope("{CorrelationId}", correlationId))
                 {
                     await _next(context);

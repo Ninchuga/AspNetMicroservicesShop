@@ -28,16 +28,20 @@ namespace Ordering.API.EventBusConsumer
 
         public async Task Consume(ConsumeContext<BasketCheckoutEvent> context)
         {
+            using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
+
+            _logger.LogInformation("{Consumer} received a message {@Message}", nameof(BasketCheckoutConsumer), context.Message);
+
             var messageReceivedAt = DateTime.UtcNow;
             if (!await _tokenValidationService.ValidateTokenAsync(context.Message.SecurityContext.AccessToken, messageReceivedAt))
             {
-                _logger.LogInformation("Access Token received by {ConsumerName} is not valid.", nameof(BasketCheckoutConsumer));
+                _logger.LogInformation("Access Token received by {Consumer} is not valid.", nameof(BasketCheckoutConsumer));
 
                 // don't throw exception as that will result in the message not being regarded as handled
                 return;
             }
 
-            _logger.LogInformation("{EventName} consumed successfully.", nameof(BasketCheckoutEvent));
+            _logger.LogInformation("{Event} consumed successfully.", nameof(BasketCheckoutEvent));
 
             var command = _mapper.Map<CheckoutOrderCommand>(context.Message);
             await _mediator.Send(command);

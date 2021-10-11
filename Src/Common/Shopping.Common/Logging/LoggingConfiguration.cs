@@ -12,7 +12,10 @@ namespace Shopping.Common.Logging
 {
     public static class LoggingConfiguration
     {
-        // Used in hosting web builder to configure logging
+        
+        /// <summary>
+        /// Used in Program.cs to configure logger on host builder 
+        /// </summary>
         public static Action<HostBuilderContext, LoggerConfiguration> Configure =>
             (hostingContext, loggerConfiguration) =>
             {

@@ -5,6 +5,7 @@ using Basket.API.Services.Basket;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Shopping.Common.Constants;
 using System;
 using System.Linq;
 using System.Net;
@@ -98,7 +99,7 @@ namespace Basket.API.Controllers
             // Now that we are passing scopes from the API Gateway we can extract this info from the Claims object
             Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid userId);
 
-            var correlationId = HttpContext.Request.Headers["CorrelationId"];
+            var correlationId = HttpContext.Request.Headers[Headers.CorrelationIdHeader][0];
             var response = await _basketService.CheckoutBasket(basketCheckout, userId, correlationId);
 
             return response.Success ? Accepted(response) : BadRequest(response);

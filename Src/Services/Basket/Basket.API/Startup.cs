@@ -58,16 +58,17 @@ namespace Basket.API
             services.AddScoped<IBasketRepository, BasketRepository>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<DiscountGrpcService>();
-            services.AddScoped<ITokenExchangeServiceFactory, TokenExchangeServiceFactory>();
+            services.AddTransient<ITokenExchangeServiceFactory, TokenExchangeServiceFactory>();
             services.AddAutoMapper(typeof(Startup));
-            services.AddTransient<LoggingDelegatingHandler>();
-            services.AddTransient<CorrelationIdDelegatingHandler>();
+            services.AddTransient<AccessTokenInterceptor>();
+            services.AddTransient<CorrelationIdInterceptor>();
 
             services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(o =>
             {
                 o.Address = new Uri(Configuration["GrpcSettings:DiscountUrl"]);
             })
-            .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
+            .AddInterceptor<AccessTokenInterceptor>()
+            .AddInterceptor<CorrelationIdInterceptor>();
             //.AddPolicyHandler(GetRetryPolicy())
             //    .AddPolicyHandler(GetCircuitBreakerPolicy());
 

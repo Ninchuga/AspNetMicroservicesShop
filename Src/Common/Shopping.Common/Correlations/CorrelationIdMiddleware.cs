@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Shopping.Common.Constants;
 using System;
 using System.Threading.Tasks;
 
@@ -10,7 +11,6 @@ namespace Shopping.Common.Correlations
     /// </summary>
     public class CorrelationIdMiddleware
     {
-        private const string CorrelationIdHeader = "X-Correlation-ID";
         private readonly RequestDelegate _next;
         private readonly ILogger<CorrelationIdMiddleware> _logger;
 
@@ -23,17 +23,15 @@ namespace Shopping.Common.Correlations
         public async Task Invoke(HttpContext context)
         {
             string correlationId;
-            if(context.Request.Headers.ContainsKey(CorrelationIdHeader))
+            if(context.Request.Headers.ContainsKey(Headers.CorrelationIdHeader))
             {
-                correlationId = context.Request.Headers[CorrelationIdHeader][0];
+                correlationId = context.Request.Headers[Headers.CorrelationIdHeader][0];
             }
             else
             {
                 correlationId = Guid.NewGuid().ToString();
-                context.Items.Add(CorrelationIdHeader, correlationId);
+                context.Items.Add(Headers.CorrelationIdHeader, correlationId);
             }
-
-            //await _next(context);
 
             // maybe there are log messages that are used before calling downstream apis
             // place them inside the same correlation scope as downstream services
