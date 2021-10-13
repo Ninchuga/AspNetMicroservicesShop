@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Shopping.Common\Shopping.Common.csproj" />
+    <ProjectReference Include="..\..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
   </ItemGroup>
 
 </Project>

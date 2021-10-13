@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="5.0.1" />
     <PackageReference Include="Destructurama.Attributed" Version="3.0.0" />
     <PackageReference Include="IdentityModel" Version="5.1.0" />
     <PackageReference Include="IdentityModel.AspNetCore" Version="3.0.0" />
@@ -35,6 +36,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Shopping.Common\Shopping.Common.csproj" />
+    <ProjectReference Include="..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
   </ItemGroup>
 
 </Project>

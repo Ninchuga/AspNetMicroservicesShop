@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using Shopping.IDP.Certificates;
 using IdentityServer4.Services;
+using Shopping.HealthChecks;
 
 namespace Shopping.IDP
 {
@@ -35,6 +36,8 @@ namespace Shopping.IDP
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
+
             // uncomment, if you want to add an MVC-based UI
             services.AddControllersWithViews();
 
@@ -99,6 +102,7 @@ namespace Shopping.IDP
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultHealthChecks();
                 endpoints.MapDefaultControllerRoute();
             });
         }

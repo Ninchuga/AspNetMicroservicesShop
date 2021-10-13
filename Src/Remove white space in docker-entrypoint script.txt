@@ -1,0 +1,3 @@
+Navigate to a directory with docker-entrypoint.sh script and execute this command to remove white spaces
+
+(Get-Content docker-entrypoint.sh -raw) | % {$_ -replace "`r", ""} | Set-Content -NoNewline docker-entrypoint.sh

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Shopping.HealthChecks;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -58,6 +59,9 @@ namespace Catalog.API
             {
                 configure.Filters.Add(new AuthorizeFilter(requiredAuthenticatedUserPolicy));
             });
+
+            // Healtcheks for the API
+            services.AddHealthChecks();
 
             services.AddSwaggerGen(c =>
             {
@@ -114,6 +118,7 @@ namespace Catalog.API
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultHealthChecks();
                 endpoints.MapControllers();
             });
         }

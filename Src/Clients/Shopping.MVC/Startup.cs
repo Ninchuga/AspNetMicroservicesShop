@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Shopping.Common.Correlations;
 using Shopping.Common.Logging;
+using Shopping.HealthChecks;
 using Shopping.MVC.Extensions;
 using Shopping.MVC.Services;
 using System;
@@ -36,6 +38,18 @@ namespace Shopping.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // HealthStatus.Degraded if we want to continue our Client app working altough downstream api is not responding
+            // HealthStatus.Unhealthy when our downstream api is crucial for continuation of the app
+            services.AddHealthChecks()
+                .AddApiHealth(
+                        new Uri(Configuration["IdentityProviderSettings:IdentityServiceUrl"]),
+                        "Identity Provider",
+                        HealthStatus.Unhealthy,
+                        null,
+                        TimeSpan.FromSeconds(2))
+                .AddApiHealth(new Uri(Configuration["ApiSettings:Catalog:CatalogUrl"]), "Catalog API")
+                .AddApiHealth(new Uri(Configuration["ApiSettings:Basket:BasketUrl"]), "Basket API");
+
             services.AddRazorPages(options => 
             {
                 options.Conventions.AuthorizePage("/Catalog");
@@ -71,7 +85,7 @@ namespace Shopping.MVC
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
                 //options.MetadataAddress = "https://localhost:8021/.well-known/openid-configuration";
-                options.RequireHttpsMetadata = false; // to disable HTTPS when calling identity authority
+                //options.RequireHttpsMetadata = false; // to disable HTTPS when calling identity authority
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // this ensures that valid authentication will be stored in cookie
                 options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                 options.ClientId = "shopping_web_client";
@@ -95,9 +109,6 @@ namespace Shopping.MVC
                 {
                     NameClaimType = JwtClaimTypes.GivenName,
                     RoleClaimType = JwtClaimTypes.Role
-                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("AppSettings:ClientSecret")))
-                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("authorizationInteractiveSecret"))
-                    //ValidateIssuerSigningKey = false
                 };
             });
 
@@ -158,7 +169,6 @@ namespace Shopping.MVC
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
-                
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -200,6 +210,7 @@ namespace Shopping.MVC
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultHealthChecks();
                 endpoints.MapRazorPages();
             });
         }

@@ -10,6 +10,7 @@ using Shopping.Aggregator.DelegatingHandlers;
 using Shopping.Aggregator.Extensions;
 using Shopping.Aggregator.Services;
 using Shopping.Common.Correlations;
+using Shopping.HealthChecks;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -32,10 +33,11 @@ namespace Shopping.Aggregator
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
+            services.AddHttpContextAccessor();
+
             // Used for storing access tokens in the cache in a delegating handlers
             services.AddAccessTokenManagement();
-
-            services.AddHttpContextAccessor();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(options =>
@@ -120,6 +122,7 @@ namespace Shopping.Aggregator
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultHealthChecks();
                 endpoints.MapControllers();
             });
         }

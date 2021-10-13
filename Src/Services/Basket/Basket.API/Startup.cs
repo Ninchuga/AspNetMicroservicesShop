@@ -17,6 +17,7 @@ using Microsoft.OpenApi.Models;
 using Shopping.Common;
 using Shopping.Common.Correlations;
 using Shopping.Common.Logging;
+using Shopping.HealthChecks;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -39,6 +40,7 @@ namespace Basket.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
             services.AddHttpContextAccessor();
             services.AddAccessTokenManagement(); // for token cache
 
@@ -149,6 +151,7 @@ namespace Basket.API
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultHealthChecks();
                 endpoints.MapControllers();
             });
         }

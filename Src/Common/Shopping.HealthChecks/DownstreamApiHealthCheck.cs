@@ -1,0 +1,34 @@
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Shopping.HealthChecks
+{
+    public class DownstreamApiHealthCheck : IHealthCheck
+    {
+        private readonly Uri _apiEndpoint;
+        private readonly HttpClient _httpClient;
+        private const string UriHealthLiveSuffix = "health/live";
+
+        public DownstreamApiHealthCheck(Uri apiEndpoint)
+        {
+            _apiEndpoint = apiEndpoint;
+            _httpClient = new HttpClient();
+        }
+
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        {
+            var response = await _httpClient.GetAsync($"{_apiEndpoint.AbsoluteUri}{UriHealthLiveSuffix}");
+            if (response.IsSuccessStatusCode)
+            {
+                return HealthCheckResult.Healthy();
+            }
+
+            return new HealthCheckResult(context.Registration.FailureStatus);
+        }
+    }
+}

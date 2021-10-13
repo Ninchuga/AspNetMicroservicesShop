@@ -3,6 +3,7 @@ using IdentityServer4.AccessTokenValidation;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,7 @@ using Ordering.Infrastructure;
 using Shopping.Common;
 using Shopping.Common.Correlations;
 using Shopping.Common.Logging;
+using Shopping.HealthChecks;
 using System.Collections.Generic;
 
 namespace Ordering.API
@@ -47,8 +49,6 @@ namespace Ordering.API
             services.AddHttpClient<ITokenValidationService, TokenValidationService>();
             services.AddScoped<BasketCheckoutConsumer>();
             services.AddAutoMapper(typeof(Startup));
-            services.AddTransient<LoggingDelegatingHandler>();
-            services.AddTransient<CorrelationIdDelegatingHandler>();
 
             // MassTransit-RabbitMQ Configuration
             services.AddMassTransit(config =>
@@ -131,6 +131,7 @@ namespace Ordering.API
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultHealthChecks(); // livelyness health endpoint routes
                 endpoints.MapControllers();
             });
         }

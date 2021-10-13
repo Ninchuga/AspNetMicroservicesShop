@@ -299,9 +299,10 @@ services:
     volumes:
       - ./Identity/Shopping.IDP:/root/Identity
       - ./Identity/Shopping.IDP/certs:/https/
-      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
-        source: ./certs/shopping-root-cert.cer
-        target: /https-root/shopping-root-cert.cer
+      - ./Certificates/Root/shopping-root-cert.crt:/usr/local/share/ca-certificates/shopping-root-cert.crt:ro
+      #- type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        #source: ./Certificates/Root/shopping-root-cert.crt
+        #target: /https-root/shopping-root-cert.cer
 
   shopping.mvc:
     container_name: shopping.web
@@ -324,9 +325,10 @@ services:
     volumes:
       - ./Clients/Shopping.MVC:/root/ShoppingMVC
       - ./Clients/Shopping.MVC/certs:/https/
-      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
-        source: ./certs/shopping-root-cert.cer
-        target: /https-root/shopping-root-cert.cer
+      - ./Certificates/Root/shopping-root-cert.crt:/usr/local/share/ca-certificates/shopping-root-cert.crt:ro # ro means readonly option
+      #- type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        #source: ./Certificates/Root/shopping-root-cert.crt
+        #target: /https-root/shopping-root-cert.crt
     #depends_on:
       #- shopping.idp
       #- shopping.aggregator

@@ -35,4 +35,8 @@
   <ItemGroup>
     <EmbeddedResource Include="certs\Shopping.IDP.pfx" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
+  </ItemGroup>
 </Project>

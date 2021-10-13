@@ -36,6 +36,10 @@ namespace Ordering.Infrastructure
             services.Configure<EmailSettings>(c => configuration.GetSection("EmailSettings"));
             services.AddScoped<IEmailService, EmailService>();
 
+            // Healtcheks for the API
+            services.AddHealthChecks()
+                .AddDbContextCheck<OrderContext>(); //checks the underlying context connection, calls CanConnectAsync
+
             return services;
         }
     }

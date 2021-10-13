@@ -8,6 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["Clients/Shopping.MVC/Shopping.MVC.csproj", "Clients/Shopping.MVC/"]
 COPY ["Common/Shopping.Common/Shopping.Common.csproj", "Common/Shopping.Common/"]
+COPY ["Common/Shopping.HealthChecks/Shopping.HealthChecks.csproj", "Common/Shopping.HealthChecks/"]
 RUN dotnet restore "Clients/Shopping.MVC/Shopping.MVC.csproj"
 COPY . .
 WORKDIR "/src/Clients/Shopping.MVC"
@@ -19,16 +20,15 @@ RUN dotnet publish "Shopping.MVC.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+#ENTRYPOINT ["dotnet", "Shopping.MVC.dll"]
 
-COPY ./Certificates/Root/shopping-root-cert.crt /usr/local/share/ca-certificates/shopping-root-cert.crt
-COPY ./Certificates/Root/shopping-root-cert.crt /etc/ssl/certs/shopping-root-cert.crt
-RUN chmod 644 /usr/local/share/ca-certificates/shopping-root-cert.crt
-RUN update-ca-certificates
+#COPY ./Certificates/Root/shopping-root-cert.crt /usr/local/share/ca-certificates/shopping-root-cert.crt
+#COPY ./Certificates/Root/shopping-root-cert.crt /etc/ssl/certs/shopping-root-cert.crt
+#RUN chmod 644 /usr/local/share/ca-certificates/shopping-root-cert.crt
+#RUN update-ca-certificates
 
-ENTRYPOINT ["dotnet", "Shopping.MVC.dll"]
+COPY ./Clients/Shopping.MVC/docker-entrypoint.sh . # copy inside current folder, /app in this case
 
-#COPY ./docker-entrypoint.sh /root/ShoppingMVC/docker-entrypoint.sh <- no need for this
-#RUN chmod +x /root/ShoppingMVC/docker-entrypoint.sh #it's already mounted via volume in docker compose, no need to copy it
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
-#WORKDIR /root/Identity
-#ENTRYPOINT ["./docker-entrypoint.sh"]
+
