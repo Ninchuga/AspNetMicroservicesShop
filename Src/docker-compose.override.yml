@@ -93,8 +93,8 @@ services:
       - logging_data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-    networks:
-      - elastic
+    #networks:
+      #- elastic
 
   kibana:
     container_name: kibana
@@ -103,8 +103,8 @@ services:
     environment:
       ELASTICSEARCH_URL: http://elastics:9200
       ELASTICSEARCH_HOSTS: http://elastics:9200
-    networks:
-      - elastic
+    #networks:
+      #- elastic
 
   catalog.api:
     container_name: catalog.api
@@ -112,6 +112,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - "DatabaseSettings:ConnectionString=mongodb://catalogdb:27017"
       - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=https://+;http://+
       #- ASPNETCORE_HTTPS_PORT=8000
       #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
@@ -137,6 +138,7 @@ services:
       - "GrpcSettings:DiscountUrl=http://discount.grpc"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
       - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=https://+;http://+
       #- ASPNETCORE_HTTPS_PORT=8001
       #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
@@ -172,6 +174,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - "DatabaseSettings:ConnectionString=Server=discountdb;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
       - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=https://+;http://+
       #- ASPNETCORE_HTTPS_PORT=8003
       #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
@@ -196,6 +199,7 @@ services:
       - "ConnectionStrings:OrderingConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=SwN12345678;"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
       - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=https://+;http://+
       #- ASPNETCORE_HTTPS_PORT=8004
       #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
@@ -219,6 +223,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=https://+;http://+
       #- ASPNETCORE_HTTPS_PORT=8010
       #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
@@ -248,6 +253,7 @@ services:
       - "ApiSettings:BasketUrl=http://basket.api"
       - "ApiSettings:OrderingUrl=http://ordering.api"
       - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
+      - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=https://+;http://+
       #- ASPNETCORE_HTTPS_PORT=8005
       #- ASPNETCORE_Kestrel__Certificates__Default__Password=password
@@ -282,6 +288,7 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.IDP.pfx
       - "WebClientUrls:SignInUrl=https://shopping.web:8999/signin-oidc"
       - "WebClientUrls:SignOutUrl=https://shopping.web:8999/signout-callback-oidc"
+      - "Logging:ElasticUrl=http://elastics:9200"
     depends_on:
       - identitydb
     ports:
@@ -308,6 +315,7 @@ services:
       - "ApiSettings:Order:OrderUrl=http://order.api/Order/"
       - "ApiSettings:Order:OrderGatewayUrl=http://ocelotapigateway/Order/"
       - "ApiSettings:Aggregators:ShoppingAggregatorUrl=http://shopping.aggregator"
+      - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_URLS=https://+
       - ASPNETCORE_HTTPS_PORT=8999
