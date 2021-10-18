@@ -42,13 +42,13 @@ namespace Shopping.MVC
             // HealthStatus.Unhealthy when our downstream api is crucial for continuation of the app
             services.AddHealthChecks()
                 .AddApiHealth(
-                        new Uri(Configuration["IdentityProviderSettings:IdentityServiceUrl"]),
+                        new Uri(Configuration["IdentityProviderSettings:IdentityServiceHealthCheckUrl"]),
                         "Identity Provider",
                         HealthStatus.Unhealthy,
                         null,
                         TimeSpan.FromSeconds(2))
-                .AddApiHealth(new Uri(Configuration["ApiSettings:Catalog:CatalogUrl"]), "Catalog API")
-                .AddApiHealth(new Uri(Configuration["ApiSettings:Basket:BasketUrl"]), "Basket API");
+                .AddApiHealth(new Uri($"{Configuration["ApiSettings:Catalog:CatalogGatewayHealthCheckUrl"]}"), "Catalog API")
+                .AddApiHealth(new Uri($"{Configuration["ApiSettings:Basket:BasketGatewayHealthCheckUrl"]}"), "Basket API");
 
             services.AddRazorPages(options => 
             {

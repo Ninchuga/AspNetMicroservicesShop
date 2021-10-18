@@ -53,8 +53,8 @@ namespace OcelotApiGateway
             services.AddOcelot()
                 .AddDelegatingHandler<CatalogApiTokenExchangeDelegatingHandler>()
                 .AddDelegatingHandler<BasketApiTokenExchangeDelegatingHandler>()
-                .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>()
-                .AddDelegatingHandler<CorrelationIdDelegatingHandler>();
+                .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>();
+                //.AddDelegatingHandler<CorrelationIdDelegatingHandler>();
                 //.AddCacheManager(settings => settings.WithDictionaryHandle());
         }
 
@@ -66,7 +66,22 @@ namespace OcelotApiGateway
                 app.UseDeveloperExceptionPage();
             }
 
-            app.AddCorrelationLoggingMiddleware();
+            var conf = new OcelotPipelineConfiguration()
+            {
+                PreErrorResponderMiddleware = async (ctx, next) =>
+                {
+                    if (ctx.Request.Path.Equals(new PathString("/")))
+                    {
+                        await ctx.Response.WriteAsync("ok");
+                    }
+                    else
+                    {
+                        await next.Invoke();
+                    }
+                }
+            };
+
+            //app.AddCorrelationLoggingMiddleware();
 
             // Ocelot will not pass request to any middleware so we can delete anything after it
             // Ocelot will handle the request all by itself

@@ -95,7 +95,7 @@ volumes:
   logging_data:
     driver: local
 
-networks:
-  elastic:
-    driver: bridge
+#networks:
+ # elastic:
+  #  driver: bridge
 

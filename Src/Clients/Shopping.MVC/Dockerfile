@@ -27,7 +27,7 @@ COPY --from=publish /app/publish .
 #RUN chmod 644 /usr/local/share/ca-certificates/shopping-root-cert.crt
 #RUN update-ca-certificates
 
-COPY ./Clients/Shopping.MVC/docker-entrypoint.sh . # copy inside current folder, /app in this case
+COPY ./Clients/Shopping.MVC/docker-entrypoint.sh /app/docker-entrypoint.sh
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 

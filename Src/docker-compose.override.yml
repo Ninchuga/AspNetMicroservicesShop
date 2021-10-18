@@ -135,7 +135,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "CacheSettings:ConnectionString=basketdb:6379"
-      - "GrpcSettings:DiscountUrl=http://discount.grpc"
+      - "GrpcSettings:DiscountUrl=http://discount.grpc:8003"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
       - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
       - "Logging:ElasticUrl=http://elastics:9200"
@@ -249,9 +249,9 @@ services:
     container_name: shopping.aggregator
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "ApiSettings:CatalogUrl=http://catalog.api"
-      - "ApiSettings:BasketUrl=http://basket.api"
-      - "ApiSettings:OrderingUrl=http://ordering.api"
+      - "ApiSettings:CatalogUrl=http://catalog.api:8000"
+      - "ApiSettings:BasketUrl=http://basket.api:8001"
+      - "ApiSettings:OrderingUrl=http://ordering.api:8004"
       - "IdentityProviderSettings:IdentityServiceUrl=http://shopping.identity:8021"
       - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=https://+;http://+
@@ -295,7 +295,7 @@ services:
       #- "8021:80"
       - 8021:443
     expose:
-      - '8021'
+      - 8021
     volumes:
       - ./Identity/Shopping.IDP:/root/Identity
       - ./Identity/Shopping.IDP/certs:/https/
@@ -309,13 +309,16 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "IdentityProviderSettings:IdentityServiceUrl=https://shopping.identity:8021"
-      - "ApiSettings:Catalog:CatalogUrl=http://catalog.api"
-      - "ApiSettings:Catalog:CatalogGatewayUrl=http://ocelotapigateway/Catalog/"
-      - "ApiSettings:Basket:BasketUrl=http://basket.api"
-      - "ApiSettings:Basket:BasketGatewayUrl=http://ocelotapigateway/Basket/"
-      - "ApiSettings:Order:OrderUrl=http://order.api/Order/"
-      - "ApiSettings:Order:OrderGatewayUrl=http://ocelotapigateway/Order/"
-      - "ApiSettings:Aggregators:ShoppingAggregatorUrl=http://shopping.aggregator"
+      - "IdentityProviderSettings:IdentityServiceHealthCheckUrl=https://shopping.identity:8021/health/live"
+      - "ApiSettings:Catalog:CatalogUrl=http://catalog.api:8000"
+      - "ApiSettings:Catalog:CatalogGatewayUrl=http://ocelotapigateway:8010/Catalog/"
+      - "ApiSettings:Catalog:CatalogGatewayHealthCheckUrl=http://ocelotapigateway:8010/Catalog/api/health/live"
+      - "ApiSettings:Basket:BasketUrl=http://basket.api:8001"
+      - "ApiSettings:Basket:BasketGatewayUrl=http://ocelotapigateway:8010/Basket/"
+      - "ApiSettings:Basket:BasketGatewayHealthCheckUrl=http://ocelotapigateway:8010/Basket/api/health/live"
+      - "ApiSettings:Order:OrderUrl=http://order.api:8004"
+      - "ApiSettings:Order:OrderGatewayUrl=http://ocelotapigateway:8010/Order/"
+      - "ApiSettings:Aggregators:ShoppingAggregatorUrl=http://shopping.aggregator:8005"
       - "Logging:ElasticUrl=http://elastics:9200"
       #- ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_URLS=https://+
@@ -336,4 +339,6 @@ services:
     ports:
       #- 8999:80
       - 8999:443
+    expose:
+      - 8999
 

@@ -12,7 +12,6 @@ namespace Shopping.HealthChecks
     {
         private readonly Uri _apiEndpoint;
         private readonly HttpClient _httpClient;
-        private const string UriHealthLiveSuffix = "health/live";
 
         public DownstreamApiHealthCheck(Uri apiEndpoint)
         {
@@ -22,7 +21,7 @@ namespace Shopping.HealthChecks
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            var response = await _httpClient.GetAsync($"{_apiEndpoint.AbsoluteUri}{UriHealthLiveSuffix}");
+            var response = await _httpClient.GetAsync(_apiEndpoint.AbsoluteUri);
             if (response.IsSuccessStatusCode)
             {
                 return HealthCheckResult.Healthy();

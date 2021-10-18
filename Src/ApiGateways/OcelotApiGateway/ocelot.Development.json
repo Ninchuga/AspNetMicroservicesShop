@@ -1,14 +1,13 @@
 {
-  // These routes are used for Docker containers
   "Routes": [
     //Catalog API
     {
       "DownstreamPathTemplate": "/api/v1/Catalog",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "catalog.api",
-          "Port": "80"
+          "Port": "443"
         }
       ],
       "UpstreamPathTemplate": "/Catalog/api",
@@ -38,8 +37,20 @@
       "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ]
     },
     {
-      "DownstreamPathTemplate": "/api/v1/Catalog/GetProductByCategory/{category}",
+      "DownstreamPathTemplate": "/api/v1/Catalog/health/live",
       "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "catalog.api",
+          "Port": "443"
+        }
+      ],
+      "UpstreamPathTemplate": "/Catalog/api/health/live",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/Catalog/GetProductByCategory/{category}",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "catalog.api",
@@ -77,12 +88,23 @@
       //}
     },
     {
-      "DownstreamPathTemplate": "/api/v1/Basket/DeleteBasketItem/{itemId}",
+      "DownstreamPathTemplate": "/api/v1/Basket/health/live",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "basket.api",
-          //"Port": "8001" // for docker api
+          "Port": "443"
+        }
+      ],
+      "UpstreamPathTemplate": "/Basket/api/health/live",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/Basket/DeleteBasketItem/{itemId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "basket.api",
           "Port": "443"
         }
       ],
@@ -104,7 +126,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "basket.api",
-          //"Port": "8001" // for docker api
           "Port": "443"
         }
       ],
@@ -147,7 +168,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "basket.api",
-          //"Port": "8001" // for docker api
           "Port": "443"
         }
       ],
@@ -198,8 +218,9 @@
     //  "DownstreamScheme": "http",
     //  "DownstreamHostAndPorts": [
     //    {
-    //      "Host": "discount.api",
-    //      "Port": "80"
+    //      "Host": "localhost",
+    //      //"Port": "8002" // for docker api
+    //      "Port": "5002"
     //    }
     //  ],
     //  "UpstreamPathTemplate": "/Discount/api/{productName}",
@@ -210,8 +231,9 @@
     //  "DownstreamScheme": "http",
     //  "DownstreamHostAndPorts": [
     //    {
-    //      "Host": "discount.api",
-    //      "Port": "80"
+    //      "Host": "localhost",
+    //      //"Port": "8002" // for docker api
+    //      "Port": "5002"
     //    }
     //  ],
     //  "UpstreamPathTemplate": "/Discount/api",
@@ -229,7 +251,12 @@
         }
       ],
       "UpstreamPathTemplate": "/Order/api/{userId}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "OrderApiTokenExchangeDelegatingHandler" ]
     }
   ],
   "GlobalConfiguration": {

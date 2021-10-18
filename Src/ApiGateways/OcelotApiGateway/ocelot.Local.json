@@ -7,7 +7,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8000" // for docker api
           "Port": "5000"
         }
       ],
@@ -26,7 +25,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8000" // for docker api
           "Port": "5000"
         }
       ],
@@ -39,12 +37,23 @@
       "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ]
     },
     {
+      "DownstreamPathTemplate": "/health/live",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5000"
+        }
+      ],
+      "UpstreamPathTemplate": "/Catalog/api/health/live",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
       "DownstreamPathTemplate": "/api/v1/Catalog/GetProductByCategory/{category}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8000" // for docker api
           "Port": "5000"
         }
       ],
@@ -63,7 +72,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8001" // for docker api
           "Port": "5001"
         }
       ],
@@ -80,12 +88,23 @@
       //}
     },
     {
+      "DownstreamPathTemplate": "/health/live",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5001"
+        }
+      ],
+      "UpstreamPathTemplate": "/Basket/api/health/live",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
       "DownstreamPathTemplate": "/api/v1/Basket/DeleteBasketItem/{itemId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8001" // for docker api
           "Port": "5001"
         }
       ],
@@ -107,7 +126,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8001" // for docker api
           "Port": "5001"
         }
       ],
@@ -129,7 +147,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8001" // for docker api
           "Port": "5001"
         }
       ],
@@ -151,7 +168,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8001" // for docker api
           "Port": "5001"
         }
       ],
@@ -173,7 +189,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8001" // for docker api
           "Port": "5001"
         }
       ],
@@ -232,7 +247,6 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          //"Port": "8004" // for docker api
           "Port": "5004"
         }
       ],
@@ -246,7 +260,8 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:5010"
+    "BaseUrl": "https://localhost:5010",
+    //"RequestIdKey": "X-Correlation-ID"
   },
   "IdentityProviderSettings": {
     "IdentityServiceUrl": "https://localhost:44318"
