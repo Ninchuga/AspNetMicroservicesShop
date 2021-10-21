@@ -1,4 +1,4 @@
-﻿namespace Shopping.Common.Constants
+﻿namespace Shopping.Correlation.Constants
 {
     public class Headers
     {

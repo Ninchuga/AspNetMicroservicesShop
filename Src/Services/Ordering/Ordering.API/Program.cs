@@ -5,7 +5,7 @@ using Ordering.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.API.Extensions;
 using Serilog;
-using Shopping.Common.Logging;
+using Shopping.Logging;
 
 namespace Ordering.API
 {

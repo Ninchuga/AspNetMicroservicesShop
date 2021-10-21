@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Shopping.Common.Logging;
+using Shopping.Logging;
 
 namespace OcelotApiGateway
 {
@@ -26,11 +26,5 @@ namespace OcelotApiGateway
                     webBuilder.UseStartup<Startup>();
                 })
                 .UseSerilog(LoggingConfiguration.Configure);
-        //.ConfigureLogging((hostingContext, loggingBuilder) =>
-        //{
-        //    loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-        //    loggingBuilder.AddConsole();
-        //    loggingBuilder.AddDebug();
-        //});
     }
 }

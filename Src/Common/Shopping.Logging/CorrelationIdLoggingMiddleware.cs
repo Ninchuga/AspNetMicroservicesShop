@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Shopping.Common.Constants;
+using Shopping.Correlation.Constants;
 using System.Threading.Tasks;
 
-namespace Shopping.Common.Logging
+namespace Shopping.Logging
 {
     /// <summary>
     /// Used in downstream services for logging scope with correlation id

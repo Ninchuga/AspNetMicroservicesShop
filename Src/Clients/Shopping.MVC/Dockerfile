@@ -7,7 +7,8 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["Clients/Shopping.MVC/Shopping.MVC.csproj", "Clients/Shopping.MVC/"]
-COPY ["Common/Shopping.Common/Shopping.Common.csproj", "Common/Shopping.Common/"]
+COPY ["Common/Shopping.Correlation/Shopping.Correlation.csproj", "Common/Shopping.Correlation/"]
+COPY ["Common/Shopping.Logging/Shopping.Logging.csproj", "Common/Shopping.Logging/"]
 COPY ["Common/Shopping.HealthChecks/Shopping.HealthChecks.csproj", "Common/Shopping.HealthChecks/"]
 RUN dotnet restore "Clients/Shopping.MVC/Shopping.MVC.csproj"
 COPY . .
@@ -30,5 +31,3 @@ COPY --from=publish /app/publish .
 COPY ./Clients/Shopping.MVC/docker-entrypoint.sh /app/docker-entrypoint.sh
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
-
-

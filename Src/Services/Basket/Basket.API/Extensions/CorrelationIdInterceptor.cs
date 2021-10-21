@@ -1,12 +1,10 @@
 ﻿using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Microsoft.AspNetCore.Http;
-using Shopping.Common.Constants;
+using Shopping.Correlation.Constants;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Basket.API.Extensions
 {

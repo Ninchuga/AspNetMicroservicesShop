@@ -3,7 +3,6 @@ using IdentityServer4.AccessTokenValidation;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -15,9 +14,6 @@ using Ordering.API.Extensions;
 using Ordering.API.Helpers;
 using Ordering.Application;
 using Ordering.Infrastructure;
-using Shopping.Common;
-using Shopping.Common.Correlations;
-using Shopping.Common.Logging;
 using Shopping.HealthChecks;
 using System.Collections.Generic;
 

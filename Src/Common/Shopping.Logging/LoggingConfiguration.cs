@@ -8,7 +8,7 @@ using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 using System;
 
-namespace Shopping.Common.Logging
+namespace Shopping.Logging
 {
     public static class LoggingConfiguration
     {

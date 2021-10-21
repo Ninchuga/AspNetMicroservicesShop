@@ -1,5 +1,4 @@
-﻿using Destructurama.Attributed;
-using System;
+﻿using System;
 
 namespace EventBus.Messages.Events
 {
@@ -17,9 +16,7 @@ namespace EventBus.Messages.Events
         public string Country { get; set; }
 
         // Payment
-        [NotLogged]
         public string CardName { get; set; }
-        [LogMasked(ShowLast = 4)]
         public string CardNumber { get; set; }
     }
 }

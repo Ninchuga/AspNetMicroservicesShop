@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Shopping.Common.Logging;
+using Shopping.Logging;
 
 namespace Ordering.API.Extensions
 {

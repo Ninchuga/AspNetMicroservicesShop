@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Services\Discount\Discount.Grpc\Discount.Grpc.csproj" />
-    <ProjectReference Include="..\Shopping.Common\Shopping.Common.csproj" />
     <ProjectReference Include="..\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
   </ItemGroup>
 

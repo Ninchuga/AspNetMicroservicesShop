@@ -30,8 +30,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\EventBus.Messages\EventBus.Messages.csproj" />
-    <ProjectReference Include="..\..\..\Common\Shopping.Common\Shopping.Common.csproj" />
+    <ProjectReference Include="..\..\..\Common\Shopping.Correlation\Shopping.Correlation.csproj" />
     <ProjectReference Include="..\..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
+    <ProjectReference Include="..\..\..\Common\Shopping.Logging\Shopping.Logging.csproj" />
   </ItemGroup>
 
   <ItemGroup>

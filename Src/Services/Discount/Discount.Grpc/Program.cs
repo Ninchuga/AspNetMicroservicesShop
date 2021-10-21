@@ -2,7 +2,7 @@ using Discount.Grpc.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Shopping.Common.Logging;
+using Shopping.Logging;
 
 namespace Discount.Grpc
 {

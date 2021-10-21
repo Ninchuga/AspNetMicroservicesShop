@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Shopping.Common.Constants;
+using Shopping.Correlation.Constants;
 using System;
 using System.Threading.Tasks;
 
-namespace Shopping.Common.Correlations
+namespace Shopping.Correlation
 {
     /// <summary>
     /// Used in Client apps to generate correlation id for each request to downstream services

@@ -9,7 +9,7 @@ using Shopping.Aggregator.Contracts;
 using Shopping.Aggregator.DelegatingHandlers;
 using Shopping.Aggregator.Extensions;
 using Shopping.Aggregator.Services;
-using Shopping.Common.Correlations;
+using Shopping.Correlation;
 using Shopping.HealthChecks;
 using System;
 using System.Collections.Generic;

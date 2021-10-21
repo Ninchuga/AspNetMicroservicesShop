@@ -53,8 +53,6 @@ namespace OcelotApiGateway
                 .AddDelegatingHandler<CatalogApiTokenExchangeDelegatingHandler>()
                 .AddDelegatingHandler<BasketApiTokenExchangeDelegatingHandler>()
                 .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>();
-                //.AddDelegatingHandler<CorrelationIdDelegatingHandler>();
-                //.AddCacheManager(settings => settings.WithDictionaryHandle());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

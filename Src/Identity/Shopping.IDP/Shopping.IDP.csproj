@@ -25,7 +25,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.10" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
-    <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,5 +37,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
+    <ProjectReference Include="..\..\Common\Shopping.Logging\Shopping.Logging.csproj" />
   </ItemGroup>
 </Project>

@@ -9,10 +9,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Shopping.Common;
-using Shopping.Common.Correlations;
-using Shopping.Common.Logging;
+using Shopping.Correlation;
 using Shopping.HealthChecks;
+using Shopping.Logging;
 
 namespace Discount.Grpc
 {

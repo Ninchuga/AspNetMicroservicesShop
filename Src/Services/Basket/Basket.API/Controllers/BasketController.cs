@@ -5,7 +5,7 @@ using Basket.API.Services.Basket;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Shopping.Common.Constants;
+using Shopping.Correlation.Constants;
 using System;
 using System.Linq;
 using System.Net;

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Shopping.Common.Constants;
+using Shopping.Correlation.Constants;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Shopping.Common.Correlations
+namespace Shopping.Correlation
 {
     public class CorrelationIdDelegatingHandler : DelegatingHandler
     {

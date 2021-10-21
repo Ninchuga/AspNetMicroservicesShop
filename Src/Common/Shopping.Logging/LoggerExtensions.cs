@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Http;
 
-namespace Shopping.Common.Logging
+namespace Shopping.Logging
 {
     public static class LoggerExtensions
     {

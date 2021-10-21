@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Shopping.Common.Logging
+namespace Shopping.Logging
 {
     public class LoggingDelegatingHandler : DelegatingHandler
     {
