@@ -6,18 +6,19 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
-COPY ["ApiGateways/OcelotApiGateway/OcelotApiGateway.csproj", "ApiGateways/OcelotApiGateway/"]
+COPY ["Common/Shopping.WebStatus/Shopping.WebStatus.csproj", "Common/Shopping.WebStatus/"]
+COPY ["Services/Discount/Discount.Grpc/Discount.Grpc.csproj", "Services/Discount/Discount.Grpc/"]
 COPY ["Common/Shopping.Common/Shopping.Common.csproj", "Common/Shopping.Common/"]
 COPY ["Common/Shopping.HealthChecks/Shopping.HealthChecks.csproj", "Common/Shopping.HealthChecks/"]
-RUN dotnet restore "ApiGateways/OcelotApiGateway/OcelotApiGateway.csproj"
+RUN dotnet restore "Common/Shopping.WebStatus/Shopping.WebStatus.csproj"
 COPY . .
-WORKDIR "/src/ApiGateways/OcelotApiGateway"
-RUN dotnet build "OcelotApiGateway.csproj" -c Release -o /app/build
+WORKDIR "/src/Common/Shopping.WebStatus"
+RUN dotnet build "Shopping.WebStatus.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "OcelotApiGateway.csproj" -c Release -o /app/publish
+RUN dotnet publish "Shopping.WebStatus.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "OcelotApiGateway.dll"]
+ENTRYPOINT ["dotnet", "Shopping.WebStatus.dll"]

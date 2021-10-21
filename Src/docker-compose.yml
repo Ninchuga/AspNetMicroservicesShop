@@ -85,6 +85,12 @@ services:
       context: .
       dockerfile: Clients/Shopping.MVC/Dockerfile
 
+  shopping.webstatus:
+    image: ${DOCKER_REGISTRY-}shoppingwebstatus
+    build:
+      context: .
+      dockerfile: Common/Shopping.WebStatus/Dockerfile
+
 volumes:
   mongo_data:
   portainer_data:
@@ -98,4 +104,5 @@ volumes:
 #networks:
  # elastic:
   #  driver: bridge
+
 

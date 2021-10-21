@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,10 +18,12 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="5.0.1" />
     <PackageReference Include="Grpc.HealthCheck" Version="2.24.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.40.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Services\Discount\Discount.Grpc\Discount.Grpc.csproj" />
+    <ProjectReference Include="..\Shopping.Common\Shopping.Common.csproj" />
     <ProjectReference Include="..\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
   </ItemGroup>
 

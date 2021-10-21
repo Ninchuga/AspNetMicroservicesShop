@@ -37,18 +37,6 @@
       "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ]
     },
     {
-      "DownstreamPathTemplate": "/health/live",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": "5000"
-        }
-      ],
-      "UpstreamPathTemplate": "/Catalog/api/health/live",
-      "UpstreamHttpMethod": [ "GET" ]
-    },
-    {
       "DownstreamPathTemplate": "/api/v1/Catalog/GetProductByCategory/{category}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -86,18 +74,6 @@
       //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
       //  "CurrentUser": "Claims[sub] > value"
       //}
-    },
-    {
-      "DownstreamPathTemplate": "/health/live",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": "5001"
-        }
-      ],
-      "UpstreamPathTemplate": "/Basket/api/health/live",
-      "UpstreamHttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/api/v1/Basket/DeleteBasketItem/{itemId}",

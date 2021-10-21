@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+using Serilog;
+using Shopping.Common.Logging;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Shopping.WebStatus
 {
@@ -23,6 +19,7 @@ namespace Shopping.WebStatus
                 {
                     webBuilder.UseContentRoot(Directory.GetCurrentDirectory());
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .UseSerilog(LoggingConfiguration.Configure);
     }
 }
