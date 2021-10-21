@@ -131,7 +131,7 @@ namespace Ordering.API
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultHealthChecks(); // livelyness health endpoint routes
+                endpoints.MapDefaultHealthChecks();
                 endpoints.MapControllers();
             });
         }

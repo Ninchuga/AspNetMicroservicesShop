@@ -1,6 +1,7 @@
 ﻿using Discount.Grpc.Extensions;
 using Discount.Grpc.Repositories;
 using Discount.Grpc.Services;
+using Grpc.HealthCheck;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Shopping.Common;
 using Shopping.Common.Correlations;
 using Shopping.Common.Logging;
+using Shopping.HealthChecks;
 
 namespace Discount.Grpc
 {
@@ -27,12 +29,17 @@ namespace Discount.Grpc
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks()
+                .AddNpgSql(Configuration["DatabaseSettings:ConnectionString"], name: "DiscountDb");
+
             services.AddHttpContextAccessor();
             services.AddScoped<IDiscountRepository, DiscountRepository>();
             services.AddAutoMapper(typeof(Startup));
             services.AddGrpc();
             services.AddTransient<LoggingDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
+            services.AddSingleton<HealthServiceImpl>();
+            services.AddHostedService<StatusService>();
 
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -62,8 +69,9 @@ namespace Discount.Grpc
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultHealthChecks();
+                endpoints.MapGrpcService<HealthServiceImpl>();
                 endpoints.MapGrpcService<DiscountService>();
-
                 endpoints.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");

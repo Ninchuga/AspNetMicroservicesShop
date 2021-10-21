@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Ordering.Application.Contracts.Infrastrucutre;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Models;
@@ -8,8 +9,6 @@ using Ordering.Infrastructure.Mail;
 using Ordering.Infrastructure.Persistence;
 using Ordering.Infrastructure.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Ordering.Infrastructure
 {
@@ -38,7 +37,8 @@ namespace Ordering.Infrastructure
 
             // Healtcheks for the API
             services.AddHealthChecks()
-                .AddDbContextCheck<OrderContext>(); //checks the underlying context connection, calls CanConnectAsync
+                .AddDbContextCheck<OrderContext>("Order Db", tags: new string[] { "order db ready" }) //checks the underlying context connection, calls CanConnectAsync
+                .AddRabbitMQ(configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
 
             return services;
         }

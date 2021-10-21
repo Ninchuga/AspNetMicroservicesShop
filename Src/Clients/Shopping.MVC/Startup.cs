@@ -38,17 +38,7 @@ namespace Shopping.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // HealthStatus.Degraded if we want to continue our Client app working altough downstream api is not responding
-            // HealthStatus.Unhealthy when our downstream api is crucial for continuation of the app
-            services.AddHealthChecks()
-                .AddApiHealth(
-                        new Uri(Configuration["IdentityProviderSettings:IdentityServiceHealthCheckUrl"]),
-                        "Identity Provider",
-                        HealthStatus.Unhealthy,
-                        null,
-                        TimeSpan.FromSeconds(2))
-                .AddApiHealth(new Uri($"{Configuration["ApiSettings:Catalog:CatalogGatewayHealthCheckUrl"]}"), "Catalog API")
-                .AddApiHealth(new Uri($"{Configuration["ApiSettings:Basket:BasketGatewayHealthCheckUrl"]}"), "Basket API");
+            services.AddHealthChecks();
 
             services.AddRazorPages(options => 
             {

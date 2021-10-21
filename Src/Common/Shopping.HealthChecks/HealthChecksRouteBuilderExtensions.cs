@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Routing;
 using System;
@@ -13,13 +14,14 @@ namespace Shopping.HealthChecks
         {
             endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
             {
-                Predicate = _ => true, // this way we say that we don't need any additional health checks like DbContext for this endpoint
+                Predicate = _ => true, // runs all mapped helathchekcs e.g. dbContext
                 ResponseWriter = HealthCheckResponses.WriteJsonResponse
             });
 
-            endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+            endpoints.MapHealthChecks("/healthcheck", new HealthCheckOptions
             {
-                ResponseWriter = HealthCheckResponses.WriteJsonResponse
+                Predicate = _ => true, // runs all mapped helathchekcs e.g. DbContext, Redis, RabbitMq ...
+                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
 
             return endpoints;
