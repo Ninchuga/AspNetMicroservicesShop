@@ -1,14 +1,8 @@
-using Discount.Grpc.Protos;
-using Discount.Grpc.Services;
 using Grpc.Health.V1;
-using Grpc.HealthCheck;
-using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Shopping.HealthChecks;
 using Shopping.WebStatus.Grpc.HealthChecks;
@@ -31,8 +25,8 @@ namespace Shopping.WebStatus
         {
             services
                 .AddHealthChecks()
-                .AddCheck<DiscountServiceHealthCheck>("Discount Service")
-                .AddCheck<DiscountDbServiceHealthCheck>("Discount Db")
+                .AddCheck<DiscountServiceHealthCheck>("Discount Service", tags: new string[] { "discount service ready", "grpc" })
+                .AddCheck<DiscountDbServiceHealthCheck>("Discount Db", tags: new string[] { "discount db ready", "postgresql" })
                 .Services
                 .AddHealthChecksUI(setup =>
                 {
@@ -71,18 +65,10 @@ namespace Shopping.WebStatus
 
             app.UseEndpoints(endpoints =>
             {
-
-
-                //endpoints.MapHealthChecks("/healthz", new HealthCheckOptions()
-                //{
-                //    Predicate = _ => true,
-                //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                //});
-
                 endpoints.MapDefaultHealthChecks();
                 endpoints.MapHealthChecksUI(options =>
                 {
-                    //options.UIPath = "/healthchecks-ui";
+                    //options.UIPath = "/healthchecks-ui"; default
                     options.ApiPath = "/health-ui-api";
                 });
 

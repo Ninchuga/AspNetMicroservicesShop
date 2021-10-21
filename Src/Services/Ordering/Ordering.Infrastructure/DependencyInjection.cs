@@ -37,7 +37,7 @@ namespace Ordering.Infrastructure
 
             // Healtcheks for the API
             services.AddHealthChecks()
-                .AddDbContextCheck<OrderContext>("Order Db", tags: new string[] { "order db ready" }) //checks the underlying context connection, calls CanConnectAsync
+                .AddDbContextCheck<OrderContext>("Order Context", tags: new string[] { "order context ready", "sql server" }) //checks the underlying context connection, calls CanConnectAsync
                 .AddRabbitMQ(configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
 
             return services;

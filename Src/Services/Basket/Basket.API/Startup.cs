@@ -15,9 +15,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Shopping.Common;
-using Shopping.Common.Correlations;
-using Shopping.Common.Logging;
 using Shopping.HealthChecks;
 using System;
 using System.Collections.Generic;
@@ -42,7 +39,7 @@ namespace Basket.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHealthChecks()
-                .AddRedis(Configuration["CacheSettings:ConnectionString"], "Basket Db", HealthStatus.Degraded, null, TimeSpan.FromSeconds(2))
+                .AddRedis(Configuration["CacheSettings:ConnectionString"], "Basket Db", HealthStatus.Degraded, tags: new string[] { "basket db ready", "redis" }, TimeSpan.FromSeconds(5))
                 .AddRabbitMQ(Configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
 
             services.AddHttpContextAccessor();

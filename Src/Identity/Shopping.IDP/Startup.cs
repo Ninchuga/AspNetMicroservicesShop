@@ -36,7 +36,8 @@ namespace Shopping.IDP
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHealthChecks();
+            services.AddHealthChecks()
+                .AddSqlServer(Configuration.GetConnectionString("IdentityDb"), name: "Identity Db", tags: new string[] { "identity db ready", "sql server" });
 
             // uncomment, if you want to add an MVC-based UI
             services.AddControllersWithViews();

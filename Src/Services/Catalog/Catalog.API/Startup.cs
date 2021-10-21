@@ -62,9 +62,8 @@ namespace Catalog.API
                 configure.Filters.Add(new AuthorizeFilter(requiredAuthenticatedUserPolicy));
             });
 
-            // Healtcheks for the API
             services.AddHealthChecks()
-                .AddMongoDb(Configuration["DatabaseSettings:ConnectionString"], "Catalog Db", HealthStatus.Degraded, null, TimeSpan.FromSeconds(2));
+                .AddMongoDb(Configuration["DatabaseSettings:ConnectionString"], "Catalog Db", HealthStatus.Degraded, tags: new string[] { "catalog db ready", "mongo" }, TimeSpan.FromSeconds(2));
 
             services.AddSwaggerGen(c =>
             {

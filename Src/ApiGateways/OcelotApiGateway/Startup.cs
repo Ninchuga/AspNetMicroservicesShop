@@ -1,17 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using Ocelot.Cache.CacheManager;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
 using OcelotApiGateway.DelegatingHandlers;
 using Microsoft.Extensions.Configuration;
-using OcelotApiGateway.Extensions;
-using Shopping.Common.Correlations;
+using Shopping.HealthChecks;
 
 namespace OcelotApiGateway
 {
@@ -30,6 +27,8 @@ namespace OcelotApiGateway
         {
             // Used for storing access tokens in the cache in a delegating handlers
             services.AddAccessTokenManagement();
+
+            services.AddHealthChecks();
 
             // clear Microsoft changed claim names from dictionary and preserve original ones
             // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
@@ -66,20 +65,12 @@ namespace OcelotApiGateway
                 app.UseDeveloperExceptionPage();
             }
 
-            var conf = new OcelotPipelineConfiguration()
+            app.UseRouting();
+
+            app.UseEndpoints((endpoint) =>
             {
-                PreErrorResponderMiddleware = async (ctx, next) =>
-                {
-                    if (ctx.Request.Path.Equals(new PathString("/")))
-                    {
-                        await ctx.Response.WriteAsync("ok");
-                    }
-                    else
-                    {
-                        await next.Invoke();
-                    }
-                }
-            };
+                endpoint.MapDefaultHealthChecks();
+            });
 
             //app.AddCorrelationLoggingMiddleware();
 
