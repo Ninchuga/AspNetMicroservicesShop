@@ -4,6 +4,7 @@
 
 using IdentityServer4;
 using IdentityServer4.Models;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
 namespace Shopping.IDP
@@ -70,7 +71,7 @@ namespace Shopping.IDP
             };
 
         // This is defined in Client applications (e.g. MVC client app)
-        public static IEnumerable<Client> Clients =>
+        public static IEnumerable<Client> Clients(IConfiguration configuration) =>
             new Client[] 
             { 
                 // machine to machine client credentials flow without UI interaction
@@ -107,6 +108,7 @@ namespace Shopping.IDP
                 {
                     ClientName = "Shopping Web App Client",
                     ClientId = "shopping_web_client",
+                    ClientUri = configuration["WebClientUrls:ClientUri"],
                     AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
                     //AllowedCorsOrigins = new[] { "https://localhost:8999", "https://shopping.web:8999" },
                     AllowOfflineAccess = true, // we are allowing the client to use refresh token
@@ -115,12 +117,12 @@ namespace Shopping.IDP
                     {
                         // host address of our web application (MVC client)
                         //"https://localhost:4999/signin-oidc"
-                        $"{Startup.StaticConfiguration["WebClientUrls:SignInUrl"]}"
+                        $"{configuration["WebClientUrls:SignInUrl"]}"
                     },
                     PostLogoutRedirectUris = new List<string>()
                     {
                         //"https://localhost:4999/signout-callback-oidc"
-                        $"{Startup.StaticConfiguration["WebClientUrls:SignOutUrl"]}"
+                        $"{configuration["WebClientUrls:SignOutUrl"]}"
                     },
                     AllowedScopes =
                     {

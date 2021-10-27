@@ -18,6 +18,7 @@ using Shopping.MVC.Services;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Shopping.MVC
 {
@@ -73,8 +74,14 @@ namespace Shopping.MVC
             })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
-                //options.MetadataAddress = "https://localhost:8021/.well-known/openid-configuration";
-                //options.RequireHttpsMetadata = false; // to disable HTTPS when calling identity authority
+                options.MetadataAddress = $"{Configuration["IdentityProviderSettings:IdentityServiceUrl"]}/.well-known/openid-configuration";
+                options.Configuration = new Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration
+                {
+                    JwksUri = $"{Configuration["IdentityProviderSettings:IdentityServiceUrl"]}/.well-known/openid-configuration/jwks",
+                    AuthorizationEndpoint = $"{Configuration["IdentityProviderSettings:IdentityServiceUrl"]}/authorization_endpoint",
+                    Issuer = "my_auth"
+                };
+                options.RequireHttpsMetadata = false; // to disable HTTPS when calling identity authority
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // this ensures that valid authentication will be stored in cookie
                 options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                 options.ClientId = "shopping_web_client";
@@ -86,6 +93,22 @@ namespace Shopping.MVC
                 options.Scope.Add("offline_access"); // scope for refresh token
                 //options.Scope.Add("catalogapi.fullaccess");
                 //options.Scope.Add("basketapi.fullaccess");
+                //options.CallbackPath.
+                options.Events.OnRedirectToIdentityProvider = context =>
+                {
+                    // Intercept the redirection so the browser navigates to the right URL in your host
+                    context.ProtocolMessage.IssuerAddress = Configuration["IdentityProviderRedirectUris:AuthorizationAddress"]; //"https://sso-mybest.domain.com/connect/authorize";
+                    context.ProtocolMessage.RedirectUri = Configuration["IdentityProviderRedirectUris:SigninRedirectUri"]; //"https://mybest.domain.com/signin-oidc";
+                    context.ProtocolMessage.AuthorizationEndpoint = $"{Configuration["IdentityProviderSettings:IdentityServiceUrl"]}/authorization_endpoint";
+                    context.ProtocolMessage.BuildRedirectUrl();
+                    //context.ProtocolMessage.TokenEndpoint
+                    return Task.CompletedTask;
+                };
+                //options.Events.OnRedirectToIdentityProviderForSignOut = context =>
+                //{
+                //    context.ProtocolMessage.PostLogoutRedirectUri = Configuration["IdentityProviderRedirectUris:SignoutRedirectUri"];
+                //    return Task.CompletedTask;
+                //};
                 options.ClaimActions.DeleteClaim("sid");
                 options.ClaimActions.DeleteClaim("idp");
                 options.ClaimActions.DeleteClaim("s_hash");
@@ -97,7 +120,9 @@ namespace Shopping.MVC
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     NameClaimType = JwtClaimTypes.GivenName,
-                    RoleClaimType = JwtClaimTypes.Role
+                    RoleClaimType = JwtClaimTypes.Role,
+                    //ValidateIssuer = false,
+                    //Validate
                 };
             });
 

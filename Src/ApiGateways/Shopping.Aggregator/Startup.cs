@@ -44,6 +44,7 @@ namespace Shopping.Aggregator
              {
                  options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                  options.Audience = "shoppingaggregator";
+                 options.RequireHttpsMetadata = false;
              });
 
             services.AddTransient<CatalogApiTokenExchangeDelegatingHandler>();

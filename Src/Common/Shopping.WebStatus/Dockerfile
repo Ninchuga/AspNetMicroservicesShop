@@ -21,4 +21,8 @@ RUN dotnet publish "Shopping.WebStatus.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Shopping.WebStatus.dll"]
+#ENTRYPOINT ["dotnet", "Shopping.WebStatus.dll"]
+
+COPY ./Common/Shopping.WebStatus/docker-entrypoint.sh /app/docker-entrypoint.sh
+
+ENTRYPOINT ["./docker-entrypoint.sh"]

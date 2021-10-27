@@ -3,6 +3,8 @@ using IdentityServer4;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Shopping.IDP.Models;
 using System.Collections.Generic;
@@ -15,15 +17,21 @@ namespace Shopping.IDP.Persistence
 {
     public class IdentityDbSeed
     {
-        public static async Task SeedIdentityConfiguration(ConfigurationDbContext context, ILogger logger)
+        private const string ShoppingWebClientId = "shopping_web_client";
+
+        public static async Task SeedIdentityConfiguration(ConfigurationDbContext context, ILogger logger, IConfiguration configuration)
         {
             if (!context.Clients.Any())
             {
-                foreach (var client in Config.Clients)
+                foreach (var client in Config.Clients(configuration))
                 {
                     context.Clients.Add(client.ToEntity());
                 }
                 await context.SaveChangesAsync();
+            }
+            else
+            {
+                await UpdateClientRedirectUris(context, configuration, ShoppingWebClientId);
             }
 
             if (!context.IdentityResources.Any())
@@ -54,6 +62,26 @@ namespace Shopping.IDP.Persistence
             }
 
             logger.Information("Seed database associated with context {DbContextName}", nameof(ConfigurationDbContext));
+        }
+
+        private static async Task UpdateClientRedirectUris(ConfigurationDbContext context, IConfiguration configuration, string clientId)
+        {
+            // when switching from localhost to docker environment redirect uri is different
+            // so we need to update it in that case with uri that we pass through configuration
+            var dbWebClient = context.Clients
+                                     .Include(c => c.RedirectUris)
+                                     .Include(c => c.PostLogoutRedirectUris)
+                                     .FirstOrDefault(client => client.ClientId.Equals(clientId));
+            var redirectUri = dbWebClient.RedirectUris.FirstOrDefault(cr => cr.ClientId == dbWebClient.Id);
+            var postLogoutUri = dbWebClient.PostLogoutRedirectUris.FirstOrDefault(cr => cr.ClientId == dbWebClient.Id);
+
+            var configWebClient = Config.Clients(configuration).FirstOrDefault(client => client.ClientId.Equals(clientId));
+            redirectUri.RedirectUri = configWebClient.RedirectUris.ToArray()[0];
+            postLogoutUri.PostLogoutRedirectUri = configWebClient.PostLogoutRedirectUris.ToArray()[0];
+
+            context.Update(redirectUri);
+            context.Update(postLogoutUri);
+            await context.SaveChangesAsync();
         }
 
         public static async Task SeedIdentityUsers(ApplicationDbContext context, ILogger logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
@@ -154,5 +182,7 @@ namespace Shopping.IDP.Persistence
                 await userManager.AddClaimsAsync(freeUser, claims);
             }
         }
+
+        
     }
 }

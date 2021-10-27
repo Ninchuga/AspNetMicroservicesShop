@@ -1,4 +1,5 @@
 ﻿using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Routing;
@@ -16,13 +17,15 @@ namespace Shopping.HealthChecks
             {
                 Predicate = _ => true, // runs all mapped helathchekcs e.g. dbContext
                 ResponseWriter = HealthCheckResponses.WriteJsonResponse
-            });
+            })
+            .WithMetadata(new AllowAnonymousAttribute());
 
             endpoints.MapHealthChecks("/healthcheck", new HealthCheckOptions
             {
                 Predicate = _ => true, // runs all mapped helathchekcs e.g. DbContext, Redis, RabbitMq ...
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-            });
+            })
+            .WithMetadata(new AllowAnonymousAttribute());
 
             return endpoints;
         }

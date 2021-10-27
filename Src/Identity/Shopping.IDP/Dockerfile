@@ -22,4 +22,8 @@ RUN dotnet publish "Shopping.IDP.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Shopping.IDP.dll"]
+#ENTRYPOINT ["dotnet", "Shopping.IDP.dll"]
+
+COPY ./Identity/Shopping.IDP/docker-entrypoint.sh /app/docker-entrypoint.sh
+
+ENTRYPOINT ["./docker-entrypoint.sh"]

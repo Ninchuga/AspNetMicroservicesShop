@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace Discount.Grpc.Services
 {
-    [Authorize]
     public class DiscountService : DiscountProtoService.DiscountProtoServiceBase
     {
         private readonly IDiscountRepository _repository;

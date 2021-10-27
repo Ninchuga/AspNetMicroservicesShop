@@ -23,6 +23,8 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 #ENTRYPOINT ["dotnet", "Shopping.MVC.dll"]
 
+RUN apt-get update # update linux packages for install
+
 #COPY ./Certificates/Root/shopping-root-cert.crt /usr/local/share/ca-certificates/shopping-root-cert.crt
 #COPY ./Certificates/Root/shopping-root-cert.crt /etc/ssl/certs/shopping-root-cert.crt
 #RUN chmod 644 /usr/local/share/ca-certificates/shopping-root-cert.crt

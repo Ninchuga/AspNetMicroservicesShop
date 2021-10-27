@@ -6,14 +6,15 @@
 $ErrorActionPreference = "Stop"
 
 $rootCN = "IdentityServerDockerRootCert"
-$identityServerCNs = "shopping.idp", "localhost"
+$identityServerCNs = "shopping.identity", "localhost"
 $shoppingWebClientCNs = "shopping.web" , "localhost"
 $catalogApiCNs = "catalog.api", "localhost"
 $basketApiCNs = "basket.api", "localhost"
 $discountGrpcCNs = "discount.grpc", "localhost"
-$orderApiCNs = "order.api", "localhost"
+$orderingApiCNs = "ordering.api", "localhost"
 $ocelotGatewayCNs = "ocelotapigateway", "localhost"
 $shoppingAggregatorCNs = "shopping.aggregator", "localhost"
+$shoppingWebStatusCNs = "shopping.webstatus", "localhost"
 
 $alreadyExistingCertsRoot = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$rootCN"}
 $alreadyExistingCertsIdentityServer = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $identityServerCNs[0])}
@@ -21,10 +22,12 @@ $alreadyExistingCertsShoppingWebClient = Get-ChildItem -Path Cert:\LocalMachine\
 $alreadyExistingCertsCatalogApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $catalogApiCNs[0])}
 $alreadyExistingCertsBasketApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $basketApiCNs[0])}
 $alreadyExistingCertsDiscountGrpc = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $discountGrpcCNs[0])}
-$alreadyExistingCertsOrderApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $orderApiCNs[0])}
+$alreadyExistingCertsOrderApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $orderingApiCNs[0])}
 $alreadyExistingCertsOcelotGatewayApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $ocelotGatewayCNs[0])}
 $alreadyExistingCertsShoppingAggreagtorApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingAggregatorCNs[0])}
+$alreadyExistingCertsShoppingWebStatus = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingWebStatusCNs[0])}
 
+# Root cert
 if ($alreadyExistingCertsRoot.Count -eq 1) {
     Write-Output "Skipping creating Root CA certificate as it already exists."
     $shoppingRootCA = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsRoot[0]
@@ -32,6 +35,7 @@ if ($alreadyExistingCertsRoot.Count -eq 1) {
     $shoppingRootCA = New-SelfSignedCertificate -Subject $rootCN -KeyUsageProperty Sign -KeyUsage CertSign -CertStoreLocation Cert:\LocalMachine\My
 }
 
+# Identity Provider
 if ($alreadyExistingCertsIdentityServer.Count -eq 1) {
     Write-Output "Skipping creating Identity Server certificate as it already exists."	
     $identityServerCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsIdentityServer[0]
@@ -42,7 +46,7 @@ if ($alreadyExistingCertsIdentityServer.Count -eq 1) {
 
 # Web Client
 if ($alreadyExistingCertsShoppingWebClient.Count -eq 1) {
-    Write-Output "Skipping creating API certificate as it already exists."
+    Write-Output "Skipping creating Web client certificate as it already exists."
     $shoppingWebClientCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsShoppingWebClient[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
@@ -51,7 +55,7 @@ if ($alreadyExistingCertsShoppingWebClient.Count -eq 1) {
 
 # Catalog API
 if ($alreadyExistingCertsCatalogApi.Count -eq 1) {
-    Write-Output "Skipping creating API certificate as it already exists."
+    Write-Output "Skipping creating Catalog API certificate as it already exists."
     $catalogApiCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsCatalogApi[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
@@ -60,7 +64,7 @@ if ($alreadyExistingCertsCatalogApi.Count -eq 1) {
 
 # Basket API
 if ($alreadyExistingCertsBasketApi.Count -eq 1) {
-    Write-Output "Skipping creating API certificate as it already exists."
+    Write-Output "Skipping creating Basket API certificate as it already exists."
     $basketApiCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsBasketApi[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
@@ -69,25 +73,25 @@ if ($alreadyExistingCertsBasketApi.Count -eq 1) {
 
 # Discount Grpc
 if ($alreadyExistingCertsDiscountGrpc.Count -eq 1) {
-    Write-Output "Skipping creating API certificate as it already exists."
+    Write-Output "Skipping creating Discount Grpc certificate as it already exists."
     $discountGrpcCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsDiscountGrpc[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
     $discountGrpcCert = New-SelfSignedCertificate -DnsName $discountGrpcCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
-# Order API
+# Ordering API
 if ($alreadyExistingCertsOrderApi.Count -eq 1) {
-    Write-Output "Skipping creating API certificate as it already exists."
+    Write-Output "Skipping creating Ordering API certificate as it already exists."
     $orderApiCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsOrderApi[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
-    $orderApiCert = New-SelfSignedCertificate -DnsName $orderApiCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+    $orderApiCert = New-SelfSignedCertificate -DnsName $orderingApiCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
 # Ocelot Gateway
 if ($alreadyExistingCertsOcelotGatewayApi.Count -eq 1) {
-    Write-Output "Skipping creating API certificate as it already exists."
+    Write-Output "Skipping creating Ocelot Gateway certificate as it already exists."
     $ocelotGatewayCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsOcelotGatewayApi[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
@@ -96,25 +100,35 @@ if ($alreadyExistingCertsOcelotGatewayApi.Count -eq 1) {
 
 # Shopping Aggregator API
 if ($alreadyExistingCertsShoppingAggreagtorApi.Count -eq 1) {
-    Write-Output "Skipping creating API certificate as it already exists."
+    Write-Output "Skipping creating Shopping Aggreagtor certificate as it already exists."
     $shoppingAggregatorCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsShoppingAggreagtorApi[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
     $shoppingAggregatorCert = New-SelfSignedCertificate -DnsName $shoppingAggregatorCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
+# Shopping Web Status
+if ($alreadyExistingCertsShoppingWebStatus.Count -eq 1) {
+    Write-Output "Skipping creating Shopping Web Status certificate as it already exists."
+    $shoppingWebStatusCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsShoppingWebStatus[0]
+} else {
+    # Create a SAN cert for both web-api and localhost.
+    $shoppingWebStatusCert = New-SelfSignedCertificate -DnsName $shoppingWebStatusCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+}
+
 # Export it for docker container to pick up later.
 $password = ConvertTo-SecureString -String "password" -Force -AsPlainText
 
-$rootCertPathPfx = "certs"
-$identityServerCertPath = "Src/Identity/Shopping.IDP/certs"
-$shoppingWebClientCertPath = "Src/Clients/Shopping.MVC/certs"
-$catalogApiCertPath = "Src/Services/Catalog/Catalog.API/certs"
-$basketApiCertPath = "Src/Services/Basket/Basket.API/certs"
-$discountGrpcCertPath = "Src/Services/Discount/Discount.Grpc/certs"
-$orderApiCertPath = "Src/Services/Ordering/Ordering.API/certs"
-$ocelotGatewayCertPath = "Src/ApiGateways/OcelotApiGateway/certs"
-$shoppingAggregatorCertPath = "Src/ApiGateways/Shopping.Aggregator/certs"
+$rootCertPathPfx = "D:/Practice/AspNetMicroservicesShop/Src/certs"
+$identityServerCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Identity/Shopping.IDP/certs"
+$shoppingWebClientCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Clients/Shopping.MVC/certs"
+$catalogApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Catalog/Catalog.API/certs"
+$basketApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Basket/Basket.API/certs"
+$discountGrpcCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Discount/Discount.Grpc/certs"
+$orderApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Ordering/Ordering.API/certs"
+$ocelotGatewayCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGateways/OcelotApiGateway/certs"
+$shoppingAggregatorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGateways/Shopping.Aggregator/certs"
+$shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Shopping.WebStatus/certs"
 
 [System.IO.Directory]::CreateDirectory($rootCertPathPfx) | Out-Null
 [System.IO.Directory]::CreateDirectory($identityServerCertPath) | Out-Null
@@ -125,6 +139,7 @@ $shoppingAggregatorCertPath = "Src/ApiGateways/Shopping.Aggregator/certs"
 [System.IO.Directory]::CreateDirectory($orderApiCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($ocelotGatewayCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($shoppingAggregatorCertPath) | Out-Null
+[System.IO.Directory]::CreateDirectory($shoppingWebStatusCertPath) | Out-Null
 
 Export-PfxCertificate -Cert $shoppingRootCA -FilePath "$rootCertPathPfx/shopping-root-cert.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $identityServerCert -FilePath "$identityServerCertPath/Shopping.IDP.pfx" -Password $password | Out-Null
@@ -135,10 +150,16 @@ Export-PfxCertificate -Cert $discountGrpcCert -FilePath "$discountGrpcCertPath/D
 Export-PfxCertificate -Cert $orderApiCert -FilePath "$orderApiCertPath/Ordering.API.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $ocelotGatewayCert -FilePath "$ocelotGatewayCertPath/OcelotApiGateway.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $shoppingAggregatorCert -FilePath "$shoppingAggregatorCertPath/Shopping.Aggregator.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $shoppingWebStatusCert -FilePath "$shoppingWebStatusCertPath/Shopping.WebStatus.pfx" -Password $password | Out-Null
 
 # Export .cer to be converted to .crt to be trusted within the Docker container.
 $rootCertPathCer = "$rootCertPathPfx/shopping-root-cert.cer"
 Export-Certificate -Cert $shoppingRootCA -FilePath $rootCertPathCer -Type CERT | Out-Null
+
+# Import root cert
+$absoluteRootCertPfxFilePath = "$rootCertPathPfx/shopping-root-cert.pfx"
+$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+$cert.Import($absoluteRootCertPfxFilePath, $Password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
 
 # Trust it on your host machine.
 $store = New-Object System.Security.Cryptography.X509Certificates.X509Store("Root","LocalMachine")
@@ -148,7 +169,8 @@ $rootCertAlreadyTrusted = ($store.Certificates | Where-Object {$_.Subject -eq "C
 
 if ($rootCertAlreadyTrusted -eq $false) {
 	Write-Output "Adding the root CA certificate to the trust store."
-    $store.Add($testRootCA)
+    #$store.Add($shoppingRootCA)
+	$store.Add($cert)
 }
 
 $store.Close()

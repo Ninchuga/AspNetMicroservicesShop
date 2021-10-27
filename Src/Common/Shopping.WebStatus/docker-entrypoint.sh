@@ -10,4 +10,4 @@ chmod 644 /usr/local/share/ca-certificates/shopping-root-cert.crt
 update-ca-certificates
 
 # start the app
-dotnet Shopping.MVC.dll
+dotnet Shopping.WebStatus.dll

@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Shopping.IDP.Models;
 using Shopping.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace Shopping.IDP
 {
@@ -34,7 +35,8 @@ namespace Shopping.IDP
                 })
                 .MigrateDatabase<ConfigurationDbContext>((context, service) =>
                 {
-                    IdentityDbSeed.SeedIdentityConfiguration(context, Log.Logger).Wait();
+                    var configuration = service.GetRequiredService<IConfiguration>();
+                    IdentityDbSeed.SeedIdentityConfiguration(context, Log.Logger, configuration).Wait();
                 })
                 .MigrateDatabase<ApplicationDbContext>((context, service) =>
                 {
@@ -59,11 +61,11 @@ namespace Shopping.IDP
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog()
+                .UseSerilog(LoggingConfiguration.Configure)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                })
-                .UseSerilog(LoggingConfiguration.Configure);
+                });
+                
     }
 }

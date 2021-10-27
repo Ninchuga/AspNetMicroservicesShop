@@ -25,13 +25,11 @@ namespace Shopping.IDP
     {
         public IWebHostEnvironment Environment { get; }
         public IConfiguration Configuration { get; }
-        public static IConfiguration StaticConfiguration { get; private set; }
 
         public Startup(IWebHostEnvironment environment, IConfiguration configuration)
         {
             Environment = environment;
             Configuration = configuration;
-            StaticConfiguration = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -52,7 +50,7 @@ namespace Shopping.IDP
                 .AddDefaultTokenProviders();
 
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            services.AddIdentityServer(x => x.IssuerUri = Configuration["IdentityIssuer"])
+            services.AddIdentityServer(x => x.IssuerUri = "my_auth" /*Configuration["IdentityIssuer"]*/)
                 .AddSigningCredential(Certificate.Get())
                 //.AddDeveloperSigningCredential()
                 .AddAspNetIdentity<ApplicationUser>()

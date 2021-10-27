@@ -40,6 +40,7 @@ namespace Ordering.API
             {
                 options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                 options.Audience = "orderapi";
+                options.RequireHttpsMetadata = false;
             });
 
             services.AddHttpClient<ITokenValidationService, TokenValidationService>();
@@ -62,16 +63,6 @@ namespace Ordering.API
                 });
             });
             services.AddMassTransitHostedService();
-
-            // Apply to all controllers authorization policy which requires all users to be authorized before executing actions
-            var requiredAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build();
-
-            services.AddControllers(configure =>
-            {
-                configure.Filters.Add(new AuthorizeFilter(requiredAuthenticatedUserPolicy));
-            });
 
             services.AddSwaggerGen(c =>
             {
@@ -128,7 +119,7 @@ namespace Ordering.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultHealthChecks();
-                endpoints.MapControllers();
+                endpoints.MapControllers().RequireAuthorization();
             });
         }
     }

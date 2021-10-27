@@ -8,6 +8,7 @@ using Shopping.HealthChecks;
 using Shopping.WebStatus.Grpc.HealthChecks;
 using Shopping.WebStatus.Grpc.Services;
 using System;
+using System.Net;
 
 namespace Shopping.WebStatus
 {
@@ -32,7 +33,11 @@ namespace Shopping.WebStatus
                 {
                     // we are passing custom HealthCheck /healthcheck which will be called by JS (Ajax) end added to UI
                     // with response from our custom checks (DiscountServiceHealthCheck, ...) 
-                    setup.AddHealthCheckEndpoint("Discount gRpc Services Health Check", "/healthcheck");
+                    // In docker environment we need to add Dns.GetHostName() to get container id which will be resolved to container name
+                    // otherwise resolved addresses IPv4 (0.0.0.0:80) or IPv6 [::]:80 will not work
+                    bool usingDocker = Configuration.GetValue<bool>("GrpcSettings:UsingDocker");
+                    setup.AddHealthCheckEndpoint("Discount gRpc Services Health Check",
+                            usingDocker ? $"http://{Dns.GetHostName()}/healthcheck" : "/healthcheck");
                 })
                 //.AddSqlServerStorage("server=localhost;initial catalog=healthchecksui;user id=sa;password=Password12!");
                 .AddInMemoryStorage();
@@ -41,7 +46,7 @@ namespace Shopping.WebStatus
             services.AddScoped<DiscountDbServiceStatus>();
             services.AddGrpcClient<Health.HealthClient>(config =>
             { 
-                config.Address = new Uri(Configuration["GrpcSettings:DiscountHealthCheckUrl"]);
+                config.Address = new Uri(Configuration["GrpcSettings:DiscountUrl"]);
             });
             services.AddControllersWithViews();
         }

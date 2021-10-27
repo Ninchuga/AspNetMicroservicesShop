@@ -30,7 +30,7 @@ namespace Ordering.API.EventBusConsumer
         {
             using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
 
-            _logger.LogInformation("{Consumer} received a message {@Message}", nameof(BasketCheckoutConsumer), context.Message);
+            _logger.LogInformation("{Consumer} received a message for the user id: {UserId}", nameof(BasketCheckoutConsumer), context.Message.UserId);
 
             var messageReceivedAt = DateTime.UtcNow;
             if (!await _tokenValidationService.ValidateTokenAsync(context.Message.SecurityContext.AccessToken, messageReceivedAt))

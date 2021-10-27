@@ -25,24 +25,6 @@ namespace OcelotApiGateway.DelegatingHandlers
             _clientAccessTokenCache = clientAccessTokenCache;
         }
 
-        // Return non expired access token from the cache
-        // If it doesn't exist call IndetityService for another one
-        public async Task<string> GetAccessToken(string incomingToken)
-        {
-            // GetAsync() will only return access token if it's not expired
-            var item = await _clientAccessTokenCache.GetAsync(CatalogApiTokenExchangeCacheKey); // prepend audience name of the downstream service to the ClientId
-            if(item != null)
-            {
-                return item.AccessToken;
-            }
-
-            var (accessToken, expiresIn) = await ExchangeToken(incomingToken);
-
-            await _clientAccessTokenCache.SetAsync(CatalogApiTokenExchangeCacheKey, accessToken, expiresIn);
-
-            return accessToken;
-        }
-
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // extract the current token
@@ -61,12 +43,36 @@ namespace OcelotApiGateway.DelegatingHandlers
             return await base.SendAsync(request, cancellationToken);
         }
 
+        // Return non expired access token from the cache
+        // If it doesn't exist call IndetityService for another one
+        public async Task<string> GetAccessToken(string incomingToken)
+        {
+            // GetAsync() will only return access token if it's not expired
+            var item = await _clientAccessTokenCache.GetAsync(CatalogApiTokenExchangeCacheKey); // prepend audience name of the downstream service to the ClientId
+            if(item != null)
+            {
+                return item.AccessToken;
+            }
+
+            var (accessToken, expiresIn) = await ExchangeToken(incomingToken);
+
+            await _clientAccessTokenCache.SetAsync(CatalogApiTokenExchangeCacheKey, accessToken, expiresIn);
+
+            return accessToken;
+        }
+
         private async Task<(string, int)> ExchangeToken(string incomingToken)
         {
             var httpClient = _httpClientFactory.CreateClient();
 
             // use discovery document from IdentityModel package to access token endpoint from IdentityService
-            var discoveryDocumentResponse = await httpClient.GetDiscoveryDocumentAsync(_configuration["IdentityProviderSettings:IdentityServiceUrl"]);
+            //var discoveryDocumentResponse = await httpClient.GetDiscoveryDocumentAsync(_configuration["IdentityProviderSettings:IdentityServiceUrl"]);
+            var discoveryDocumentResponse = await httpClient.GetDiscoveryDocumentAsync(
+                new DiscoveryDocumentRequest 
+                { 
+                    Address = _configuration["IdentityProviderSettings:IdentityServiceUrl"],
+                    Policy = new DiscoveryPolicy { ValidateIssuerName = false }
+                });
 
             if (discoveryDocumentResponse.IsError)
             {
