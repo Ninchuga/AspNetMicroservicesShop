@@ -52,5 +52,12 @@ namespace Shopping.IDP.Extensions
             context.Database.Migrate();
             seeder(context, services);
         }
+
+        public static IHost GetLoggerService<T>(this IHost host, ref ILogger<T> logger) where T : class
+        {
+            logger = host.Services.GetRequiredService<ILogger<T>>();
+
+            return host;
+        }
     }
 }

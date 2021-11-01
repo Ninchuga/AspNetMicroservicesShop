@@ -50,7 +50,7 @@ namespace Shopping.IDP
                 .AddDefaultTokenProviders();
 
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            services.AddIdentityServer(x => x.IssuerUri = "my_auth" /*Configuration["IdentityIssuer"]*/)
+            services.AddIdentityServer(x => x.IssuerUri = Configuration["IdentityIssuer"])
                 .AddSigningCredential(Certificate.Get())
                 //.AddDeveloperSigningCredential()
                 .AddAspNetIdentity<ApplicationUser>()

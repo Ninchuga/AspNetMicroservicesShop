@@ -89,15 +89,6 @@ namespace Basket.API
             services.AddMassTransitHostedService();
 
             services.AddControllers();
-            // Apply to all controllers authorization policy which requires all users to be authorized before executing actions
-            //var requiredAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
-            //    .RequireAuthenticatedUser()
-            //    .Build();
-
-            //services.AddControllers(configure =>
-            //{
-            //    configure.Filters.Add(new AuthorizeFilter(requiredAuthenticatedUserPolicy));
-            //});
 
             services.AddSwaggerGen(c =>
             {
@@ -146,7 +137,7 @@ namespace Basket.API
 
             app.AddCorrelationLoggingMiddleware();
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthentication();

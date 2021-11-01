@@ -5,7 +5,7 @@ using IdentityServer4.EntityFramework.Mappers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using Shopping.IDP.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace Shopping.IDP.Persistence
     {
         private const string ShoppingWebClientId = "shopping_web_client";
 
-        public static async Task SeedIdentityConfiguration(ConfigurationDbContext context, ILogger logger, IConfiguration configuration)
+        public static async Task SeedIdentityConfiguration(ConfigurationDbContext context, ILogger<IdentityDbSeed> logger, IConfiguration configuration)
         {
             if (!context.Clients.Any())
             {
@@ -61,7 +61,7 @@ namespace Shopping.IDP.Persistence
                 await context.SaveChangesAsync();
             }
 
-            logger.Information("Seed database associated with context {DbContextName}", nameof(ConfigurationDbContext));
+            logger.LogInformation("Seed database associated with context {DbContextName}", nameof(ConfigurationDbContext));
         }
 
         private static async Task UpdateClientRedirectUris(ConfigurationDbContext context, IConfiguration configuration, string clientId)
@@ -76,19 +76,21 @@ namespace Shopping.IDP.Persistence
             var postLogoutUri = dbWebClient.PostLogoutRedirectUris.FirstOrDefault(cr => cr.ClientId == dbWebClient.Id);
 
             var configWebClient = Config.Clients(configuration).FirstOrDefault(client => client.ClientId.Equals(clientId));
+            dbWebClient.ClientUri = configWebClient.ClientUri;
             redirectUri.RedirectUri = configWebClient.RedirectUris.ToArray()[0];
             postLogoutUri.PostLogoutRedirectUri = configWebClient.PostLogoutRedirectUris.ToArray()[0];
 
-            context.Update(redirectUri);
-            context.Update(postLogoutUri);
+            context.Update(dbWebClient);
+            //context.Update(redirectUri);
+            //context.Update(postLogoutUri);
             await context.SaveChangesAsync();
         }
 
-        public static async Task SeedIdentityUsers(ApplicationDbContext context, ILogger logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task SeedIdentityUsers(ApplicationDbContext context, ILogger<IdentityDbSeed> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             await AddPremiumUser(userManager, roleManager);
             await AddFreeUser(userManager, roleManager);
-            logger.Information("Added default identity users to context {DbContextName}", nameof(ApplicationDbContext));
+            logger.LogInformation("Added default identity users to context {DbContextName}", nameof(ApplicationDbContext));
         }
 
         private static async Task AddPremiumUser(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)

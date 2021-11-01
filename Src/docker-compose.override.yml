@@ -283,13 +283,14 @@ services:
       #- ASPNETCORE_URLS=https://+
       - ASPNETCORE_URLS=https://0.0.0.0:8021  # this works when exposed port is 8021:8021
       - ASPNETCORE_HTTPS_PORT=8021
-      - IdentityIssuer=my_auth
+      #- IdentityIssuer=my_auth
+      - IdentityIssuer=https://localhost:8021
       - "ConnectionStrings:IdentityDb=Server=identitydb;Database=IdentityDb;User Id=sa;Password=September24#;"
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.IDP.pfx
-      - WebClientUrls:SignInUrl=https://172.18.112.1:8999/signin-oidc
-      - WebClientUrls:SignOutUrl=https://172.18.112.1:8999/signout-callback-oidc
-      - WebClientUrls:ClientUri=https://172.18.112.1:8999
+      - WebClientUrls:SignInUrl=https://localhost:8999/signin-oidc
+      - WebClientUrls:SignOutUrl=https://localhost:8999/signout-callback-oidc
+      - WebClientUrls:ClientUri=https://localhost:8999
       - Logging:ElasticUrl=http://elastics:9200
     depends_on:
       - identitydb
@@ -305,30 +306,31 @@ services:
       - type: bind
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
-    #extra_hosts:
-      #- "host.docker.internal:host-gateway"
-    #network_mode: "host"
+      - type: bind
+        source: d:/temp-keys
+        target: /root/.aspnet/DataProtection-Keys
 
+    # redirection worked with ubuntu host ip 172.18.112.1 -> https://172.18.112.1:8021
   shopping.mvc:
     container_name: shopping.web
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - IdentityProviderSettings:IdentityServiceUrl=https://172.18.112.1:8021
-      - "ApiSettings:Catalog:CatalogUrl=http://catalog.api"
-      - "ApiSettings:Catalog:CatalogGatewayUrl=http://ocelotapigateway/Catalog/"
-      - "ApiSettings:Basket:BasketUrl=http://basket.api"
-      - "ApiSettings:Basket:BasketGatewayUrl=http://ocelotapigateway/Basket/"
-      - "ApiSettings:Order:OrderUrl=http://ordering.api"
-      - "ApiSettings:Order:OrderGatewayUrl=http://ocelotapigateway/Order/"
-      - "ApiSettings:Aggregators:ShoppingAggregatorUrl=http://shopping.aggregator"
-      - IdentityProviderRedirectUris:AuthorizationAddress=https://172.18.112.1:8021/connect/authorize
-      - IdentityProviderRedirectUris:SigninRedirectUri=https://172.18.112.1:8999/signin-oidc
+      - IdentityProviderSettings:IdentityServiceUrl=https://localhost:8021
+      - ApiSettings:Catalog:CatalogUrl=http://catalog.api
+      - ApiSettings:Catalog:CatalogGatewayUrl=http://ocelotapigateway/Catalog/
+      - ApiSettings:Basket:BasketUrl=http://basket.api
+      - ApiSettings:Basket:BasketGatewayUrl=http://ocelotapigateway/Basket/
+      - ApiSettings:Order:OrderUrl=http://ordering.api
+      - ApiSettings:Order:OrderGatewayUrl=http://ocelotapigateway/Order/
+      - ApiSettings:Aggregators:ShoppingAggregatorUrl=http://shopping.aggregator
+      - IdentityProviderRedirectUris:AuthorizationAddress=https://localhost:8021/connect/authorize
+      - IdentityProviderRedirectUris:SigninRedirectUri=https://localhost:8999/signin-oidc
       - IdentityProviderRedirectUris:SignoutRedirectUri=https://172.18.112.1:8999/signout-callback-oidc
       - Logging:ElasticUrl=http://elastics:9200
       #- ASPNETCORE_URLS=http://+:80
       #- ASPNETCORE_URLS=https://+
       #- ASPNETCORE_URLS=https://+:8999
-      - ASPNETCORE_URLS=https://0.0.0.0:8999
+      - ASPNETCORE_URLS=https://0.0.0.0:8999 
       - ASPNETCORE_HTTPS_PORT=8999
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.MVC.pfx
@@ -338,19 +340,19 @@ services:
       - type: bind
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
-    #depends_on:
-      #- shopping.idp
-      #- shopping.aggregator
-      #- ocelotapigateway
+      - type: bind
+        source: d:/temp-keys
+        target: /root/.aspnet/DataProtection-Keys
+    depends_on:
+      - shopping.idp
+      - shopping.aggregator
+      - ocelotapigateway
     ports:
       #- 8999:80
       #- 8999:443
       - "8999:8999"
     expose:
       - 8999
-    #extra_hosts:
-      #- "host.docker.internal:host-gateway"
-    #network_mode: "host"
 
   shopping.webstatus:
     container_name: shopping.webstatus
@@ -372,7 +374,7 @@ services:
       - HealthChecksUI__HealthChecks__6__Uri=http://ocelotapigateway/healthcheck
       - GrpcSettings:DiscountUrl=http://discount.grpc
       - GrpcSettings:UsingDocker=true
-      - "Logging:ElasticUrl=http://elastics:9200"
+      - Logging:ElasticUrl=http://elastics:9200
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.WebStatus.pfx
     volumes:
@@ -381,7 +383,6 @@ services:
       - type: bind
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
-      #- ./certs/shopping-root-cert.cer:/usr/local/share/ca-certificates/shopping-root-cert.cer
     ports:
       - 8007:80
 

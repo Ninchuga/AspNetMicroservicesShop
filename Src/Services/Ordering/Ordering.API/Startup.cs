@@ -64,6 +64,8 @@ namespace Ordering.API
             });
             services.AddMassTransitHostedService();
 
+            services.AddControllers();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ordering.API", Version = "v1" });
@@ -110,7 +112,7 @@ namespace Ordering.API
 
             app.AddCorrelationLoggingMiddleware();
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthentication();

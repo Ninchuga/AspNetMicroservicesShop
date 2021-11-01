@@ -4,12 +4,9 @@
 
 using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
 using Shopping.IDP.Extensions;
 using Shopping.IDP.Persistence;
 using System;
@@ -25,10 +22,16 @@ namespace Shopping.IDP
     {
         public static int Main(string[] args)
         {
+            ILogger<Program> logger = null;
+
             try
             {
+                ILogger<IdentityDbSeed> identityDbSeedLogger = null;
+
                 CreateHostBuilder(args)
                 .Build()
+                .GetLoggerService(ref logger)
+                .GetLoggerService(ref identityDbSeedLogger)
                 .MigrateDatabase<PersistedGrantDbContext>((context, service) =>
                 {
                     // there is no seed for this context
@@ -36,26 +39,21 @@ namespace Shopping.IDP
                 .MigrateDatabase<ConfigurationDbContext>((context, service) =>
                 {
                     var configuration = service.GetRequiredService<IConfiguration>();
-                    IdentityDbSeed.SeedIdentityConfiguration(context, Log.Logger, configuration).Wait();
+                    IdentityDbSeed.SeedIdentityConfiguration(context, identityDbSeedLogger, configuration).Wait();
                 })
                 .MigrateDatabase<ApplicationDbContext>((context, service) =>
                 {
                     var userManager = service.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager = service.GetRequiredService<RoleManager<IdentityRole>>();
-
-                    IdentityDbSeed.SeedIdentityUsers(context, Log.Logger, userManager, roleManager).Wait();
+                    IdentityDbSeed.SeedIdentityUsers(context, identityDbSeedLogger, userManager, roleManager).Wait();
                 })
                 .Run();
                 return 0;
             }
             catch (Exception ex)
             {
-                Log.Fatal(ex, "Host terminated unexpectedly.");
+                logger.LogCritical(ex, "Host terminated unexpectedly.");
                 return 1;
-            }
-            finally
-            {
-                Log.CloseAndFlush();
             }
         }
 
