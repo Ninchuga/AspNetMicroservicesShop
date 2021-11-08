@@ -28,7 +28,7 @@ namespace Shopping.MVC.Services
 
         public async Task<BasketCheckoutResponse> Checkout(BasketCheckout basketCheckout)
         {
-            _logger.LogDebug("Checking out basket {@BasketCheckout}", basketCheckout);
+            _logger.LogInformation("Checking out basket {@BasketCheckout}", basketCheckout);
 
             var requestContent = new StringContent(JsonSerializer.Serialize(basketCheckout), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/Checkout", requestContent); // gateway api uri

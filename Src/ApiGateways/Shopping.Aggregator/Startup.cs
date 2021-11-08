@@ -53,17 +53,17 @@ namespace Shopping.Aggregator
             services.AddTransient<CorrelationIdDelegatingHandler>();
 
             services.AddHttpClient<ICatalogService, CatalogService>()
-                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:CatalogUrl"]))
+                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Catalog:CatalogUrl"]))
                 .AddHttpMessageHandler<CatalogApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
 
             services.AddHttpClient<IBasketService, BasketService>()
-                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:BasketUrl"]))
+                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Basket:BasketUrl"]))
                 .AddHttpMessageHandler<BasketApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
 
             services.AddHttpClient<IOrderService, OrderService>()
-                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:OrderingUrl"]))
+                .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Ordering:OrderingUrl"]))
                 .AddHttpMessageHandler<OrderApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
 

@@ -29,7 +29,9 @@ namespace Shopping.MVC.Pages.Basket
         public async Task<IActionResult> OnPost(BasketCheckout basketCheckout)
         {
             var userNameClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("preferred_userName", StringComparison.OrdinalIgnoreCase));
+            var userIdClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("sub", StringComparison.OrdinalIgnoreCase));
             basketCheckout.UserName = userNameClaim.Value;
+            basketCheckout.UserId = new Guid(userIdClaim.Value);
 
             var response = await _basketService.Checkout(basketCheckout);
 

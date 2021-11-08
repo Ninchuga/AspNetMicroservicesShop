@@ -68,7 +68,7 @@ namespace Basket.API.Services.Basket
                 eventMessage.CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid() : new Guid(correlationId);
                 await _publishEndpoint.Publish(eventMessage);
 
-                _logger.LogDebug("Message successfully published from {MethodName} to order api for further processing.", nameof(CheckoutBasket));
+                _logger.LogInformation("Message successfully published from {MethodName} to order api for further processing.", nameof(CheckoutBasket));
 
                 await _basketRepository.DeleteBasket(userId);
 
