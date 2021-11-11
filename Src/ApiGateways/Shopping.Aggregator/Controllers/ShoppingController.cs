@@ -41,7 +41,7 @@ namespace Shopping.Aggregator.Controllers
 
             foreach (var item in basket.Items)
             {
-                var product = await _catalogService.GetCatalog(item.ProductId);
+                var product = await _catalogService.GetCatalogProductBy(item.ProductId);
 
                 // set additional product fields onto basket item
                 item.ProductName = product.Name;

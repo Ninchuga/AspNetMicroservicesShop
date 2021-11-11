@@ -1,6 +1,8 @@
 ﻿using Grpc.Health.V1;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Shopping.WebStatus.Grpc.Services
@@ -20,6 +22,8 @@ namespace Shopping.WebStatus.Grpc.Services
         {
             var request = new HealthCheckRequest { Service = "DiscountDb" };
             var response = new HealthCheckResponse { Status = HealthCheckResponse.Types.ServingStatus.NotServing };
+
+            HttpClient.DefaultProxy = new WebProxy(); // fix for grpc HTTP/2 exception
 
             // in case that gRpc service is not yet up and running
             // or Service name doesn't exist, CheckAsync() will throw exception

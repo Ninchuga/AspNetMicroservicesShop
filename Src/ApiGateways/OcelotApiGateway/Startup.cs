@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using OcelotApiGateway.DelegatingHandlers;
 using Microsoft.Extensions.Configuration;
 using Shopping.HealthChecks;
+using Ocelot.Provider.Polly;
 
 namespace OcelotApiGateway
 {
@@ -52,7 +53,8 @@ namespace OcelotApiGateway
             services.AddOcelot()
                 .AddDelegatingHandler<CatalogApiTokenExchangeDelegatingHandler>()
                 .AddDelegatingHandler<BasketApiTokenExchangeDelegatingHandler>()
-                .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>();
+                .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>()
+                .AddPolly();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

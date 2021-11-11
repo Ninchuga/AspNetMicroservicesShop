@@ -1,15 +1,14 @@
 using Basket.API.Extensions;
 using Basket.API.Factories;
 using Basket.API.GrpcServices;
+using Basket.API.Policies;
 using Basket.API.Repositories;
 using Basket.API.Services.Basket;
 using Discount.Grpc.Protos;
 using IdentityServer4.AccessTokenValidation;
 using MassTransit;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -72,9 +71,9 @@ namespace Basket.API
                 o.Address = new Uri(Configuration["GrpcSettings:DiscountUrl"]);
             })
             .AddInterceptor<AccessTokenInterceptor>()
-            .AddInterceptor<CorrelationIdInterceptor>();
-            //.AddPolicyHandler(GetRetryPolicy())
-            //    .AddPolicyHandler(GetCircuitBreakerPolicy());
+            .AddInterceptor<CorrelationIdInterceptor>()
+            .AddPolicyHandler(GrpcPolicies.Retry)
+            .AddPolicyHandler(GrpcPolicies.CircuitBreaker);
 
             // MassTransit-RabbitMQ Configuration
             services.AddMassTransit(config =>
@@ -149,23 +148,5 @@ namespace Basket.API
                 endpoints.MapControllers().RequireAuthorization();
             });
         }
-
-        //private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
-        //{
-        //    return HttpPolicyExtensions.HandleTransientHttpError()
-        //        .WaitAndRetryAsync(5,
-        //            retryAttempt => TimeSpan.FromMilliseconds(Math.Pow(1.5, retryAttempt) * 1000),
-        //            (_, waitingTime) =>
-        //            {
-        //                Console.WriteLine("Retrying due to Polly retry policy");
-        //            });
-        //}
-
-        //private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
-        //{
-        //    return HttpPolicyExtensions
-        //        .HandleTransientHttpError()
-        //        .CircuitBreakerAsync(3, TimeSpan.FromSeconds(15));
-        //}
     }
 }

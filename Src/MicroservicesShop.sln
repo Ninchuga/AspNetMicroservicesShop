@@ -55,9 +55,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.HealthChecks", "Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.WebStatus", "Common\Shopping.WebStatus\Shopping.WebStatus.csproj", "{5FA25B83-C617-4522-8B49-5833C7A6F6F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Logging", "Common\Shopping.Logging\Shopping.Logging.csproj", "{DECE1385-49E8-4F67-A71A-5208C8AB0554}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.Logging", "Common\Shopping.Logging\Shopping.Logging.csproj", "{DECE1385-49E8-4F67-A71A-5208C8AB0554}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Correlation", "Common\Shopping.Correlation\Shopping.Correlation.csproj", "{60FCAD62-A9CE-43CA-9C08-8C4C97B5A983}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.Correlation", "Common\Shopping.Correlation\Shopping.Correlation.csproj", "{60FCAD62-A9CE-43CA-9C08-8C4C97B5A983}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.Policies", "Common\Shopping.Policies\Shopping.Policies.csproj", "{6B89261F-9E6E-4468-A888-822479C2CBFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -137,6 +139,10 @@ Global
 		{60FCAD62-A9CE-43CA-9C08-8C4C97B5A983}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60FCAD62-A9CE-43CA-9C08-8C4C97B5A983}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60FCAD62-A9CE-43CA-9C08-8C4C97B5A983}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B89261F-9E6E-4468-A888-822479C2CBFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B89261F-9E6E-4468-A888-822479C2CBFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B89261F-9E6E-4468-A888-822479C2CBFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B89261F-9E6E-4468-A888-822479C2CBFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -163,6 +169,7 @@ Global
 		{5FA25B83-C617-4522-8B49-5833C7A6F6F4} = {CA9CB20D-9461-449F-B5CC-5682186FBC39}
 		{DECE1385-49E8-4F67-A71A-5208C8AB0554} = {CA9CB20D-9461-449F-B5CC-5682186FBC39}
 		{60FCAD62-A9CE-43CA-9C08-8C4C97B5A983} = {CA9CB20D-9461-449F-B5CC-5682186FBC39}
+		{6B89261F-9E6E-4468-A888-822479C2CBFE} = {CA9CB20D-9461-449F-B5CC-5682186FBC39}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8EEB88D2-331A-434A-A689-A2D159C22075}

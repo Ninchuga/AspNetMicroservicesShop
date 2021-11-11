@@ -8,6 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["ApiGateways/Shopping.Aggregator/Shopping.Aggregator.csproj", "ApiGateways/Shopping.Aggregator/"]
 COPY ["Common/Shopping.Correlation/Shopping.Correlation.csproj", "Common/Shopping.Correlation/"]
+COPY ["Common/Shopping.Policies/Shopping.Policies.csproj", "Common/Shopping.Policies/"]
 COPY ["Common/Shopping.Logging/Shopping.Logging.csproj", "Common/Shopping.Logging/"]
 COPY ["Common/Shopping.HealthChecks/Shopping.HealthChecks.csproj", "Common/Shopping.HealthChecks/"]
 RUN dotnet restore "ApiGateways/Shopping.Aggregator/Shopping.Aggregator.csproj"
