@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Shopping.MVC.Models;
 using Shopping.MVC.Services;
 
@@ -17,7 +15,7 @@ namespace Shopping.MVC.Pages
         private readonly CatalogService _catalogService;
         private readonly BasketService _basketService;
 
-        public IEnumerable<CatalogItem> CatalogItems { get; set; } = new List<CatalogItem>();
+        public IReadOnlyList<CatalogItem> CatalogItems { get; set; } = new List<CatalogItem>();
 
         public CatalogModel(CatalogService catalogService, BasketService basketService)
         {
@@ -27,27 +25,45 @@ namespace Shopping.MVC.Pages
 
         public async Task<IActionResult> OnPostAddItemToBasket(int itemQuantity, string itemId)
         {
-            var catalogItem = await _catalogService.GetCatalogItemBy(itemId);
-            catalogItem.Quantity = itemQuantity;
-            await _basketService.AddItemToBasket(catalogItem);
+            var response = await _catalogService.GetCatalogItemBy(itemId);
+            if(response.Success)
+            {
+                response.CatalogItem.Quantity = itemQuantity;
+                await _basketService.AddItemToBasket(response.CatalogItem);
 
-            return RedirectToPage("/Basket/UserBasket");
+                return RedirectToPage("/Basket/UserBasket");
+            }
+            else if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                return RedirectToPage("/Error", new { errorMessage = "Service is currently not available, please try again later." });
+            else
+                return RedirectToPage("/Error");
         }
 
         public async Task<IActionResult> OnGet()
         {
             await WriteOutIdentityInformation();
 
-            CatalogItems = await _catalogService.GetCatalog();
-
-            return CatalogItems == null ? RedirectToPage("/Authorization/AccessDenied") : Page();
+            var response = await _catalogService.GetCatalog();
+            if (response.Success)
+            {
+                CatalogItems = response.CatalogItems;
+                return Page();
+            }
+            else if (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden)
+                return RedirectToPage("/Authorization/AccessDenied");
+            else if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                return RedirectToPage("/Error", new { errorMessage = "Service is currently not available, please try again later." });
+            else 
+                return RedirectToPage("/Error");
         }
 
-        public async Task<IActionResult> OnGetCatalogItem(string itemId)
+        // TODO: check if this method is needed
+        public IActionResult OnGetCatalogItem(string itemId)
         {
-            var catalogItem = await _catalogService.GetCatalogItemBy(itemId);
+            //var response = await _catalogService.GetCatalogItemBy(itemId);
 
-            return RedirectToPage("/");
+            // redirect to a page with single catalog item
+            return RedirectToPage("/Catalog/CatalogItem", new { itemId });
         }
 
         public async Task WriteOutIdentityInformation()

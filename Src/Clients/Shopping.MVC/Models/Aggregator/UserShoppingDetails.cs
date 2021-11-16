@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Shopping.MVC.Responses;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Shopping.MVC.Models.Aggregator
 {
-    public class UserShoppingDetails
+    public class UserShoppingDetails : BaseResponse
     {
         public BasketModel BasketWithProducts { get; set; }
-        public IEnumerable<UserOrder> Orders { get; set; }
+        public IReadOnlyList<UserOrder> Orders { get; set; } = new List<UserOrder>();
     }
 }

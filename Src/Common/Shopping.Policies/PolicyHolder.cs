@@ -1,11 +1,15 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Polly;
+using Polly.CircuitBreaker;
 using Polly.Timeout;
 using Polly.Wrap;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Shopping.Policies
 {
@@ -23,7 +27,16 @@ namespace Shopping.Policies
         {
             return Policy.HandleResult<HttpResponseMessage>(result => !result.IsSuccessStatusCode)
                 .Or<TimeoutRejectedException>()
-                .FallbackAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                .Or<BrokenCircuitException>()
+                .FallbackAsync(FallbackAction, OnFallbackAsync);
+        }
+
+        public IAsyncPolicy<HttpResponseMessage> FallbackPolicy<TResponse>(HttpStatusCode statusCode, TResponse response) where TResponse : class
+        {
+            return Policy.HandleResult<HttpResponseMessage>(result => !result.IsSuccessStatusCode)
+                .Or<TimeoutRejectedException>()
+                .Or<BrokenCircuitException>()
+                .FallbackAsync(new HttpResponseMessage(statusCode)
                 {
                     Content = new ObjectContent(_cachedResult.GetType(), _cachedResult, new JsonMediaTypeFormatter())
                 });
@@ -38,7 +51,7 @@ namespace Shopping.Policies
                      sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                      onRetry: (exception, retryCount, context) =>
                      {
-                         _logger.LogWarning($"Retry {retryCount} of {context.PolicyKey} at {context.OperationKey}, due to: {exception}.");
+                         _logger.LogWarning($"Retry {retryCount} of {context.PolicyKey} at {context.OperationKey}, due to: {exception.Exception}.");
                      }
                  );
         }
@@ -53,10 +66,12 @@ namespace Shopping.Policies
                     onBreak: (responseMessage, timespan) =>
                     {
                         // circuit break
+                        _logger.LogWarning("There is an error in a downstream service. Circuit is now open and it is not allowing calls to downstream service!");
                     },
                     onReset: () =>
                     {
                         // circuit reset
+                        _logger.LogWarning("Trying to recover from a circuit break. Circuit is now closed!");
                     }
                 );
         }
@@ -76,6 +91,32 @@ namespace Shopping.Policies
             Polly.Caching.Memory.MemoryCacheProvider memoryCacheProvider = new Polly.Caching.Memory.MemoryCacheProvider(memoryCache);
 
             return Policy.CacheAsync<HttpResponseMessage>(memoryCacheProvider, ttl);
+        }
+        public IAsyncPolicy<HttpResponseMessage> WrapPolicies(params IAsyncPolicy<HttpResponseMessage>[] policies)
+        {
+            return Policy.WrapAsync(policies);
+        }
+
+        private Task OnFallbackAsync(DelegateResult<HttpResponseMessage> response, Context context)
+        {
+            if (response.Exception != null)
+                _logger.LogWarning($"Exception occurred while executing the request. Exception message: {response.Exception.Message}");
+
+            return Task.CompletedTask;
+        }
+
+        private Task<HttpResponseMessage> FallbackAction(DelegateResult<HttpResponseMessage> responseToFailedRequest, Context context, CancellationToken cancellationToken)
+        {
+            _logger.LogDebug("Executing fallback action...");
+
+            HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            {
+                Content = responseToFailedRequest.Exception != null
+                    ? new StringContent($"The fallback executed, the original error was {responseToFailedRequest.Exception.Message}")
+                    : new StringContent($"The fallback executed, the original error was {responseToFailedRequest.Result.ReasonPhrase}")
+            };
+
+            return Task.FromResult(httpResponseMessage);
         }
     }
 }

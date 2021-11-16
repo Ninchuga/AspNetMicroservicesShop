@@ -34,6 +34,8 @@ namespace Basket.API.Controllers
             // There token was taken from sub claim of the authenticated user
             //Guid usId = Guid.Parse(HttpContext.Request.Headers["CurrentUser"][0]);
 
+            //await Task.Delay(TimeSpan.FromSeconds(11)); // for testing purposes
+
             // Now that we are passing scopes from the API Gateway we can extract this info from the Claims object
             Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid usrId);
 

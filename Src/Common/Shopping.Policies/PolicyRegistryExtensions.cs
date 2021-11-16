@@ -15,9 +15,9 @@ namespace Shopping.Policies
         /// <param name="serviceCollection">Service collection for resolving dependencies</param>
         /// <param name="policies">Policies to add to registry</param>
         /// <returns>Registry with added policies</returns>
-        public static IPolicyRegistry<string> RegisterPolicies(this IPolicyRegistry<string> registry, IServiceCollection serviceCollection, params AvailablePolicies[] policies)
+        public static IPolicyRegistry<string> RegisterPolicies(this IPolicyRegistry<string> registry, IServiceCollection services, params AvailablePolicies[] policies)
         {
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider();
             var policyHolder = serviceProvider.GetRequiredService<IPolicyHolder>();
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
@@ -38,7 +38,7 @@ namespace Shopping.Policies
                             policyHolder.CircuitBreakerPolicy(allowedNumberOfAttemptsBeforeBreaking: 3, durationOfBreak: TimeSpan.FromSeconds(10)));
                         break;
                     case AvailablePolicies.TimeoutPolicy:
-                        registry.Add(AvailablePolicies.TimeoutPolicy.ToString(), policyHolder.TimeoutPolicy(secondsToWaitForResponse: 15));
+                        registry.Add(AvailablePolicies.TimeoutPolicy.ToString(), policyHolder.TimeoutPolicy(secondsToWaitForResponse: 10));
                         break;
                     case AvailablePolicies.InMemoryCachePolicy:
                         registry.Add(AvailablePolicies.InMemoryCachePolicy.ToString(), policyHolder.InMemoryCachePolicy(memoryCache, ttl: TimeSpan.FromMinutes(5)));

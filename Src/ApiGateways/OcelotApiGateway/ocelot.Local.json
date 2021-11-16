@@ -21,7 +21,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
     },
     {
@@ -43,7 +43,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
     },
     {
@@ -65,7 +65,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
     },
     //Basket API
@@ -88,7 +88,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
       // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
       //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
@@ -114,7 +114,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
       // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
       //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
@@ -140,7 +140,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
       // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
       //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
@@ -166,7 +166,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
       // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
       //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
@@ -192,7 +192,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
       // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
       //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
@@ -218,7 +218,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       },
       // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
       //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
@@ -281,7 +281,7 @@
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 5000 // means if a request takes more than 5 seconds it will automatically be timed out.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
       }
     }
   ],

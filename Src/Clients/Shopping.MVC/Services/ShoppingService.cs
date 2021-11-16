@@ -22,19 +22,26 @@ namespace Shopping.MVC.Services
         {
             _logger.LogDebug("Getting shopping details for the user with id: {UserId}", userId);
 
-            var responseMessage = await _httpClient.GetAsync($"api/v1/Shopping/GetUserShoppingDetails/{userId}"); // calling aggregator
+            UserShoppingDetails userShoppingDetails;
 
+            var responseMessage = await _httpClient.GetAsync($"api/v1/Shopping/GetUserShoppingDetails/{userId}"); // calling aggregator
             if (responseMessage.IsSuccessStatusCode)
             {
-                return await responseMessage.ReadContentAs<UserShoppingDetails>();
+                userShoppingDetails = await responseMessage.ReadContentAs<UserShoppingDetails>();
+                userShoppingDetails.Success = true;
+                userShoppingDetails.StatusCode = responseMessage.StatusCode;
             }
-            else if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
-                responseMessage.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            else
             {
-                return null;
+                userShoppingDetails = new UserShoppingDetails
+                {
+                    StatusCode = responseMessage.StatusCode,
+                    Success = false,
+                    ErrorMessage = responseMessage.ReasonPhrase
+                };
             }
 
-            throw new Exception("Unhadled exception occurred while retreiving catalog");
+            return userShoppingDetails;
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -22,28 +23,49 @@ namespace Shopping.MVC.Pages.Basket
 
         public async Task<IActionResult> OnPostDeleteBasketItem(string itemId)
         {
-            UserBasket = await _basketService.DeleteBasketItem(itemId);
+            var userIdClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("sub", StringComparison.OrdinalIgnoreCase));
+            var response = await _basketService.DeleteBasketItem(itemId);
+            if (response.Success)
+            {
+                UserBasket = response.BasketWithItems;
+                UserBasket.UserName = string.IsNullOrWhiteSpace(UserBasket.UserName)
+                    ? User.Claims.FirstOrDefault(claim => claim.Type.Equals("given_name", StringComparison.OrdinalIgnoreCase))?.Value
+                    : UserBasket.UserName;
 
-            return Page();
+                return Page();
+            }
+            else
+            {
+                return RedirectToPage("/Error");
+            }
         }
 
         public async Task<IActionResult> OnGet()
         {
             var userIdClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("sub", StringComparison.OrdinalIgnoreCase));
-            UserBasket = await _basketService.GetBasketFor(new Guid(userIdClaim.Value));
+            var response = await _basketService.GetBasketFor(new Guid(userIdClaim.Value));
+            if(response.Success)
+            {
+                UserBasket = response.BasketWithItems;
+                UserBasket.UserName = string.IsNullOrWhiteSpace(UserBasket.UserName)
+                    ? User.Claims.FirstOrDefault(claim => claim.Type.Equals("given_name", StringComparison.OrdinalIgnoreCase))?.Value
+                    : UserBasket.UserName;
 
-            var userNameClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("given_name", StringComparison.OrdinalIgnoreCase));
-            UserBasket.UserName = userNameClaim.Value;
-
-            return Page();
+                return Page();
+            }
+            else if (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden)
+                return RedirectToPage("/Authorization/AccessDenied");
+            else if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                return RedirectToPage("/Error", new { errorMessage = "Service is currently not available, please try again later." });
+            else
+                return RedirectToPage("/Error");
         }
 
         public async Task<IActionResult> OnPostDeleteBasket()
         {
             var userIdClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("sub", StringComparison.OrdinalIgnoreCase));
-            await _basketService.DeleteBasket(new Guid(userIdClaim.Value));
-
-            return RedirectToPage("/Catalog");
+            var response = await _basketService.DeleteBasket(new Guid(userIdClaim.Value));
+            return response.Success ? RedirectToPage("/Catalog") : RedirectToPage("/Error");
         }
 
         public IActionResult OnGetCheckout()

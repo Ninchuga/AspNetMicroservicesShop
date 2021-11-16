@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Shopping.MVC.Extensions;
 using Shopping.MVC.Models;
-using Shopping.MVC.Responses;
+using Shopping.MVC.Responses.Basket;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -36,7 +36,7 @@ namespace Shopping.MVC.Services
             return new BasketCheckoutResponse { Success = response.IsSuccessStatusCode, ErrorMessage = response.ReasonPhrase };
         }
 
-        public async Task<BasketWithItems> GetBasketFor(Guid userId)
+        public async Task<BasketResponse> GetBasketFor(Guid userId)
         {
             // we don't need this when we are using AddUserAccessTokenHandler() for refresh token flow
             // this handler do all the work for us
@@ -47,18 +47,20 @@ namespace Shopping.MVC.Services
             _logger.LogDebug("Getting basket for the user id: {UserId}", userId);
 
             var responseMessage = await _httpClient.GetAsync($"api/{userId}"); // call from api gateway
-
             if (responseMessage.IsSuccessStatusCode)
             {
-                return await responseMessage.ReadContentAs<BasketWithItems>();
+                var basket = await responseMessage.ReadContentAs<BasketWithItems>();
+                return new BasketResponse { Success = true, StatusCode = responseMessage.StatusCode, BasketWithItems = basket };
             }
-            else if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
-                responseMessage.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            else
             {
-                return null;
+                return new BasketResponse 
+                {
+                    Success = false,
+                    ErrorMessage = responseMessage.ReasonPhrase,
+                    StatusCode = responseMessage.StatusCode
+                };
             }
-
-            throw new Exception("Unhadled exception occurred while retreiving catalog");
         }
 
         public async Task AddItemToBasket(CatalogItem catalogItem)
@@ -84,31 +86,38 @@ namespace Shopping.MVC.Services
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<BasketWithItems> DeleteBasketItem(string itemId)
+        public async Task<BasketResponse> DeleteBasketItem(string itemId)
         {
             _logger.LogDebug("Deleting basket item with id: {ItemId}", itemId);
 
             var responseMessage = await _httpClient.DeleteAsync($"api/DeleteBasketItem/{itemId}"); // gateway api uri
-
             if (responseMessage.IsSuccessStatusCode)
             {
-                return await responseMessage.ReadContentAs<BasketWithItems>();
+                var basket = await responseMessage.ReadContentAs<BasketWithItems>();
+                return new BasketResponse { Success = true, StatusCode = responseMessage.StatusCode, BasketWithItems = basket };
             }
-            else if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
-                responseMessage.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            else
             {
-                return null;
+                return new BasketResponse
+                {
+                    Success = false,
+                    ErrorMessage = responseMessage.ReasonPhrase,
+                    StatusCode = responseMessage.StatusCode
+                };
             }
-
-            throw new Exception("Unhadled exception occurred while retreiving catalog");
         }
 
-        public async Task DeleteBasket(Guid userId)
+        public async Task<DeleteBasketResponse> DeleteBasket(Guid userId)
         {
             _logger.LogDebug("Deleting basket for the user id: {UserId}", userId);
 
             var response = await _httpClient.DeleteAsync($"api/Delete/{userId}"); // gateway api uri
-            response.EnsureSuccessStatusCode();
+            return new DeleteBasketResponse 
+            { 
+                StatusCode = response.StatusCode, 
+                ErrorMessage = response.ReasonPhrase, 
+                Success = response.IsSuccessStatusCode 
+            };
         }
 
         private async Task<string> GetAccessToken()

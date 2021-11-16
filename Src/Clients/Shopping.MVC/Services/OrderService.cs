@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Shopping.MVC.Extensions;
 using Shopping.MVC.Models;
+using Shopping.MVC.Responses.Order;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,23 +21,20 @@ namespace Shopping.MVC.Services
             _logger = logger;
         }
 
-        public async Task<List<UserOrder>> GetOrdersFor(Guid userId)
+        public async Task<UserOrdersResponse> GetOrdersFor(Guid userId)
         {
             _logger.LogDebug("Getting orders for the user with id: {UserId}", userId);
 
             var responseMessage = await _httpClient.GetAsync($"api/{userId}"); // call from api gateway
-
             if (responseMessage.IsSuccessStatusCode)
             {
-                return await responseMessage.ReadContentAs<List<UserOrder>>();
+                var orders = await responseMessage.ReadContentAs<List<UserOrder>>();
+                return new UserOrdersResponse { StatusCode = responseMessage.StatusCode, Success = true, UserOrder = orders };
             }
-            else if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
-                responseMessage.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            else
             {
-                return null;
+                return new UserOrdersResponse { StatusCode = responseMessage.StatusCode, ErrorMessage = responseMessage.ReasonPhrase, Success = false };
             }
-
-            throw new Exception("Unhadled exception occurred while retreiving catalog");
         }
     }
 }

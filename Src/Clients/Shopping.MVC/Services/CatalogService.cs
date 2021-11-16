@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Shopping.MVC.Extensions;
 using Shopping.MVC.Models;
-using System;
+using Shopping.MVC.Responses.Catalog;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -24,28 +24,31 @@ namespace Shopping.MVC.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<CatalogItem>> GetCatalog()
+        public async Task<GetCatalogResponse> GetCatalog()
         {
             // we don't need this when we are using AddUserAccessTokenHandler() for refresh token flow
             // this handler do all the work for us
             //_httpClient.SetBearerToken(await GetAccessToken());
 
             var responseMessage = await _httpClient.GetAsync("api"); // route is already configured from HttpClient middleware
-
             if (responseMessage.IsSuccessStatusCode)
             {
-                return await responseMessage.ReadContentAs<List<CatalogItem>>();
+                var catalogItems = await responseMessage.ReadContentAs<List<CatalogItem>>();
+                return new GetCatalogResponse { Success = true, CatalogItems = catalogItems, StatusCode = responseMessage.StatusCode };
             }
-            else if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
-                responseMessage.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            else
             {
-                return null;
+                return new GetCatalogResponse
+                {
+                    Success = false,
+                    CatalogItems = new List<CatalogItem>(),
+                    ErrorMessage = responseMessage.ReasonPhrase,
+                    StatusCode = responseMessage.StatusCode
+                };
             }
-
-            throw new Exception("Some shit");
         }
 
-        public async Task<CatalogItem> GetCatalogItemBy(string itemId)
+        public async Task<GetCatalogItemResponse> GetCatalogItemBy(string itemId)
         {
             // we don't need this when we are using AddUserAccessTokenHandler() for refresh token flow
             // this handler do all the work for us
@@ -54,32 +57,24 @@ namespace Shopping.MVC.Services
 
             _logger.LogDebug("Calling catalog api to return item with id {ItemId}", itemId);
 
-            try
+            var responseMessage = await _httpClient.GetAsync($"api/{itemId}");
+            if (responseMessage.IsSuccessStatusCode)
             {
-                var responseMessage = await _httpClient.GetAsync($"api/{itemId}");
+                var item = await responseMessage.ReadContentAs<CatalogItem>();
 
-                if (responseMessage.IsSuccessStatusCode)
-                {
-                    var item = await responseMessage.ReadContentAs<CatalogItem>();
+                _logger.LogDebug("Successfully loaded item {ItemName}", item.Name);
 
-                    _logger.LogDebug("Successfully loaded item {ItemName}", item.Name);
-
-                    return item;
-                }
-                else if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
-                    responseMessage.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                {
-                    return null;
-                }
+                return new GetCatalogItemResponse { Success = true, StatusCode = responseMessage.StatusCode, CatalogItem = item };
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "An unhandled exception occurred when loading catalog item.");
-                throw;
+                return new GetCatalogItemResponse
+                {
+                    Success = false,
+                    ErrorMessage = responseMessage.ReasonPhrase,
+                    StatusCode = responseMessage.StatusCode
+                };
             }
-
-            _logger.LogWarning("Returning null catalog item.");
-            return null;
         }
 
         private async Task<string> GetAccessToken()

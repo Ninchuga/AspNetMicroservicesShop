@@ -3,7 +3,6 @@ using Shopping.Aggregator.Extensions;
 using Shopping.Aggregator.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -18,10 +17,12 @@ namespace Shopping.Aggregator.Services
             _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<OrderResponseModel>> GetOrdersBy(Guid userId)
+        public async Task<IReadOnlyCollection<OrderResponseModel>> GetOrdersBy(Guid userId)
         {
             var responseMessage = await _httpClient.GetAsync($"/api/v1/Order/{userId}");
-            return await responseMessage.ReadContentAs<List<OrderResponseModel>>();
+            return responseMessage.IsSuccessStatusCode
+                ? await responseMessage.ReadContentAs<IReadOnlyCollection<OrderResponseModel>>()
+                : new List<OrderResponseModel>();
         }
     }
 }

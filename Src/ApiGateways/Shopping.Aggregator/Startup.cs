@@ -70,28 +70,45 @@ namespace Shopping.Aggregator
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Catalog:CatalogUrl"]))
                 .AddHttpMessageHandler<CatalogApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString()));
+                //.AddPolicyHandlerFromRegistry(PolicySelector);
+                //.AddWrappedPoliciesHandlers(services,
+                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString()),
+                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString()),
+                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString()),
+                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())
+                //);
+                .AddPolicyHandler(
+                    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString())
+                    .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString())
+                        .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString())
+                            .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())))));
 
             services.AddHttpClient<IBasketService, BasketService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Basket:BasketUrl"]))
                 .AddHttpMessageHandler<BasketApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString()));
+                //.AddWrappedPoliciesHandlers(services,
+                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString()),
+                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString()),
+                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString()),
+                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())
+                //);
+                .AddPolicyHandler(
+                    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString())
+                    .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString())
+                        .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString())
+                            .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())))));
+
 
             services.AddHttpClient<IOrderService, OrderService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Ordering:OrderingUrl"]))
                 .AddHttpMessageHandler<OrderApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString()))
-                .AddPolicyHandler(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString()));
+                .AddPolicyHandler(
+                    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString())
+                    .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString())
+                        .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString())
+                            .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())))));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -152,6 +169,25 @@ namespace Shopping.Aggregator
                 endpoints.MapDefaultHealthChecks();
                 endpoints.MapControllers();
             });
+        }
+
+        private IAsyncPolicy<HttpResponseMessage> PolicySelector(IReadOnlyPolicyRegistry<string> policyRegistry, HttpRequestMessage httpRequestMessage)
+        {
+            if (httpRequestMessage.Method == HttpMethod.Get)
+            {
+                return policyRegistry.Get<IAsyncPolicy<HttpResponseMessage>>("SimpleHttpRetryPolicy");
+            }
+            // do not use retry on POST methods because they are not idempotent 
+            // multiple requests will be sent and all of them could be executed resulting in duplcated or broken data
+            // potentially could cause exceptions
+            else if (httpRequestMessage.Method == HttpMethod.Post) 
+            {
+                return policyRegistry.Get<IAsyncPolicy<HttpResponseMessage>>("NoOpPolicy");
+            }
+            else
+            {
+                return policyRegistry.Get<IAsyncPolicy<HttpResponseMessage>>("SimpleWaitAndRetryPolicy");
+            }
         }
     }
 }

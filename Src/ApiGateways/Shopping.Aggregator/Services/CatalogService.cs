@@ -22,26 +22,30 @@ namespace Shopping.Aggregator.Services
             _cachePolicy = policyRegistry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.InMemoryCachePolicy.ToString());
         }
 
-        public async Task<IEnumerable<CatalogModel>> GetCatalog()
+        public async Task<IReadOnlyCollection<CatalogModel>> GetCatalog()
         {
             var response = await ExecuteWithCachePolicy(cacheKey: "Catalog", (context) => _httpClient.GetAsync("/api/v1/Catalog"));
-
-            return await response.ReadContentAs<IEnumerable<CatalogModel>>();
+            return response.IsSuccessStatusCode
+                ? await response.ReadContentAs<IReadOnlyCollection<CatalogModel>>()
+                : new List<CatalogModel>();
         }
 
         public async Task<CatalogModel> GetCatalogProductBy(string productId)
         {
             var response = await ExecuteWithCachePolicy(cacheKey: $"CatalogItemId-{productId}", (context) => _httpClient.GetAsync($"/api/v1/Catalog/{productId}"));
-
-            return await response.ReadContentAs<CatalogModel>();
+            return response.IsSuccessStatusCode
+                ? await response.ReadContentAs<CatalogModel>()
+                : null;
         }
 
-        public async Task<IEnumerable<CatalogModel>> GetCatalogProductsByCategory(string category)
+        public async Task<IReadOnlyCollection<CatalogModel>> GetCatalogProductsByCategory(string category)
         {
             var response = await ExecuteWithCachePolicy(cacheKey: $"CatalogItemsByCategory-{category}", 
                 (context) => _httpClient.GetAsync($"/api/v1/Catalog/GetProductByCategory/{category}"));
 
-            return await response.ReadContentAs<List<CatalogModel>>();
+            return response.IsSuccessStatusCode
+                ? await response.ReadContentAs<IReadOnlyCollection<CatalogModel>>()
+                : new List<CatalogModel>();
         }
 
         private async Task<HttpResponseMessage> ExecuteWithCachePolicy(string cacheKey, Func<Context, Task<HttpResponseMessage>> func)
