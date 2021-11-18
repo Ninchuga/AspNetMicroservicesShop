@@ -14,6 +14,7 @@ using Shopping.Aggregator.Services;
 using Shopping.Correlation;
 using Shopping.HealthChecks;
 using Shopping.Policies;
+using Shopping.Policies.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -56,59 +57,41 @@ namespace Shopping.Aggregator
             services.AddTransient<BasketApiTokenExchangeDelegatingHandler>();
             services.AddTransient<OrderApiTokenExchangeDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
-            services.AddSingleton<IPolicyHolder, PolicyHolder>();
 
-            IPolicyRegistry<string> registry = services.AddPolicyRegistry() // creates the registry and adds it to the service collection
+            IPolicyRegistry<string> registry = services.AddPolicyRegistry()
                 .RegisterPolicies(services,
-                    AvailablePolicies.InMemoryCachePolicy,
-                    AvailablePolicies.FallbackPolicy,
-                    AvailablePolicies.RetryPolicy,
-                    AvailablePolicies.CircuitBreakerPolicy,
-                    AvailablePolicies.TimeoutPolicy);
+                    new InMemoryCachePolicy(ttl: TimeSpan.FromMinutes(5)),
+                    new FallbackPolicy(),
+                    new RetryPolicy(retryCount: 3),
+                    new CircuitBreakerPolicy(allowedNumberOfAttemptsBeforeBreaking: 3, durationOfBreak: TimeSpan.FromSeconds(10)),
+                    new TimeoutPolicy(secondsToWaitForResponse: 10));
 
             services.AddHttpClient<ICatalogService, CatalogService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Catalog:CatalogUrl"]))
                 .AddHttpMessageHandler<CatalogApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
-                //.AddPolicyHandlerFromRegistry(PolicySelector);
-                //.AddWrappedPoliciesHandlers(services,
-                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString()),
-                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString()),
-                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString()),
-                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())
-                //);
-                .AddPolicyHandler(
-                    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString())
-                    .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString())
-                        .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString())
-                            .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())))));
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.CircuitBreakerPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.TimeoutPolicy.ToString());
 
             services.AddHttpClient<IBasketService, BasketService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Basket:BasketUrl"]))
                 .AddHttpMessageHandler<BasketApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
-                //.AddWrappedPoliciesHandlers(services,
-                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString()),
-                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString()),
-                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString()),
-                //    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())
-                //);
-                .AddPolicyHandler(
-                    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString())
-                    .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString())
-                        .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString())
-                            .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())))));
-
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.CircuitBreakerPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.TimeoutPolicy.ToString());
 
             services.AddHttpClient<IOrderService, OrderService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Ordering:OrderingUrl"]))
                 .AddHttpMessageHandler<OrderApiTokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
-                .AddPolicyHandler(
-                    registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.FallbackPolicy.ToString())
-                    .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.RetryPolicy.ToString())
-                        .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.CircuitBreakerPolicy.ToString())
-                            .WrapAsync(registry.Get<IAsyncPolicy<HttpResponseMessage>>(AvailablePolicies.TimeoutPolicy.ToString())))));
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.CircuitBreakerPolicy.ToString())
+                .AddPolicyHandlerFromRegistry(AvailablePolicies.TimeoutPolicy.ToString());
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -51,7 +51,7 @@ namespace Shopping.Policies
                      sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                      onRetry: (exception, retryCount, context) =>
                      {
-                         _logger.LogWarning($"Retry {retryCount} of {context.PolicyKey} at {context.OperationKey}, due to: {exception.Exception}.");
+                         _logger.LogWarning($"Retry {retryCount} of {context.PolicyKey} at {context.OperationKey}, due to: {exception.Exception.Message}.");
                      }
                  );
         }
@@ -65,13 +65,13 @@ namespace Shopping.Policies
                     durationOfBreak,
                     onBreak: (responseMessage, timespan) =>
                     {
-                        // circuit break
-                        _logger.LogWarning("There is an error in a downstream service. Circuit is now open and it is not allowing calls to downstream service!");
+                        // circuit break/open
+                        _logger.LogWarning($"There is an error in a downstream service. Circuit is now open for {durationOfBreak} seconds and it is not allowing calls.");
                     },
                     onReset: () =>
                     {
                         // circuit reset
-                        _logger.LogWarning("Trying to recover from a circuit break. Circuit is now closed!");
+                        _logger.LogWarning("Trying to recover from a circuit break. Circuit is now closed and can process requests!");
                     }
                 );
         }
@@ -92,6 +92,7 @@ namespace Shopping.Policies
 
             return Policy.CacheAsync<HttpResponseMessage>(memoryCacheProvider, ttl);
         }
+
         public IAsyncPolicy<HttpResponseMessage> WrapPolicies(params IAsyncPolicy<HttpResponseMessage>[] policies)
         {
             return Policy.WrapAsync(policies);
@@ -100,21 +101,33 @@ namespace Shopping.Policies
         private Task OnFallbackAsync(DelegateResult<HttpResponseMessage> response, Context context)
         {
             if (response.Exception != null)
-                _logger.LogWarning($"Exception occurred while executing the request. Exception message: {response.Exception.Message}");
+                _logger.LogWarning($"Fallback action triggered. Exception occurred while executing the request. Exception message: {response.Exception.Message}");
 
             return Task.CompletedTask;
         }
 
         private Task<HttpResponseMessage> FallbackAction(DelegateResult<HttpResponseMessage> responseToFailedRequest, Context context, CancellationToken cancellationToken)
         {
-            _logger.LogDebug("Executing fallback action...");
+            HttpResponseMessage httpResponseMessage;
 
-            HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            if (responseToFailedRequest.Result != null)
             {
-                Content = responseToFailedRequest.Exception != null
+                _logger.LogWarning($"Executing fallback action with response status code {responseToFailedRequest.Result.StatusCode} and reason: {responseToFailedRequest.Result.ReasonPhrase}");
+                httpResponseMessage = new HttpResponseMessage(responseToFailedRequest.Result.StatusCode)
+                {
+                    Content = new StringContent($"The fallback executed, the original error was {responseToFailedRequest.Result.ReasonPhrase}")
+                };
+            }
+            else
+            {
+                _logger.LogWarning($"Executing fallback action with response status code: {HttpStatusCode.InternalServerError} and exception message: {responseToFailedRequest.Exception.Message}");
+                httpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                {
+                    Content = responseToFailedRequest.Exception != null
                     ? new StringContent($"The fallback executed, the original error was {responseToFailedRequest.Exception.Message}")
-                    : new StringContent($"The fallback executed, the original error was {responseToFailedRequest.Result.ReasonPhrase}")
-            };
+                    : new StringContent($"The fallback executed with https status code {HttpStatusCode.InternalServerError}")
+                };
+            }
 
             return Task.FromResult(httpResponseMessage);
         }

@@ -19,6 +19,7 @@ namespace Basket.API.Controllers
     {
         private readonly ILogger<BasketController> _logger;
         private readonly IBasketService _basketService;
+        private static int _numberOfRequests = 0;
 
         public BasketController(ILogger<BasketController> logger, IBasketService basketService)
         {
@@ -34,14 +35,22 @@ namespace Basket.API.Controllers
             // There token was taken from sub claim of the authenticated user
             //Guid usId = Guid.Parse(HttpContext.Request.Headers["CurrentUser"][0]);
 
-            //await Task.Delay(TimeSpan.FromSeconds(11)); // for testing purposes
+            _numberOfRequests++;
+            if (_numberOfRequests % 4 == 0) // every forth request will be successfull
+            {
+                Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid usrId);
 
-            // Now that we are passing scopes from the API Gateway we can extract this info from the Claims object
-            Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid usrId);
+                _logger.LogInformation("Retrieving basket for the user {UserId}", usrId);
 
-            _logger.LogDebug("Retrieving basket for the user {UserId}", usrId);
+                return Ok(await _basketService.GetBasketBy(userId));
+            }
+            else
+            {
+                await Task.Delay(TimeSpan.FromSeconds(11)); // for testing purposes
 
-            return Ok(await _basketService.GetBasketBy(userId));
+                return BadRequest();
+                //return Ok(await _basketService.GetBasketBy(userId));
+            }
         }
 
         [HttpPost]
