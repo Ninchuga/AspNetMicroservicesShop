@@ -3,7 +3,7 @@ using Polly;
 using System;
 using System.Net.Http;
 
-namespace Shopping.Policies.Models
+namespace Shopping.Policies
 {
     public class InMemoryCachePolicy : IAmPolicy
     {

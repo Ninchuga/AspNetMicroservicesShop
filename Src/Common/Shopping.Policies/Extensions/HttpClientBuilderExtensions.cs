@@ -2,7 +2,7 @@
 using Polly;
 using System.Net.Http;
 
-namespace Shopping.Policies
+namespace Shopping.Policies.Extensions
 {
     public static class HttpClientBuilderExtensions
     {

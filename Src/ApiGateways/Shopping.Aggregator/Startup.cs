@@ -14,7 +14,7 @@ using Shopping.Aggregator.Services;
 using Shopping.Correlation;
 using Shopping.HealthChecks;
 using Shopping.Policies;
-using Shopping.Policies.Models;
+using Shopping.Policies.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

@@ -4,7 +4,7 @@ using Polly.Timeout;
 using System;
 using System.Net.Http;
 
-namespace Shopping.Policies.Models
+namespace Shopping.Policies
 {
     public class CircuitBreakerPolicy : IAmPolicy
     {

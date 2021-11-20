@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Shopping.Policies.Models
+namespace Shopping.Policies
 {
     public class FallbackPolicy : IAmPolicy
     {
