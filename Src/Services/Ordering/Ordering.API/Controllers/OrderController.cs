@@ -1,10 +1,12 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Features.Orders.Commands;
 using Ordering.Application.Features.Orders.Queries;
 using Ordering.Application.Models;
+using Shopping.Correlation.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +20,12 @@ namespace Ordering.API.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
 
-        public OrderController(IMediator mediator)
+        public OrderController(IMediator mediator, IMapper mapper)
         {
             _mediator = mediator;
+            _mapper = mapper;
         }
 
         [HttpGet("{userId}", Name = "GetOrder")]
@@ -34,7 +38,8 @@ namespace Ordering.API.Controllers
             return Ok(orders);
         }
 
-        [HttpPut(Name = "UpdateOrder")]
+        [HttpPut]
+        [Route("[action]")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
@@ -53,6 +58,21 @@ namespace Ordering.API.Controllers
             var command = new DeleteOrderCommand() { OrderId = orderId };
             await _mediator.Send(command);
             return NoContent();
+        }
+
+        [HttpPut]
+        [Route("[action]")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult> PlaceOrder([FromBody] PlaceOrderDto order)
+        {
+            var command = _mapper.Map<PlaceOrderCommand>(order);
+            command.CorrelationId = new Guid(HttpContext.Request.Headers[Headers.CorrelationIdHeader][0]);
+
+            var response = await _mediator.Send(command);
+            return response.Success ? Ok() : BadRequest();
+
         }
     }
 }

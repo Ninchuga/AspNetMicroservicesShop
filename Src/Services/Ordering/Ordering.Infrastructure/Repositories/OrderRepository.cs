@@ -19,6 +19,7 @@ namespace Ordering.Infrastructure.Repositories
         {
             return await _orderContext
                .Set<Order>()
+               .AsNoTracking()
                .FirstOrDefaultAsync(order => order.Id == orderId);
         }
 
@@ -26,6 +27,7 @@ namespace Ordering.Infrastructure.Repositories
         {
             var orderList = await _orderContext
                 .Set<Order>()
+                .AsNoTracking()
                 .Where(order => order.UserId == userId)
                 .ToListAsync();
 

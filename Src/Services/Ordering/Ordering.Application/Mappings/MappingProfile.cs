@@ -14,6 +14,7 @@ namespace Ordering.Application.Mappings
         {
             CreateMap<Order, OrderDto>().ReverseMap();
             CreateMap<Order, CheckoutOrderCommand>().ReverseMap();
+            CreateMap<Order, PlaceOrderCommand>().ReverseMap();
             CreateMap<Order, UpdateOrderCommand>().ReverseMap();
         }
     }

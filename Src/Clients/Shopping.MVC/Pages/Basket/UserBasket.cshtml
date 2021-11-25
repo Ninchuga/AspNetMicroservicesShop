@@ -23,6 +23,12 @@
                     Price
                 </th>
                 <th>
+                    Discount
+                </th>
+                <th>
+                    Price with discount
+                </th>
+                <th>
                     @* used for buttons *@
                 </th>
             </tr>
@@ -42,6 +48,12 @@
                     </td>
                     <td>
                         @item.Price
+                    </td>
+                    <td>
+                        @item.Discount
+                    </td>
+                    <td>
+                        @item.PriceWithDiscount
                     </td>
                     <td>
                         <form method="post" asp-page-handler="deleteBasketItem">
@@ -69,6 +81,7 @@
         <div class="col-md-4"></div>
         <div class="text-right col-md-4">
             <form method="get">
+                <input type="hidden" name="basketTotalPrice" value="@Model.UserBasket.TotalPrice" />
                 <button class="btn btn-dark" type="submit" asp-page-handler="checkout">
                     CHECKOUT
                 </button>

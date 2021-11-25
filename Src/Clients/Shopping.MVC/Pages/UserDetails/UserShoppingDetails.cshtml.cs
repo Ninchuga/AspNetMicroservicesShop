@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Shopping.MVC.Models;
 using Shopping.MVC.Models.Aggregator;
 using Shopping.MVC.Services;
 
@@ -40,5 +41,29 @@ namespace Shopping.MVC.Pages.UserDetails
             else
                 return RedirectToPage("/Error");
         }
+
+        //private string OrderStatusToDisplay(OrderStatus orderStatus)
+        //{
+        //    string status = string.Empty;
+        //    switch (orderStatus)
+        //    {
+        //        case OrderStatus.PENDING:
+        //            status = "Pending";
+        //            break;
+        //        case OrderStatus.ORDER_BILLED:
+        //            status = "Order Billed";
+        //            break;
+        //        case OrderStatus.ORDER_DISPATCHED:
+        //            status = "Order Dispatched";
+        //            break;
+        //        case OrderStatus.ORDER_DELIVERED:
+        //            status = "Order Delivered";
+        //            break;
+        //        default:
+        //            break;
+        //    }
+
+        //    return status;
+        //}
     }
 }

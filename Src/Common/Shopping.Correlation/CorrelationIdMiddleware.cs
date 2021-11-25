@@ -12,12 +12,10 @@ namespace Shopping.Correlation
     public class CorrelationIdMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<CorrelationIdMiddleware> _logger;
 
-        public CorrelationIdMiddleware(RequestDelegate next, ILogger<CorrelationIdMiddleware> logger)
+        public CorrelationIdMiddleware(RequestDelegate next)
         {
             _next = next;
-            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
@@ -30,15 +28,11 @@ namespace Shopping.Correlation
             else
             {
                 correlationId = Guid.NewGuid().ToString();
-                context.Items.Add(Headers.CorrelationIdHeader, correlationId);
             }
 
-            // maybe there are log messages that are used before calling downstream apis
-            // place them inside the same correlation scope as downstream services
-            using (_logger.BeginScope("{CorrelationId}", correlationId))
-            {
-                await _next(context);
-            }
+            context.Items.Add(Headers.CorrelationIdHeader, correlationId);
+
+            await _next(context);
         }
     }
 }

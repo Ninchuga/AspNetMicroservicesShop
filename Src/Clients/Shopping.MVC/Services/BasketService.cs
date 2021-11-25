@@ -26,6 +26,12 @@ namespace Shopping.MVC.Services
             _logger = logger;
         }
 
+        // In here we are executing distributed transaction using two phase commit protocol
+        // where Client will call Basket api which will commit some data and send other data as message to service bus and  bus to Order api
+        // Order api will create an order and make a second commit
+        // We could also create an additional layer and use Orchestrator/Saga pattern.
+        // Checkout Orchestrator will be called from the client instead of calling Basket api directly
+        // Orchestrator will call Basket api, if it's successfull call Order Api with phase commit as a single transaction and rollback if there is a failure
         public async Task<BasketCheckoutResponse> Checkout(BasketCheckout basketCheckout)
         {
             _logger.LogInformation("Checking out basket {@BasketCheckout}", basketCheckout);

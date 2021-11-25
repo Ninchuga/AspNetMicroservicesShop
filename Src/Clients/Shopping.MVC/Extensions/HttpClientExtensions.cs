@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Shopping.MVC.Extensions
@@ -16,7 +14,7 @@ namespace Shopping.MVC.Extensions
 
             var dataAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            return JsonSerializer.Deserialize<T>(dataAsString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            return JsonConvert.DeserializeObject<T>(dataAsString);
         }
     }
 }

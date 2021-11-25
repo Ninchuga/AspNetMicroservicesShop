@@ -257,6 +257,28 @@
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
       "DelegatingHandlers": [ "OrderApiTokenExchangeDelegatingHandler" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/Order/PlaceOrder",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "ordering.api",
+          "Port": "443"
+        }
+      ],
+      "UpstreamPathTemplate": "/Order/api/PlaceOrder",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "OrderApiTokenExchangeDelegatingHandler" ],
+      "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
+      }
     }
   ],
   "GlobalConfiguration": {

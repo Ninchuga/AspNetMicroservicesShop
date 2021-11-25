@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Ordering.Domain.Common;
+using System;
 
 namespace Ordering.Application.Models
 {
@@ -9,6 +8,7 @@ namespace Ordering.Application.Models
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
+        public OrderStatus OrderStatus { get; set; }
 
         // BillingAddress
         public string FirstName { get; set; }

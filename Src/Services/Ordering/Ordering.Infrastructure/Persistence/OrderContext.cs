@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
@@ -15,9 +16,14 @@ namespace Ordering.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Order>()
                 .Property(order => order.TotalPrice)
                 .HasColumnType("decimal(18, 4)");
+
+            modelBuilder.Entity<Order>()
+                .Property(order => order.OrderStatus)
+                .HasConversion<string>();
         }
 
         public OrderContext(DbContextOptions<OrderContext> options) : base(options)

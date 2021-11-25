@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
+using System.Runtime.Serialization;
 
 namespace Shopping.MVC.Models
 {
@@ -7,6 +10,7 @@ namespace Shopping.MVC.Models
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
+        public OrderStatus OrderStatus { get; set; }
 
         // BillingAddress
         public string FirstName { get; set; }
@@ -20,5 +24,23 @@ namespace Shopping.MVC.Models
         public string CardNumber { get; set; }
         public DateTime OrderPlaced { get; set; }
         public bool OrderPaid { get; set; }
+
+        public string OrderStatusToDisplay(OrderStatus orderStatus) =>
+            orderStatus switch
+            {
+                OrderStatus.PENDING => "Pending",
+                OrderStatus.ORDER_BILLED => "Order Billed",
+                OrderStatus.ORDER_DISPATCHED => "Order Displatched",
+                OrderStatus.ORDER_DELIVERED => "Order Delivered",
+                _ => string.Empty,
+            };
+    }
+
+    public enum OrderStatus
+    {
+        PENDING,
+        ORDER_BILLED,
+        ORDER_DISPATCHED,
+        ORDER_DELIVERED
     }
 }

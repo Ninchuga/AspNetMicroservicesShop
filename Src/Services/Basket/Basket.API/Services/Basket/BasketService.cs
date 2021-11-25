@@ -39,7 +39,20 @@ namespace Basket.API.Services.Basket
         public async Task<ShoppingCart> GetBasketBy(Guid userId)
         {
             var basket = await _basketRepository.GetBasket(userId);
-            return basket ?? new ShoppingCart(userId);
+            if(basket == null)
+                return new ShoppingCart(userId);
+
+            foreach (var item in basket.Items)
+            {
+                var coupon = await _discountGrpcService.GetDiscount(item.ProductName);
+                if (coupon == null)
+                    continue;
+
+                item.PriceWithDiscount = item.Price - coupon.Amount;
+                item.Discount = coupon.Amount;
+            }
+
+            return basket;
         }
 
         public async Task<CheckoutBasketResponse> CheckoutBasket(BasketCheckout basketCheckout, Guid userId, string correlationId)
@@ -54,6 +67,9 @@ namespace Basket.API.Services.Basket
             foreach (var item in basket.Items)
             {
                 var coupon = await _discountGrpcService.GetDiscount(item.ProductName);
+                if (coupon == null)
+                    continue;
+
                 item.Price -= coupon.Amount;
             }
 

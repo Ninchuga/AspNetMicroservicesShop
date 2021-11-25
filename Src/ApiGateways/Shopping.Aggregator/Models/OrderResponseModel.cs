@@ -10,6 +10,7 @@ namespace Shopping.Aggregator.Models
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
+        public OrderStatus OrderStatus { get; set; }
 
         // BillingAddress
         public string FirstName { get; set; }
@@ -23,5 +24,13 @@ namespace Shopping.Aggregator.Models
         public string CardNumber { get; set; }
         public DateTime OrderPlaced { get; set; }
         public bool OrderPaid { get; set; }
+    }
+
+    public enum OrderStatus
+    {
+        PENDING,
+        ORDER_BILLED,
+        ORDER_DISPATCHED,
+        ORDER_DELIVERED
     }
 }

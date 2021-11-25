@@ -35,22 +35,28 @@ namespace Basket.API.Controllers
             // There token was taken from sub claim of the authenticated user
             //Guid usId = Guid.Parse(HttpContext.Request.Headers["CurrentUser"][0]);
 
-            _numberOfRequests++;
-            if (_numberOfRequests % 4 == 0) // every forth request will be successfull
-            {
-                Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid usrId);
+            Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid usrId);
 
-                _logger.LogInformation("Retrieving basket for the user {UserId}", usrId);
+            _logger.LogInformation("Retrieving basket for the user {UserId}", usrId);
 
-                return Ok(await _basketService.GetBasketBy(userId));
-            }
-            else
-            {
-                await Task.Delay(TimeSpan.FromSeconds(11)); // for testing purposes
+            return Ok(await _basketService.GetBasketBy(userId));
 
-                return BadRequest();
-                //return Ok(await _basketService.GetBasketBy(userId));
-            }
+            //_numberOfRequests++;
+            //if (_numberOfRequests % 4 == 0) // every forth request will be successfull
+            //{
+            //    Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid usrId);
+
+            //    _logger.LogInformation("Retrieving basket for the user {UserId}", usrId);
+
+            //    return Ok(await _basketService.GetBasketBy(userId));
+            //}
+            //else
+            //{
+            //    await Task.Delay(TimeSpan.FromSeconds(11)); // for testing purposes
+
+            //    return BadRequest();
+            //    //return Ok(await _basketService.GetBasketBy(userId));
+            //}
         }
 
         [HttpPost]

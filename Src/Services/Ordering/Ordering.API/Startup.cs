@@ -32,7 +32,7 @@ namespace Ordering.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddApplicationServices();
+            services.AddApplicationServices(Configuration);
             services.AddInfrastructureServices(Configuration);
 
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
@@ -51,6 +51,7 @@ namespace Ordering.API
             services.AddMassTransit(config =>
             {
                 config.AddConsumer<BasketCheckoutConsumer>();
+                config.AddConsumer<OrderStatusUpdatedConsumer>();
 
                 config.UsingRabbitMq((ctx, config) =>
                 {
@@ -59,6 +60,11 @@ namespace Ordering.API
                     config.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, config => 
                     {
                         config.ConfigureConsumer<BasketCheckoutConsumer>(ctx);
+                    });
+
+                    config.ReceiveEndpoint(EventBusConstants.CreateOrderQueue, config =>
+                    {
+                        config.ConfigureConsumer<OrderStatusUpdatedConsumer>(ctx);
                     });
                 });
             });
@@ -110,6 +116,7 @@ namespace Ordering.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ordering.API v1"));
             }
 
+            app.AddCorrelationIdMiddleware();
             app.AddCorrelationLoggingMiddleware();
 
             app.UseHttpsRedirection();

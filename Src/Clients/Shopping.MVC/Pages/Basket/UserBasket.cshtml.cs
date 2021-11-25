@@ -68,9 +68,9 @@ namespace Shopping.MVC.Pages.Basket
             return response.Success ? RedirectToPage("/Catalog") : RedirectToPage("/Error");
         }
 
-        public IActionResult OnGetCheckout()
+        public IActionResult OnGetCheckout(decimal basketTotalPrice)
         {
-            return RedirectToPage("/Basket/Checkout");
+            return RedirectToPage("/Basket/Checkout", new { basketTotalPrice });
         }
     }
 }

@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Shopping.MVC.Services
@@ -19,6 +21,21 @@ namespace Shopping.MVC.Services
         {
             _httpClient = httpClient;
             _logger = logger;
+        }
+
+        public async Task<PlaceOrderResponse> PlaceOrder(BasketCheckout basketCheckout)
+        {
+            _logger.LogInformation("Calling Order service to place an order.");
+
+            var requestContent = new StringContent(JsonSerializer.Serialize(basketCheckout), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PutAsync("api/PlaceOrder", requestContent); // gateway api uri
+
+            return new PlaceOrderResponse
+            {
+                StatusCode = response.StatusCode,
+                Success = response.IsSuccessStatusCode,
+                ErrorMessage = response.ReasonPhrase
+            };
         }
 
         public async Task<UserOrdersResponse> GetOrdersFor(Guid userId)

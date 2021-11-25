@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EventBus.Messages.Events;
 using Ordering.Application.Features.Orders.Commands;
+using Ordering.Application.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace Ordering.API.Mappings
         public OrderingProfile()
         {
             CreateMap<CheckoutOrderCommand, BasketCheckoutEvent>().ReverseMap();
+            CreateMap<PlaceOrderDto, PlaceOrderCommand>().ReverseMap();
         }
     }
 }

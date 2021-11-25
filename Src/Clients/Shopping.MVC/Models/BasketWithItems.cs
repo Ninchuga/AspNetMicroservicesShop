@@ -18,7 +18,7 @@ namespace Shopping.MVC.Models
                 foreach (var item in Items)
                 {
                     //totalPrice += item.Price * item.Quantity;
-                    totalPrice += item.Price;
+                    totalPrice += item.PriceWithDiscount;
                 }
 
                 return totalPrice;

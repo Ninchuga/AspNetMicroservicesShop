@@ -24,6 +24,12 @@
                 <th>
                     Price
                 </th>
+                <th>
+                    Discount
+                </th>
+                <th>
+                    Price with discount
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -41,6 +47,12 @@
                     </td>
                     <td>
                         @item.Price
+                    </td>
+                    <td>
+                        @item.Discount
+                    </td>
+                    <td>
+                        @item.PriceWithDiscount
                     </td>
                 </tr>
             }
@@ -64,6 +76,7 @@
             <th>PAID?</th>
             <th>EMAIL</th>
             <th>CARD NUMBER</th>
+            <th>STATUS</th>
         </tr>
     </thead>
     <tbody>
@@ -78,6 +91,7 @@
                 <td class="bold">@order.OrderPaid</td>
                 <td class="bold">@order.Email</td>
                 <td class="bold">@order.CardNumber</td>
+                <td class="bold">@order.OrderStatusToDisplay(order.OrderStatus)</td>
             </tr>
         }
     </tbody>

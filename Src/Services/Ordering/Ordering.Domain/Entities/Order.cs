@@ -8,6 +8,7 @@ namespace Ordering.Domain.Entities
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
+        public OrderStatus OrderStatus { get; set; }
 
         // BillingAddress
         public string FirstName { get; set; }

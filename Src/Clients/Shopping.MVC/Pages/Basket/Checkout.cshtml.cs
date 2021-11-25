@@ -13,17 +13,22 @@ namespace Shopping.MVC.Pages.Basket
     {
         
         private readonly BasketService _basketService;
+        private readonly OrderService _orderService;
 
-        public CheckoutModel(BasketService basketService)
+        public CheckoutModel(BasketService basketService, OrderService orderService)
         {
             _basketService = basketService;
+            _orderService = orderService;
         }
 
         [BindProperty]
         public BasketCheckout BasketCheckout { get; set; }
+        public decimal BasketTotalPrice { get; set; }
 
-        public void OnGet()
+        public IActionResult OnGet(decimal basketTotalPrice)
         {
+            BasketTotalPrice = basketTotalPrice;
+            return Page();
         }
 
         public async Task<IActionResult> OnPost(BasketCheckout basketCheckout)
@@ -33,7 +38,8 @@ namespace Shopping.MVC.Pages.Basket
             basketCheckout.UserName = userNameClaim.Value;
             basketCheckout.UserId = new Guid(userIdClaim.Value);
 
-            var response = await _basketService.Checkout(basketCheckout);
+            //var response = await _basketService.Checkout(basketCheckout); // old way
+            var response = await _orderService.PlaceOrder(basketCheckout);
 
             return response.Success ? RedirectToPage("/Basket/CheckoutComplete") : RedirectToPage("/Error");
         }

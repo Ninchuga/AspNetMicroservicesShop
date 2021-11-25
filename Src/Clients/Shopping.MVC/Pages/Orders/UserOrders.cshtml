@@ -18,22 +18,23 @@
             <th>PAID?</th>
             <th>EMAIL</th>
             <th>CARD NUMBER</th>
+            <th>STATUS</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var line in Model.Orders)
+        @foreach (var order in Model.Orders)
         {
-        <tr>
-            @*<td>@line.Id</td>*@
-            <td>@line.FirstName</td>
-            <td>@line.LastName</td>
-            <td class="bold">@line.Address</td>
-            <td>@line.OrderPlaced.ToShortDateString()</td>
-            <td class="bold">$@line.TotalPrice</td>
-            <td class="bold">@line.OrderPaid</td>
-            <td class="bold">@line.Email</td>
-            <td class="bold">@line.CardNumber</td>
-        </tr>
+            <tr>
+                <td>@order.FirstName</td>
+                <td>@order.LastName</td>
+                <td class="bold">@order.Address</td>
+                <td>@order.OrderPlaced.ToShortDateString()</td>
+                <td class="bold">$@order.TotalPrice</td>
+                <td class="bold">@order.OrderPaid</td>
+                <td class="bold">@order.Email</td>
+                <td class="bold">@order.CardNumber</td>
+                <td class="bold">@order.OrderStatusToDisplay(order.OrderStatus)</td>
+            </tr>
         }
     </tbody>
 </table>
