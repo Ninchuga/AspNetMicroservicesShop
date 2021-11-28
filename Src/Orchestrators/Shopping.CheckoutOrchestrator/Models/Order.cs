@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Shopping.CheckoutOrchestrator.Models
+namespace Shopping.OrderSagaOrchestrator.Models
 {
     public class Order
     {
@@ -11,6 +11,6 @@ namespace Shopping.CheckoutOrchestrator.Models
         public Guid OrderId { get; set; }
         public Guid CorrelationId { get; set; }
         public DateTime OrderPlaced { get; set; }
-        public OrderState OrderState { get; set; }
+        public OrderStatus OrderState { get; set; }
     }
 }

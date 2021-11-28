@@ -31,6 +31,7 @@ namespace Shopping.Aggregator.Models
         PENDING,
         ORDER_BILLED,
         ORDER_DISPATCHED,
-        ORDER_DELIVERED
+        ORDER_DELIVERED,
+        ORDER_CANCELED
     }
 }

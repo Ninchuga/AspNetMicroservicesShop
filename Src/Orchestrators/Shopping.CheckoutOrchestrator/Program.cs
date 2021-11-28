@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Shopping.CheckoutOrchestrator
+namespace Shopping.OrderSagaOrchestrator
 {
     public class Program
     {

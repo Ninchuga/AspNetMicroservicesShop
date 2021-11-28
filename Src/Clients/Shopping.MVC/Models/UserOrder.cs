@@ -30,8 +30,11 @@ namespace Shopping.MVC.Models
             {
                 OrderStatus.PENDING => "Pending",
                 OrderStatus.ORDER_BILLED => "Order Billed",
+                OrderStatus.ORDER_FAILED_TO_BE_BILLED => "Order Failed To Be Billed",
                 OrderStatus.ORDER_DISPATCHED => "Order Displatched",
                 OrderStatus.ORDER_DELIVERED => "Order Delivered",
+                OrderStatus.ORDER_NOT_DELIVERED => "Order Not Delivered",
+                OrderStatus.ORDER_CANCELED => "Order Canceled",
                 _ => string.Empty,
             };
     }
@@ -41,6 +44,9 @@ namespace Shopping.MVC.Models
         PENDING,
         ORDER_BILLED,
         ORDER_DISPATCHED,
-        ORDER_DELIVERED
+        ORDER_DELIVERED,
+        ORDER_NOT_DELIVERED,
+        ORDER_CANCELED,
+        ORDER_FAILED_TO_BE_BILLED
     }
 }

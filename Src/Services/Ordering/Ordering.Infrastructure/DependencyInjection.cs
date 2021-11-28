@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Ordering.Application.Contracts.Infrastrucutre;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Models;
+using Ordering.Infrastructure.Extensions;
 using Ordering.Infrastructure.Mail;
 using Ordering.Infrastructure.Persistence;
 using Ordering.Infrastructure.Repositories;
@@ -39,6 +41,10 @@ namespace Ordering.Infrastructure
             services.AddHealthChecks()
                 .AddDbContextCheck<OrderContext>("Order Context", tags: new string[] { "order context ready", "sql server" }) //checks the underlying context connection, calls CanConnectAsync
                 .AddRabbitMQ(configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
+
+            services.ConfigureMassTransitWithRabbitMq(configuration);
+            services.AddMassTransitHostedService(); // used for health check
+            //EventBusConfiguration.ConfigureRabbitMq(services, configuration);
 
             return services;
         }

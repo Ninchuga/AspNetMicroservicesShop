@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Destructurama.Attributed;
 using EventBus.Messages.Events.Order;
+using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Infrastrucutre;
@@ -46,15 +47,17 @@ namespace Ordering.Application.Features.Orders.Commands
         private readonly IEmailService _emailService;
         private readonly ILogger<PlaceOrderCommandHandler> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public PlaceOrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IEmailService emailService, 
-            ILogger<PlaceOrderCommandHandler> logger, IHttpClientFactory httpClientFactory)
+        public PlaceOrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IEmailService emailService,
+            ILogger<PlaceOrderCommandHandler> logger, IHttpClientFactory httpClientFactory, IPublishEndpoint publishEndpoint)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
             _emailService = emailService;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<OrderPlacedCommandResponse> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -62,23 +65,26 @@ namespace Ordering.Application.Features.Orders.Commands
             using var loggerScope = _logger.BeginScope("{CorrelationId} {UserId}", request.CorrelationId, request.UserId);
             _logger.LogInformation("Creating order {@Order}", request);
 
-            var orderEntity = _mapper.Map<Order>(request);
-            orderEntity.Id = Guid.NewGuid();
-            orderEntity.OrderPaid = false;
-            orderEntity.OrderPlaced = DateTime.UtcNow;
-            orderEntity.OrderStatus = OrderStatus.PENDING;
+            var order = _mapper.Map<Order>(request);
+            order.Id = Guid.NewGuid();
+            order.OrderPaid = false;
+            order.OrderPlaced = DateTime.UtcNow;
+            order.OrderStatus = OrderStatus.PENDING;
 
             try
             {
-                await _orderRepository.AddAsync(orderEntity);
+                await _orderRepository.AddAsync(order);
 
-                _logger.LogInformation("Order {OrderId} successfully created.", orderEntity.Id);
+                _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
 
                 //await SendMail(newOrder);
 
-                var response = await CallOrderSaga(orderEntity);
+                //var response = await CallOrderSaga(orderEntity);
 
-                return new OrderPlacedCommandResponse(success: response.IsSuccessStatusCode, errorMessage: response.ReasonPhrase);
+                await PublishOrderPlacedEvent(order, request.CorrelationId);
+
+                //return new OrderPlacedCommandResponse(success: response.IsSuccessStatusCode, errorMessage: response.ReasonPhrase);
+                return new OrderPlacedCommandResponse(success: true, errorMessage: string.Empty);
             }
             catch (Exception ex)
             {
@@ -86,6 +92,21 @@ namespace Ordering.Application.Features.Orders.Commands
 
                 return new OrderPlacedCommandResponse(success: false, ex.Message);
             }
+        }
+
+        private async Task PublishOrderPlacedEvent(Order order, Guid correlationId)
+        {
+            var orderPlacedEvent = new OrderPlaced
+            {
+                OrderId = order.Id,
+                CorrelationId = correlationId,
+                OrderCreationDateTime = order.OrderPlaced,
+                PaymentCardNumber = order.CardNumber,
+                OrderTotalPrice = order.TotalPrice,
+                CustomerUsername = order.UserName
+            };
+
+            await _publishEndpoint.Publish(orderPlacedEvent);
         }
 
         private async Task<HttpResponseMessage> CallOrderSaga(Order order)

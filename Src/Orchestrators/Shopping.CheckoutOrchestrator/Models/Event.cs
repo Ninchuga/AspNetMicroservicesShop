@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Shopping.CheckoutOrchestrator.Models
+namespace Shopping.OrderSagaOrchestrator.Models
 {
     public class Event
     {

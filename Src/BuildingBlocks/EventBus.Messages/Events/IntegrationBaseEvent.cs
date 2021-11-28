@@ -13,17 +13,17 @@ namespace EventBus.Messages.Events
         public IntegrationBaseEvent()
         {
             Id = Guid.NewGuid();
-            CreationDate = DateTime.UtcNow;
+            EventCreationDate = DateTime.UtcNow;
         }
 
         public IntegrationBaseEvent(Guid id, DateTime creationDate)
         {
             Id = id;
-            CreationDate = creationDate;
+            EventCreationDate = creationDate;
         }
 
         public Guid Id { get; private set; }
-        public DateTime CreationDate { get; private set; }
+        public DateTime EventCreationDate { get; private set; }
         public SecurityContext SecurityContext { get; set; } = new SecurityContext();
         public Guid CorrelationId { get; set; }
     }

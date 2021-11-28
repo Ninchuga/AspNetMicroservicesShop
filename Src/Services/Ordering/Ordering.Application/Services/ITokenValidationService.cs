@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Ordering.API.Helpers
+namespace Ordering.Application.Services
 {
     public interface ITokenValidationService
     {

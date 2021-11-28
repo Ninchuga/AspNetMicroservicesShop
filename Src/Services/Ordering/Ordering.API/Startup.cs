@@ -1,17 +1,11 @@
-using EventBus.Messages.Common;
 using IdentityServer4.AccessTokenValidation;
-using MassTransit;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Ordering.API.EventBusConsumer;
 using Ordering.API.Extensions;
-using Ordering.API.Helpers;
 using Ordering.Application;
 using Ordering.Infrastructure;
 using Shopping.HealthChecks;
@@ -43,33 +37,7 @@ namespace Ordering.API
                 options.RequireHttpsMetadata = false;
             });
 
-            services.AddHttpClient<ITokenValidationService, TokenValidationService>();
-            services.AddScoped<BasketCheckoutConsumer>();
             services.AddAutoMapper(typeof(Startup));
-
-            // MassTransit-RabbitMQ Configuration
-            services.AddMassTransit(config =>
-            {
-                config.AddConsumer<BasketCheckoutConsumer>();
-                config.AddConsumer<OrderStatusUpdatedConsumer>();
-
-                config.UsingRabbitMq((ctx, config) =>
-                {
-                    config.Host(Configuration["EventBusSettings:HostAddress"]);
-
-                    config.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, config => 
-                    {
-                        config.ConfigureConsumer<BasketCheckoutConsumer>(ctx);
-                    });
-
-                    config.ReceiveEndpoint(EventBusConstants.CreateOrderQueue, config =>
-                    {
-                        config.ConfigureConsumer<OrderStatusUpdatedConsumer>(ctx);
-                    });
-                });
-            });
-            services.AddMassTransitHostedService();
-
             services.AddControllers();
 
             services.AddSwaggerGen(c =>

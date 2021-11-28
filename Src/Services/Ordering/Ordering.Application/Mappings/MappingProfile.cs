@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EventBus.Messages.Events.Order;
 using Ordering.Application.Features.Orders.Commands;
 using Ordering.Application.Models;
 using Ordering.Domain.Entities;
@@ -16,6 +17,8 @@ namespace Ordering.Application.Mappings
             CreateMap<Order, CheckoutOrderCommand>().ReverseMap();
             CreateMap<Order, PlaceOrderCommand>().ReverseMap();
             CreateMap<Order, UpdateOrderCommand>().ReverseMap();
+            CreateMap<OrderStatusUpdated, UpdateOrderStatusCommand>();
+                //.ForMember(destination => destination.OrderStatus, op => op.MapFrom(source => source.OrderStatus));
         }
     }
 }

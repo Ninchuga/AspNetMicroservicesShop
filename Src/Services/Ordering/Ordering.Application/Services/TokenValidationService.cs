@@ -11,7 +11,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace Ordering.API.Helpers
+namespace Ordering.Application.Services
 {
     public class TokenValidationService : ITokenValidationService
     {

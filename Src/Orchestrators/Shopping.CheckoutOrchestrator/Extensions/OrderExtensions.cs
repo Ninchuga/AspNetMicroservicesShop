@@ -1,10 +1,7 @@
-﻿using Shopping.CheckoutOrchestrator.Models;
+﻿using Shopping.OrderSagaOrchestrator.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Shopping.CheckoutOrchestrator.Extensions
+namespace Shopping.OrderSagaOrchestrator.Extensions
 {
     public static class OrderExtensions
     {
@@ -15,7 +12,18 @@ namespace Shopping.CheckoutOrchestrator.Extensions
                 OrderId = orderDto.OrderId,
                 CorrelationId = correlationId,
                 OrderPlaced = orderDto.OrderPlaced,
-                OrderState = OrderState.PENDING
+                OrderState = OrderStatus.PENDING
+            };
+        }
+
+        public static Order ToEntityWith(this OrderDto orderDto)
+        {
+            return new Order
+            {
+                OrderId = orderDto.OrderId,
+                CorrelationId = Guid.NewGuid(),
+                OrderPlaced = orderDto.OrderPlaced,
+                OrderState = OrderStatus.PENDING
             };
         }
     }

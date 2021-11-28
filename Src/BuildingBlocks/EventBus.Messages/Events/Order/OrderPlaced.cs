@@ -4,7 +4,7 @@ using System.Text;
 
 namespace EventBus.Messages.Events.Order
 {
-    public class OrderPlaced : IntegrationBaseEvent
+    public class OrderPlaced : OrderBaseEvent
     {
     }
 }

@@ -1,8 +1,13 @@
-﻿using FluentValidation;
+﻿using EventBus.Messages.Common;
+using FluentValidation;
+using GreenPipes;
+using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.Behaviours;
+using Ordering.Application.EventBusConsumers;
+using Ordering.Application.Services;
 using Shopping.Correlation;
 using System;
 using System.Collections.Generic;
@@ -21,6 +26,8 @@ namespace Ordering.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             services.AddTransient<CorrelationIdDelegatingHandler>();
+            services.AddHttpClient<ITokenValidationService, TokenValidationService>();
+            services.AddScoped<BasketCheckoutConsumer>();
 
             services.AddHttpClient("OrderSaga", config =>
             {

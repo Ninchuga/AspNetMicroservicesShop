@@ -1,29 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Shopping.CheckoutOrchestrator.Models;
-using System;
+﻿using MassTransit.EntityFrameworkCoreIntegration;
+using MassTransit.EntityFrameworkCoreIntegration.Mappings;
+using Microsoft.EntityFrameworkCore;
+using Shopping.OrderSagaOrchestrator.Models;
+using System.Collections.Generic;
 
-namespace Shopping.CheckoutOrchestrator.Persistence
+namespace Shopping.OrderSagaOrchestrator.Persistence
 {
-    public class OrderSagaContext : DbContext
+    public class OrderSagaContext : SagaDbContext
     {
 
-        public OrderSagaContext(DbContextOptions<OrderSagaContext> options)
+        public OrderSagaContext(DbContextOptions options)
             : base(options)
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override IEnumerable<ISagaClassMap> Configurations
         {
-            modelBuilder.Entity<Order>()
-                .Property(b => b.Id)
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<Order>()
-                .Property(order => order.OrderState)
-                .HasConversion<string>();
+            get { yield return new OrderStateDataMap(); }
         }
-
-        public DbSet<Order> Orders { get; set; }
     }
 }
