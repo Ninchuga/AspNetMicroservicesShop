@@ -1,6 +1,7 @@
 ﻿using Automatonymous;
 using EventBus.Messages.Events.Order;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
         public Event<OrderDelivered> OrderDeliveredEvent { get; private set; }
         public Event<OrderNotDelivered> OrderNotDeliveredEvent { get; private set; }
         public Event<OrderCanceled> OrderCanceledEvent { get; private set; }
-        public Event<Fault<OrderBilled>> OrderBillingFaultedEvent { get; private set; }
+        public Event<Fault<BillOrder>> BillOrderFaultEvent { get; private set; }
 
         public OrderStateMachine()
         {
@@ -53,7 +54,8 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
             Event(() => OrderDeliveredEvent);
             Event(() => OrderNotDeliveredEvent);
             Event(() => OrderCanceledEvent);
-            Event(() => OrderBillingFaultedEvent, x => x.CorrelateById(m => m.CorrelationId.Value));
+            Event(() => BillOrderFaultEvent, x => x
+                .CorrelateById(m => m.Message.Message.CorrelationId)); // Fault<T> includes the original message. We must correlate the fault event with the key from state object
 
             // Behavior is what happens when an event occurs during a state.
             // The Initially block is used to define the behavior of the OrderPlacedEvent during the Initial state.
@@ -80,8 +82,8 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                             PaymentCardNumber = context.Instance.PaymentCardNumber,
                             OrderTotalPrice = context.Data.OrderTotalPrice,
                             CustomerUsername = context.Data.CustomerUsername
-                    };
-                }));
+                        };
+                    }));
 
             // Order Sent for billing
             During(OrderPlaced,
@@ -107,11 +109,10 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                         .TransitionTo(OrderFailedToBeBilled)
                             .Publish(context =>
                             {
-                                return new OrderStatusUpdated
+                                return new RollbackOrder
                                 {
                                     CorrelationId = context.Instance.CorrelationId,
-                                    OrderId = context.Instance.OrderId,
-                                    OrderStatus = OrderStatus.ORDER_FAILED_TO_BE_BILLED.ToString()
+                                    OrderId = context.Instance.OrderId
                                 };
                             }),
                 When(OrderBilledEvent)
@@ -136,12 +137,7 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                             OrderTotalPrice = context.Data.OrderTotalPrice
                         };
                     }),
-                When(OrderBillingFaultedEvent)
-                    .Then(context => 
-                    {
-                        var exceptions = context.Data.Exceptions;
-                        var message = context.Data.Message;
-                    })
+                When(BillOrderFaultEvent) // rollback will be handled inside BillOrderFaultConsumer
                     .TransitionTo(OrderFailedToBeBilled));
 
             // Waiting to be dispatched
@@ -189,6 +185,8 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                         };
                     })
                     .Finalize());
+
+            SetCompletedWhenFinalized();
         }
     }
 }

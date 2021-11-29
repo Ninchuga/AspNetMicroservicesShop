@@ -4,6 +4,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shopping.OrderSagaOrchestrator.Consumers;
 using Shopping.OrderSagaOrchestrator.Persistence;
 using Shopping.OrderSagaOrchestrator.StateMachine;
 using System;
@@ -17,6 +18,8 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
         {
             services.AddMassTransit(config =>
             {
+                config.AddConsumer<BillOrderFaultConsumer>();
+
                 config.AddSagaStateMachine<OrderStateMachine, OrderStateData>()
                     .EntityFrameworkRepository(repo =>
                     {
@@ -44,8 +47,8 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
                             r.Interval(3, TimeSpan.FromSeconds(5));
                         });
 
-                        var serviceProvider = services.BuildServiceProvider();
-                        endpoint.StateMachineSaga<OrderStateData>(serviceProvider);
+                        endpoint.StateMachineSaga<OrderStateData>(ctx);
+                        endpoint.ConfigureConsumer<BillOrderFaultConsumer>(ctx);
 
                         // use the outbox to prevent duplicate events from being published
                         endpoint.UseInMemoryOutbox();

@@ -5,8 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.EventBusConsumers;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Ordering.Infrastructure.Extensions
 {
@@ -18,6 +16,7 @@ namespace Ordering.Infrastructure.Extensions
             {
                 config.AddConsumer<BasketCheckoutConsumer>();
                 config.AddConsumer<OrderStatusUpdatedConsumer>();
+                config.AddConsumer<RollbackOrderConsumer>();
 
                 config.UsingRabbitMq((ctx, cfg) =>
                 {
@@ -36,6 +35,19 @@ namespace Ordering.Infrastructure.Extensions
                             r.Interval(3, TimeSpan.FromSeconds(5));
                         });
                         endpoint.ConfigureConsumer<OrderStatusUpdatedConsumer>(ctx);
+
+                        // use the outbox to prevent duplicate events from being published
+                        endpoint.UseInMemoryOutbox();
+                    });
+
+                    cfg.ReceiveEndpoint(EventBusConstants.RollbackOrderQueue, endpoint =>
+                    {
+                        endpoint.UseMessageRetry(r =>
+                        {
+                            r.Ignore<ArgumentNullException>();
+                            r.Interval(3, TimeSpan.FromSeconds(5));
+                        });
+                        endpoint.ConfigureConsumer<RollbackOrderConsumer>(ctx);
 
                         // use the outbox to prevent duplicate events from being published
                         endpoint.UseInMemoryOutbox();

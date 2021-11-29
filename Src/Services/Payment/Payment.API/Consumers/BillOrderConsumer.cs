@@ -22,31 +22,34 @@ namespace Payment.API.Consumers
 
         public async Task Consume(ConsumeContext<BillOrder> context)
         {
+            using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
             _logger.LogInformation("Bill Order event received for the order id: {OrderId}", context.Message.OrderId);
+
+            //throw new InvalidOperationException("Failed to bill the order");
 
             // Bill order...reserve amount
 
             // TODO: Used for testing, remove it afterwards
-            var orderCanceled = new OrderFailedToBeBilled
-            {
-                OrderId = context.Message.OrderId,
-                CorrelationId = context.Message.CorrelationId,
-                OrderCancelDateTime = DateTime.UtcNow
-            };
-
-            await context.Publish(orderCanceled);
-
-            //var orderBilled = new OrderBilled
+            //var orderCanceled = new OrderFailedToBeBilled
             //{
             //    OrderId = context.Message.OrderId,
             //    CorrelationId = context.Message.CorrelationId,
-            //    OrderCancelDateTime = context.Message.OrderCancelDateTime,
-            //    OrderCreationDateTime = context.Message.OrderCreationDateTime,
-            //    PaymentCardNumber = context.Message.PaymentCardNumber,
-            //    OrderTotalPrice = context.Message.OrderTotalPrice
+            //    OrderCancelDateTime = DateTime.UtcNow
             //};
 
-            //await context.Publish(orderBilled);
+            //await context.Publish(orderCanceled);
+
+            var orderBilled = new OrderBilled
+            {
+                OrderId = context.Message.OrderId,
+                CorrelationId = context.Message.CorrelationId,
+                OrderCancelDateTime = context.Message.OrderCancelDateTime,
+                OrderCreationDateTime = context.Message.OrderCreationDateTime,
+                PaymentCardNumber = context.Message.PaymentCardNumber,
+                OrderTotalPrice = context.Message.OrderTotalPrice
+            };
+
+            await context.Publish(orderBilled);
         }
     }
 

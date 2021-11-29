@@ -1,18 +1,14 @@
 using EventBus.Messages.Common;
+using GreenPipes;
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Payment.API.Consumers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Payment.API
 {
@@ -41,6 +37,12 @@ namespace Payment.API
                     config.ReceiveEndpoint(EventBusConstants.OrderBillingQueue, config =>
                     {
                         config.ConfigureConsumer<BillOrderConsumer>(ctx);
+                        config.UseMessageRetry(r =>
+                        {
+                            r.Interval(3, TimeSpan.FromMilliseconds(200));
+                            r.Ignore<ArgumentNullException>();
+                            r.Handle<InvalidOperationException>();
+                        });
                     });
                 });
             });

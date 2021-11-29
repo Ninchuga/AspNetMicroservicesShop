@@ -83,6 +83,8 @@ namespace Ordering.Application.Features.Orders.Commands
 
                 await PublishOrderPlacedEvent(order, request.CorrelationId);
 
+                // publish message to basket service queue to delete the basket items
+
                 //return new OrderPlacedCommandResponse(success: response.IsSuccessStatusCode, errorMessage: response.ReasonPhrase);
                 return new OrderPlacedCommandResponse(success: true, errorMessage: string.Empty);
             }
