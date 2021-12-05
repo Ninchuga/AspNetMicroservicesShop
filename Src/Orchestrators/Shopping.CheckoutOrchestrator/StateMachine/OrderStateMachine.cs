@@ -145,7 +145,7 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                 When(DispatchOrderEvent)
                     .TransitionTo(OrderWaitingToBeDispatched));
 
-            // Order (not)dispatched
+            // Order dispatched
             During(OrderWaitingToBeDispatched,
                 When(OrderDispatchedEvent)
                     .TransitionTo(OrderDispatched)

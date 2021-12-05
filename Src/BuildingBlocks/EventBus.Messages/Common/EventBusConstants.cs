@@ -7,5 +7,6 @@
         public const string OrderBillingQueue = "orderbilling-queue";
         public const string RollbackOrderQueue = "rollbackorder-queue";
         public const string OrderStatusUpdateQueue = "orderstatusupdate-queue";
+        public const string OrderDeliveryQueue = "orderdelivery-queue";
     }
 }

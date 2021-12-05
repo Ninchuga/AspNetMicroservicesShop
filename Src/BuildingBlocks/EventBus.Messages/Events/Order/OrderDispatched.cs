@@ -6,5 +6,6 @@ namespace EventBus.Messages.Events.Order
 {
     public class OrderDispatched : OrderBaseEvent
     {
+        public DateTime DispatchTime { get; set; }
     }
 }
