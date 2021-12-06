@@ -23,10 +23,20 @@ namespace Delivery.API.Publishers
         public async Task Publish()
         {
             // TODO: Get CorrelationId from db and other Order related data
-            //using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
-            //_logger.LogInformation("Order with id: {OrderId} delivered successfully.", context.Message.OrderId);
+            Guid correlationId = Guid.NewGuid();
+            Guid orderId = Guid.NewGuid();
+            
+            using var loggerScope = _logger.BeginScope("{CorrelationId}", correlationId);
+            _logger.LogInformation("Order with id: {OrderId} delivered successfully.", orderId);
 
-            //await _publishEndpoint.Publish(orderDelivered);
+            var orderDelivered = new OrderDelivered
+            {
+                CorrelationId = correlationId,
+                OrderId = orderId,
+                DeliveryTime = DateTime.UtcNow
+            };
+
+            await _publishEndpoint.Publish(orderDelivered);
         }
     }
 }

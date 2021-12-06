@@ -1,4 +1,5 @@
 ﻿using EventBus.Messages.Common;
+using EventBus.Messages.Events.Order;
 using GreenPipes;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -16,45 +17,125 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
     {
         public static void ConfigureMassTransitWithRabbitMq(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddMassTransit(config =>
+            bool useAzureServiceBus = configuration.GetValue<bool>("UseAzureServiceBus");
+            if(useAzureServiceBus)
             {
-                config.AddConsumer<BillOrderFaultConsumer>();
-
-                config.AddSagaStateMachine<OrderStateMachine, OrderStateData>()
-                    .EntityFrameworkRepository(repo =>
-                    {
-                        repo.ConcurrencyMode = MassTransit.EntityFrameworkCoreIntegration.ConcurrencyMode.Pessimistic;
-
-                        repo.AddDbContext<DbContext, OrderSagaContext>((provider, builder) =>
-                        {
-                            builder.UseSqlServer(configuration.GetConnectionString("OrderSagaConnectionString"), m =>
-                            {
-                                m.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-                                m.MigrationsHistoryTable($"__{nameof(OrderSagaContext)}");
-                            });
-                        });
-                    });
-
-                config.UsingRabbitMq((ctx, cfg) =>
+                //services.AddSingleton<IServiceBusConsumer, OrderPlacedConsumer>();
+                services.AddMassTransit(config =>
                 {
-                    cfg.Host(configuration["EventBusSettings:HostAddress"]);
+                    config.AddServiceBusMessageScheduler();
 
-                    cfg.ReceiveEndpoint(EventBusConstants.OrderSagaQueue, endpoint =>
+                    config.AddConsumer<OrderPlacedConsumer>();
+                    config.AddConsumer<OrderCanceledConsumer>();
+                    config.AddConsumer<OrderBilledConsumer>();
+                    config.AddConsumer<BillOrderFaultConsumer>();
+                    config.AddConsumer<OrderDispatchedConsumer>();
+                    config.AddConsumer<OrderDeliveredConsumer>();
+
+                    config.AddSagaStateMachine<OrderStateMachine, OrderStateData, OrderSagaDefinition>()
+                        .MessageSessionRepository(); // use Azure Service Bus session for saga state persistence
+
+                    config.UsingAzureServiceBus((context, cfg) =>
                     {
-                        endpoint.UseMessageRetry(r =>
+                        cfg.Host(configuration.GetConnectionString("AzureServiceBusConnectionString"));
+
+                        cfg.UseServiceBusMessageScheduler();
+
+                        cfg.Send<BillOrder>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+                        cfg.Send<OrderFailedToBeBilled>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+                        cfg.Send<RollbackOrderPayment>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+                        cfg.Send<DispatchOrder>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+                        cfg.Send<NotifyOrderBilled>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+                        cfg.Send<NotifyOrderDelivered>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+                        cfg.Send<NotifyOrderDispatched>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+
+                        // Configure QUEUE
+                        cfg.ReceiveEndpoint(EventBusConstants.OrderSagaQueue, endpoint =>
                         {
-                            r.Ignore<ArgumentNullException>();
-                            r.Interval(3, TimeSpan.FromSeconds(5));
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Ignore<ArgumentNullException>();
+                                r.Interval(3, TimeSpan.FromSeconds(5));
+                            });
+
+                            endpoint.StateMachineSaga<OrderStateData>(context);
+                            endpoint.ConfigureConsumer<OrderPlacedConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderCanceledConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderBilledConsumer>(context);
+                            endpoint.ConfigureConsumer<BillOrderFaultConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderDispatchedConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderDeliveredConsumer>(context);
+
+                            // use the outbox to prevent duplicate events from being published
+                            endpoint.UseInMemoryOutbox();
                         });
 
-                        endpoint.StateMachineSaga<OrderStateData>(ctx);
-                        endpoint.ConfigureConsumer<BillOrderFaultConsumer>(ctx);
+                        // Subscribe to OrderPlaced directly on the topic, instead of configuring a queue
+                        //cfg.SubscriptionEndpoint<OrderPlaced>("order-placed-consumer", e =>
+                        //{
+                        //    e.ConfigureConsumer<OrderPlacedConsumer>(context);
+                        //    e.ConfigureConsumer<OrderCanceledConsumer>(context);
+                        //});
 
-                        // use the outbox to prevent duplicate events from being published
-                        endpoint.UseInMemoryOutbox();
+                        //cfg.ConfigureEndpoints(context);
                     });
                 });
-            });
+            }
+            else
+            {
+                services.AddMassTransit(config =>
+                {
+                    config.AddConsumer<OrderPlacedConsumer>();
+                    config.AddConsumer<OrderCanceledConsumer>();
+                    config.AddConsumer<OrderBilledConsumer>();
+                    config.AddConsumer<BillOrderFaultConsumer>();
+                    config.AddConsumer<OrderDispatchedConsumer>();
+                    config.AddConsumer<OrderDeliveredConsumer>();
+
+                    config.AddSagaStateMachine<OrderStateMachine, OrderStateData>()
+                        .EntityFrameworkRepository(repo =>
+                        {
+                            repo.ConcurrencyMode = MassTransit.EntityFrameworkCoreIntegration.ConcurrencyMode.Pessimistic;
+
+                            repo.AddDbContext<DbContext, OrderSagaContext>((provider, builder) =>
+                            {
+                                builder.UseSqlServer(configuration.GetConnectionString("OrderSagaConnectionString"), m =>
+                                {
+                                    m.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                                    m.MigrationsHistoryTable($"__{nameof(OrderSagaContext)}");
+                                });
+                            });
+                        });
+
+                    config.UsingRabbitMq((context, cfg) =>
+                    {
+                        cfg.Host(configuration["EventBusSettings:HostAddress"]);
+
+                        // Configure QUEUE (Direct or Fanout)
+                        cfg.ReceiveEndpoint(EventBusConstants.OrderSagaQueue, endpoint =>
+                        {
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Ignore<ArgumentNullException>();
+                                r.Interval(3, TimeSpan.FromSeconds(5));
+                            });
+
+                            endpoint.StateMachineSaga<OrderStateData>(context);
+                            endpoint.ConfigureConsumer<OrderPlacedConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderCanceledConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderBilledConsumer>(context);
+                            endpoint.ConfigureConsumer<BillOrderFaultConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderDispatchedConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderDeliveredConsumer>(context);
+
+                            // use the outbox to prevent duplicate events from being published
+                            endpoint.UseInMemoryOutbox();
+                        });
+                    });
+                });
+            }
+
+            services.AddMassTransitHostedService(); // used for health check
         }
     }
 }

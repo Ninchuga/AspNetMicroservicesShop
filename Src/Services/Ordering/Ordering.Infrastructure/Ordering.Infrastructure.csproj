@@ -9,7 +9,9 @@
     <PackageReference Include="SendGrid" Version="9.24.2" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="5.0.11" />
     <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="5.0.1" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="7.2.2" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="7.2.4" />
+    <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="7.2.4" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.5.0" />
   </ItemGroup>
 
   <ItemGroup>

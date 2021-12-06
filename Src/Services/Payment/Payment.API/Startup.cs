@@ -1,4 +1,5 @@
 using EventBus.Messages.Common;
+using EventBus.Messages.Events.Order;
 using GreenPipes;
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
@@ -26,26 +27,85 @@ namespace Payment.API
         {
             services.AddControllers();
 
-            services.AddMassTransit(config =>
+            bool useAzureServiceBus = Configuration.GetValue<bool>("UseAzureServiceBus");
+            if (useAzureServiceBus)
             {
-                config.AddConsumer<BillOrderConsumer>();
-
-                config.UsingRabbitMq((ctx, config) =>
+                services.AddMassTransit(config =>
                 {
-                    config.Host(Configuration["EventBusSettings:HostAddress"]);
+                    config.AddConsumer<BillOrderConsumer>();
+                    config.AddConsumer<RollbackOrderPaymentConsumer>();
 
-                    config.ReceiveEndpoint(EventBusConstants.OrderBillingQueue, config =>
+                    config.UsingAzureServiceBus((context, cfg) =>
                     {
-                        config.ConfigureConsumer<BillOrderConsumer>(ctx);
-                        config.UseMessageRetry(r =>
+                        cfg.Host(Configuration.GetConnectionString("AzureServiceBusConnectionString"));
+
+                        cfg.Send<OrderBilled>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+
+                        cfg.ReceiveEndpoint(EventBusConstants.OrderBillingQueue, endpoint =>
                         {
-                            r.Interval(3, TimeSpan.FromMilliseconds(200));
-                            r.Ignore<ArgumentNullException>();
-                            r.Handle<InvalidOperationException>();
+                            endpoint.ConfigureConsumer<BillOrderConsumer>(context);
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Interval(3, TimeSpan.FromMilliseconds(200));
+                                r.Ignore<ArgumentNullException>();
+                                r.Handle<InvalidOperationException>();
+                            });
+
+                            // use the outbox to prevent duplicate events from being published
+                            endpoint.UseInMemoryOutbox();
+                        });
+
+                        cfg.ReceiveEndpoint(EventBusConstants.OrderBillingRollbackQueue, endpoint =>
+                        {
+                            endpoint.ConfigureConsumer<RollbackOrderPaymentConsumer>(context);
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Interval(3, TimeSpan.FromMilliseconds(200));
+                                r.Ignore<ArgumentNullException>();
+                                r.Handle<InvalidOperationException>();
+                            });
+
+                            // use the outbox to prevent duplicate events from being published
+                            endpoint.UseInMemoryOutbox();
                         });
                     });
                 });
-            });
+            }
+            else
+            {
+                services.AddMassTransit(config =>
+                {
+                    config.AddConsumer<BillOrderConsumer>();
+                    config.AddConsumer<RollbackOrderPaymentConsumer>();
+
+                    config.UsingRabbitMq((ctx, cfg) =>
+                    {
+                        cfg.Host(Configuration["EventBusSettings:HostAddress"]);
+
+                        cfg.ReceiveEndpoint(EventBusConstants.OrderBillingQueue, endpoint =>
+                        {
+                            endpoint.ConfigureConsumer<BillOrderConsumer>(ctx);
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Interval(3, TimeSpan.FromMilliseconds(200));
+                                r.Ignore<ArgumentNullException>();
+                                r.Handle<InvalidOperationException>();
+                            });
+                        });
+
+                        cfg.ReceiveEndpoint(EventBusConstants.OrderBillingRollbackQueue, endpoint =>
+                        {
+                            endpoint.ConfigureConsumer<RollbackOrderPaymentConsumer>(ctx);
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Interval(3, TimeSpan.FromMilliseconds(200));
+                                r.Ignore<ArgumentNullException>();
+                                r.Handle<InvalidOperationException>();
+                            });
+                        });
+                    });
+                });
+            }
             services.AddMassTransitHostedService();
 
             services.AddSwaggerGen(c =>

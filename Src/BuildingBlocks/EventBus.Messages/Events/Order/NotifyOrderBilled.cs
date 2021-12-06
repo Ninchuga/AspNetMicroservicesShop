@@ -4,8 +4,7 @@ using System.Text;
 
 namespace EventBus.Messages.Events.Order
 {
-    public class OrderDelivered : OrderBaseEvent
+    public class NotifyOrderBilled : OrderBaseEvent
     {
-        public DateTime DeliveryTime { get; set; }
     }
 }

@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
+using Azure.Messaging.ServiceBus;
 using Destructurama.Attributed;
+using EventBus.Messages.Common;
 using EventBus.Messages.Events.Order;
 using MassTransit;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Infrastrucutre;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Models;
+using Ordering.Application.Publishers;
 using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
 using Shopping.Correlation.Constants;
@@ -48,6 +52,8 @@ namespace Ordering.Application.Features.Orders.Commands
         private readonly ILogger<PlaceOrderCommandHandler> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly OrderPlacedPublisher _orderPlacedPublisher;
+
 
         public PlaceOrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IEmailService emailService,
             ILogger<PlaceOrderCommandHandler> logger, IHttpClientFactory httpClientFactory, IPublishEndpoint publishEndpoint)
@@ -58,6 +64,7 @@ namespace Ordering.Application.Features.Orders.Commands
             _logger = logger;
             _httpClientFactory = httpClientFactory;
             _publishEndpoint = publishEndpoint;
+            //_orderPlacedPublisher = orderPlacedPublisher;
         }
 
         public async Task<OrderPlacedCommandResponse> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -82,6 +89,18 @@ namespace Ordering.Application.Features.Orders.Commands
                 //var response = await CallOrderSaga(orderEntity);
 
                 await PublishOrderPlacedEvent(order, request.CorrelationId);
+
+                //var orderPlacedEvent = new OrderPlaced
+                //{
+                //    OrderId = order.Id,
+                //    CorrelationId = request.CorrelationId,
+                //    OrderCreationDateTime = order.OrderPlaced,
+                //    PaymentCardNumber = order.CardNumber,
+                //    OrderTotalPrice = order.TotalPrice,
+                //    CustomerUsername = order.UserName
+                //};
+
+                //await _orderPlacedPublisher.SendMessage(orderPlacedEvent);
 
                 // publish message to basket service queue to delete the basket items
 

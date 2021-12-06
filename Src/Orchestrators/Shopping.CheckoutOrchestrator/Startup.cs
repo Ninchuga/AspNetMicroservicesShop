@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Shopping.OrderSagaOrchestrator.Consumers;
 using Shopping.OrderSagaOrchestrator.Extensions;
 using Shopping.OrderSagaOrchestrator.Persistence;
 using Shopping.OrderSagaOrchestrator.StateMachine;
@@ -30,7 +31,6 @@ namespace Shopping.OrderSagaOrchestrator
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
             services.ConfigureMassTransitWithRabbitMq(Configuration);
-            services.AddMassTransitHostedService(); // used for health check
 
             services.AddSwaggerGen(c =>
             {
@@ -51,6 +51,15 @@ namespace Shopping.OrderSagaOrchestrator
             app.UseRouting();
 
             //app.UseAuthorization();
+
+            if(Configuration.GetValue<bool>("UseAzureServiceBus"))
+            {
+                var bus = app.ApplicationServices.GetService<IServiceBusConsumer>();
+                bus.RegisterOnMessageHandlerAndReceiveMessages().GetAwaiter().GetResult();
+
+                //var busSubscription = app.ApplicationServices.GetService<IServiceBusTopicSubscription>();
+                //busSubscription.PrepareFiltersAndHandleMessages().GetAwaiter().GetResult();
+            }
 
             app.UseEndpoints(endpoints =>
             {

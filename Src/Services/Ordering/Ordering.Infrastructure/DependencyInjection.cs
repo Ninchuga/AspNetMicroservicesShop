@@ -43,8 +43,6 @@ namespace Ordering.Infrastructure
                 .AddRabbitMQ(configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
 
             services.ConfigureMassTransitWithRabbitMq(configuration);
-            services.AddMassTransitHostedService(); // used for health check
-            //EventBusConfiguration.ConfigureRabbitMq(services, configuration);
 
             return services;
         }

@@ -1,9 +1,12 @@
-﻿using EventBus.Messages.Common;
+﻿using Azure.Messaging.ServiceBus;
+using EventBus.Messages.Common;
+using EventBus.Messages.Events.Order;
 using GreenPipes;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.EventBusConsumers;
+using Ordering.Application.Publishers;
 using System;
 
 namespace Ordering.Infrastructure.Extensions
@@ -12,48 +15,110 @@ namespace Ordering.Infrastructure.Extensions
     {
         public static void ConfigureMassTransitWithRabbitMq(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddMassTransit(config =>
+            bool useAzureServiceBus = configuration.GetValue<bool>("UseAzureServiceBus");
+            if (useAzureServiceBus)
             {
-                config.AddConsumer<BasketCheckoutConsumer>();
-                config.AddConsumer<OrderStatusUpdatedConsumer>();
-                config.AddConsumer<RollbackOrderConsumer>();
+                //services.AddScoped<ServiceBusSender>();
+                //services.AddScoped<OrderPlacedPublisher>();
+                //services.AddScoped<ServiceBusTopicSender>();
 
-                config.UsingRabbitMq((ctx, cfg) =>
+                services.AddMassTransit(config =>
                 {
-                    cfg.Host(configuration["EventBusSettings:HostAddress"]);
+                    config.AddConsumer<OrderFailedToBeBilledConsumer>();
+                    config.AddConsumer<NotifyOrderBilledConsumer>();
+                    config.AddConsumer<NotifyOrderDispatchedConsumer>();
+                    config.AddConsumer<NotifyOrderDeliveredConsumer>();
 
-                    cfg.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, endpoint =>
+                    config.UsingAzureServiceBus((context, cfg) =>
                     {
-                        endpoint.ConfigureConsumer<BasketCheckoutConsumer>(ctx);
-                    });
+                        cfg.Host(configuration.GetConnectionString("AzureServiceBusConnectionString"));
 
-                    cfg.ReceiveEndpoint(EventBusConstants.OrderStatusUpdateQueue, endpoint =>
-                    {
-                        endpoint.UseMessageRetry(r =>
+                        cfg.Send<OrderPlaced>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+                        cfg.Send<OrderCanceled>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+
+                        cfg.ReceiveEndpoint(EventBusConstants.OrderStatusNotifierQueue, endpoint =>
                         {
-                            r.Ignore<ArgumentNullException>();
-                            r.Interval(3, TimeSpan.FromSeconds(5));
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Ignore<ArgumentNullException>();
+                                r.Interval(3, TimeSpan.FromSeconds(5));
+                            });
+                            endpoint.ConfigureConsumer<NotifyOrderBilledConsumer>(context);
+                            endpoint.ConfigureConsumer<NotifyOrderDispatchedConsumer>(context);
+                            endpoint.ConfigureConsumer<NotifyOrderDeliveredConsumer>(context);
+
+                            // use the outbox to prevent duplicate events from being published
+                            endpoint.UseInMemoryOutbox();
                         });
-                        endpoint.ConfigureConsumer<OrderStatusUpdatedConsumer>(ctx);
 
-                        // use the outbox to prevent duplicate events from being published
-                        endpoint.UseInMemoryOutbox();
-                    });
-
-                    cfg.ReceiveEndpoint(EventBusConstants.RollbackOrderQueue, endpoint =>
-                    {
-                        endpoint.UseMessageRetry(r =>
+                        cfg.ReceiveEndpoint(EventBusConstants.RollbackOrderQueue, endpoint =>
                         {
-                            r.Ignore<ArgumentNullException>();
-                            r.Interval(3, TimeSpan.FromSeconds(5));
-                        });
-                        endpoint.ConfigureConsumer<RollbackOrderConsumer>(ctx);
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Ignore<ArgumentNullException>();
+                                r.Interval(3, TimeSpan.FromSeconds(5));
+                            });
+                            endpoint.ConfigureConsumer<OrderFailedToBeBilledConsumer>(context);
 
-                        // use the outbox to prevent duplicate events from being published
-                        endpoint.UseInMemoryOutbox();
+                            // use the outbox to prevent duplicate events from being published
+                            endpoint.UseInMemoryOutbox();
+                        });
                     });
                 });
-            });
+            }
+            else
+            {
+                services.AddMassTransit(config =>
+                {
+                    //config.AddConsumer<BasketCheckoutConsumer>();
+                    config.AddConsumer<OrderFailedToBeBilledConsumer>();
+                    config.AddConsumer<NotifyOrderDispatchedConsumer>();
+                    config.AddConsumer<NotifyOrderBilledConsumer>();
+                    config.AddConsumer<NotifyOrderDeliveredConsumer>();
+
+                    config.UsingRabbitMq((context, cfg) =>
+                    {
+                        cfg.Host(configuration["EventBusSettings:HostAddress"]);
+
+                        //cfg.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, endpoint =>
+                        //{
+                        //    endpoint.ConfigureConsumer<BasketCheckoutConsumer>(ctx);
+                        //});
+
+                        cfg.ReceiveEndpoint(EventBusConstants.OrderStatusNotifierQueue, endpoint =>
+                        {
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Ignore<ArgumentNullException>();
+                                r.Interval(3, TimeSpan.FromSeconds(5));
+                            });
+                            endpoint.ConfigureConsumer<NotifyOrderBilledConsumer>(context);
+                            endpoint.ConfigureConsumer<NotifyOrderDispatchedConsumer>(context);
+                            endpoint.ConfigureConsumer<NotifyOrderDeliveredConsumer>(context);
+
+                            // use the outbox to prevent duplicate events from being published
+                            endpoint.UseInMemoryOutbox();
+                        });
+
+                        
+                        cfg.ReceiveEndpoint(EventBusConstants.RollbackOrderQueue, endpoint =>
+                        {
+                            endpoint.UseMessageRetry(r =>
+                            {
+                                r.Ignore<ArgumentNullException>();
+                                r.Interval(3, TimeSpan.FromSeconds(5));
+                            });
+                            //endpoint.ConfigureConsumer<RollbackOrderConsumer>(context);
+                            endpoint.ConfigureConsumer<OrderFailedToBeBilledConsumer>(context);
+
+                            // use the outbox to prevent duplicate events from being published
+                            endpoint.UseInMemoryOutbox();
+                        });
+                    });
+                });
+
+                services.AddMassTransitHostedService(); // used for health check
+            }
         }
     }
 }

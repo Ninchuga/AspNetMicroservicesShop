@@ -30,7 +30,6 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
         public Event<OrderPlaced> OrderPlacedEvent { get; private set; }
         public Event<BillOrder> BillOrderEvent { get; private set; }
         public Event<OrderBilled> OrderBilledEvent { get; private set; }
-        public Event<OrderFailedToBeBilled> OrderFailedToBeBilledEvent { get; private set; }
         public Event<DispatchOrder> DispatchOrderEvent { get; private set; }
         public Event<OrderDispatched> OrderDispatchedEvent { get; private set; }
         public Event<OrderDelivered> OrderDeliveredEvent { get; private set; }
@@ -48,7 +47,6 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
             Event(() => OrderPlacedEvent);
             Event(() => BillOrderEvent);
             Event(() => OrderBilledEvent);
-            Event(() => OrderFailedToBeBilledEvent);
             Event(() => DispatchOrderEvent);
             Event(() => OrderDispatchedEvent);
             Event(() => OrderDeliveredEvent);
@@ -62,28 +60,17 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
             // When a SubmitOrder message is consumed and an instance with a CorrelationId matching the OrderId is not found, a new instance will be created in the Initial state.
             // The TransitionTo activity transitions the instance to the Submitted state, after which the instance is persisted using the saga repository.
             Initially(
-            When(OrderPlacedEvent)
-                .Then(context =>
-                {
-                    context.Instance.OrderId = context.Data.OrderId;
-                    context.Instance.OrderCreationDateTime = context.Data.OrderCreationDateTime;
-                    context.Instance.PaymentCardNumber = context.Data.PaymentCardNumber;
-                    context.Instance.OrderTotalPrice = context.Data.OrderTotalPrice;
-                    context.Instance.CustomerUsername = context.Data.CustomerUsername;
-                })
-                .TransitionTo(OrderPlaced)
-                .Publish(context =>
+                When(OrderPlacedEvent)
+                    .Then(context =>
                     {
-                        return new BillOrder
-                        {
-                            OrderId = context.Instance.OrderId,
-                            CorrelationId = context.Instance.CorrelationId,
-                            OrderCreationDateTime = context.Instance.OrderCreationDateTime,
-                            PaymentCardNumber = context.Instance.PaymentCardNumber,
-                            OrderTotalPrice = context.Data.OrderTotalPrice,
-                            CustomerUsername = context.Data.CustomerUsername
-                        };
-                    }));
+                        context.Instance.OrderId = context.Data.OrderId;
+                        context.Instance.OrderCreationDateTime = context.Data.OrderCreationDateTime;
+                        context.Instance.PaymentCardNumber = context.Data.PaymentCardNumber;
+                        context.Instance.OrderTotalPrice = context.Data.OrderTotalPrice;
+                        context.Instance.CustomerUsername = context.Data.CustomerUsername;
+                    })
+                    .TransitionTo(OrderPlaced)
+            );
 
             // Order Sent for billing
             During(OrderPlaced,
@@ -91,52 +78,15 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                     .TransitionTo(OrderSentForBilling),
                 When(OrderCanceledEvent)
                     .Then(context => context.Instance.OrderCancelDateTime = DateTime.Now)
-                        .TransitionTo(OrderCanceled)
-                            .Publish(context =>
-                            {
-                                return new OrderStatusUpdated
-                                {
-                                    CorrelationId = context.Instance.CorrelationId,
-                                    OrderId = context.Instance.OrderId,
-                                    OrderStatus = OrderStatus.ORDER_CANCELED.ToString()
-                                };
-                            }));
+                        .TransitionTo(OrderCanceled));
 
             // Billed order
             During(OrderSentForBilling,
-                When(OrderFailedToBeBilledEvent)
+                When(OrderCanceledEvent)
                     .Then(context => context.Instance.OrderCancelDateTime = DateTime.Now)
-                        .TransitionTo(OrderFailedToBeBilled)
-                            .Publish(context =>
-                            {
-                                return new RollbackOrder
-                                {
-                                    CorrelationId = context.Instance.CorrelationId,
-                                    OrderId = context.Instance.OrderId
-                                };
-                            }),
+                        .TransitionTo(OrderCanceled),
                 When(OrderBilledEvent)
-                    .TransitionTo(OrderBilled)
-                    .Publish(context =>
-                    {
-                        return new OrderStatusUpdated
-                        {
-                            CorrelationId = context.Instance.CorrelationId,
-                            OrderId = context.Instance.OrderId,
-                            OrderStatus = OrderStatus.ORDER_BILLED.ToString()
-                        };
-                    })
-                    .Publish(context =>
-                    {
-                        return new DispatchOrder
-                        {
-                            OrderId = context.Instance.OrderId,
-                            CorrelationId = context.Instance.CorrelationId,
-                            OrderCreationDateTime = context.Instance.OrderCreationDateTime,
-                            PaymentCardNumber = context.Instance.PaymentCardNumber,
-                            OrderTotalPrice = context.Data.OrderTotalPrice
-                        };
-                    }),
+                    .TransitionTo(OrderBilled),
                 When(BillOrderFaultEvent) // rollback will be handled inside BillOrderFaultConsumer
                     .TransitionTo(OrderFailedToBeBilled));
 
@@ -148,42 +98,15 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
             // Order dispatched
             During(OrderWaitingToBeDispatched,
                 When(OrderDispatchedEvent)
-                    .TransitionTo(OrderDispatched)
-                        .Publish(context =>
-                        {
-                            return new OrderStatusUpdated
-                            {
-                                CorrelationId = context.Instance.CorrelationId,
-                                OrderId = context.Instance.OrderId,
-                                OrderStatus = OrderStatus.ORDER_DISPATCHED.ToString()
-                            };
-                        }));
+                    .TransitionTo(OrderDispatched));
 
             // Order (not)delivered
             During(OrderDispatched,
                 When(OrderNotDeliveredEvent)
                     .TransitionTo(OrderNotDelivered)
-                    .Publish(context =>
-                    {
-                        return new OrderStatusUpdated
-                        {
-                            CorrelationId = context.Instance.CorrelationId,
-                            OrderId = context.Instance.OrderId,
-                            OrderStatus = OrderStatus.ORDER_NOT_DELIVERED.ToString()
-                        };
-                    })
                     .Finalize(),
                 When(OrderDeliveredEvent)
                     .TransitionTo(OrderDelivered)
-                    .Publish(context =>
-                    {
-                        return new OrderStatusUpdated
-                        {
-                            CorrelationId = context.Instance.CorrelationId,
-                            OrderId = context.Instance.OrderId,
-                            OrderStatus = OrderStatus.ORDER_DELIVERED.ToString()
-                        };
-                    })
                     .Finalize());
 
             SetCompletedWhenFinalized();
