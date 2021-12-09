@@ -30,10 +30,9 @@ namespace Shopping.OrderSagaOrchestrator.Controllers
 
         // for testing purposes
         [HttpGet]
-        public async Task<IEnumerable<Order>> GetAllOrders()
+        public async Task<IEnumerable<OrderDto>> GetAllOrders()
         {
-            return new List<Order>();
-            //return await _store.GetOrders();
+            return new List<OrderDto>();
         }
 
         [HttpPut]
@@ -41,17 +40,16 @@ namespace Shopping.OrderSagaOrchestrator.Controllers
         public async Task<ActionResult> ExecuteOrderTransaction([FromBody] OrderDto orderDto)
         {
             var correlationId = new Guid(HttpContext.Request.Headers[Correlation.Constants.Headers.CorrelationIdHeader][0]);
-            var order = orderDto.ToEntityWith(correlationId);
 
             var orderPlacedEvent = new OrderPlaced
             {
-                OrderId = order.OrderId,
-                CorrelationId = order.CorrelationId,
-                OrderCreationDateTime = order.OrderPlaced,
-                PaymentCardNumber = "123456",
+                OrderId = orderDto.OrderId,
+                CorrelationId = correlationId,
+                OrderCreationDateTime = orderDto.OrderPlaced,
+                PaymentCardNumber = orderDto.PaymentCardNumber,
                 OrderTotalPrice = orderDto.OrderTotalPrice
             };
-            await _publishEndpoint.Publish(orderPlacedEvent); // publish to payment service
+            await _publishEndpoint.Publish(orderPlacedEvent);
 
             return Ok();
         }

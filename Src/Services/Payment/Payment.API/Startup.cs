@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Payment.API.Consumers;
+using Payment.API.Extensions;
 using System;
 
 namespace Payment.API
@@ -29,84 +30,9 @@ namespace Payment.API
 
             bool useAzureServiceBus = Configuration.GetValue<bool>("UseAzureServiceBus");
             if (useAzureServiceBus)
-            {
-                services.AddMassTransit(config =>
-                {
-                    config.AddConsumer<BillOrderConsumer>();
-                    config.AddConsumer<RollbackOrderPaymentConsumer>();
-
-                    config.UsingAzureServiceBus((context, cfg) =>
-                    {
-                        cfg.Host(Configuration.GetConnectionString("AzureServiceBusConnectionString"));
-
-                        cfg.Send<OrderBilled>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
-
-                        cfg.ReceiveEndpoint(EventBusConstants.OrderBillingQueue, endpoint =>
-                        {
-                            endpoint.ConfigureConsumer<BillOrderConsumer>(context);
-                            endpoint.UseMessageRetry(r =>
-                            {
-                                r.Interval(3, TimeSpan.FromMilliseconds(200));
-                                r.Ignore<ArgumentNullException>();
-                                r.Handle<InvalidOperationException>();
-                            });
-
-                            // use the outbox to prevent duplicate events from being published
-                            endpoint.UseInMemoryOutbox();
-                        });
-
-                        cfg.ReceiveEndpoint(EventBusConstants.OrderBillingRollbackQueue, endpoint =>
-                        {
-                            endpoint.ConfigureConsumer<RollbackOrderPaymentConsumer>(context);
-                            endpoint.UseMessageRetry(r =>
-                            {
-                                r.Interval(3, TimeSpan.FromMilliseconds(200));
-                                r.Ignore<ArgumentNullException>();
-                                r.Handle<InvalidOperationException>();
-                            });
-
-                            // use the outbox to prevent duplicate events from being published
-                            endpoint.UseInMemoryOutbox();
-                        });
-                    });
-                });
-            }
+                services.ConfigureMassTransitWithAzureServiceBus(Configuration);
             else
-            {
-                services.AddMassTransit(config =>
-                {
-                    config.AddConsumer<BillOrderConsumer>();
-                    config.AddConsumer<RollbackOrderPaymentConsumer>();
-
-                    config.UsingRabbitMq((ctx, cfg) =>
-                    {
-                        cfg.Host(Configuration["EventBusSettings:HostAddress"]);
-
-                        cfg.ReceiveEndpoint(EventBusConstants.OrderBillingQueue, endpoint =>
-                        {
-                            endpoint.ConfigureConsumer<BillOrderConsumer>(ctx);
-                            endpoint.UseMessageRetry(r =>
-                            {
-                                r.Interval(3, TimeSpan.FromMilliseconds(200));
-                                r.Ignore<ArgumentNullException>();
-                                r.Handle<InvalidOperationException>();
-                            });
-                        });
-
-                        cfg.ReceiveEndpoint(EventBusConstants.OrderBillingRollbackQueue, endpoint =>
-                        {
-                            endpoint.ConfigureConsumer<RollbackOrderPaymentConsumer>(ctx);
-                            endpoint.UseMessageRetry(r =>
-                            {
-                                r.Interval(3, TimeSpan.FromMilliseconds(200));
-                                r.Ignore<ArgumentNullException>();
-                                r.Handle<InvalidOperationException>();
-                            });
-                        });
-                    });
-                });
-            }
-            services.AddMassTransitHostedService();
+                services.ConfigureMassTransitWithRabbitMQ(Configuration);
 
             services.AddSwaggerGen(c =>
             {

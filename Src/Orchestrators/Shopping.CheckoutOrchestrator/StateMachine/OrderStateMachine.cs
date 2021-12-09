@@ -74,6 +74,7 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
 
             // Order Sent for billing
             During(OrderPlaced,
+                Ignore(OrderBilledEvent),
                 When(BillOrderEvent)
                     .TransitionTo(OrderSentForBilling),
                 When(OrderCanceledEvent)
@@ -82,6 +83,7 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
 
             // Billed order
             During(OrderSentForBilling,
+                Ignore(OrderDispatchedEvent),
                 When(OrderCanceledEvent)
                     .Then(context => context.Instance.OrderCancelDateTime = DateTime.Now)
                         .TransitionTo(OrderCanceled),
@@ -92,11 +94,13 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
 
             // Waiting to be dispatched
             During(OrderBilled,
+                Ignore(OrderDispatchedEvent),
                 When(DispatchOrderEvent)
                     .TransitionTo(OrderWaitingToBeDispatched));
 
             // Order dispatched
             During(OrderWaitingToBeDispatched,
+                Ignore(OrderBilledEvent),
                 When(OrderDispatchedEvent)
                     .TransitionTo(OrderDispatched));
 

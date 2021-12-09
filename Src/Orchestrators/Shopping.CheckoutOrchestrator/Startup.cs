@@ -30,7 +30,12 @@ namespace Shopping.OrderSagaOrchestrator
         {
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
-            services.ConfigureMassTransitWithRabbitMq(Configuration);
+
+            bool useAzureServiceBus = Configuration.GetValue<bool>("UseAzureServiceBus");
+            if (useAzureServiceBus)
+                services.ConfigureMassTransitWithAzureServiceBus(Configuration);
+            else
+                services.ConfigureMassTransitWithRabbitMQ(Configuration);
 
             services.AddSwaggerGen(c =>
             {
@@ -51,15 +56,6 @@ namespace Shopping.OrderSagaOrchestrator
             app.UseRouting();
 
             //app.UseAuthorization();
-
-            if(Configuration.GetValue<bool>("UseAzureServiceBus"))
-            {
-                var bus = app.ApplicationServices.GetService<IServiceBusConsumer>();
-                bus.RegisterOnMessageHandlerAndReceiveMessages().GetAwaiter().GetResult();
-
-                //var busSubscription = app.ApplicationServices.GetService<IServiceBusTopicSubscription>();
-                //busSubscription.PrepareFiltersAndHandleMessages().GetAwaiter().GetResult();
-            }
 
             app.UseEndpoints(endpoints =>
             {

@@ -31,6 +31,7 @@ namespace Ordering.Application.EventBusConsumers
             using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
             _logger.LogInformation("Order with id: {OrderId} failed to be billed with a reason: {Reason}.", 
                 context.Message.OrderId, context.Message.Reason);
+            _logger.LogInformation("Rolling back order {OrderId} to status {OrderStatus}", context.Message.OrderId, OrderStatus.PENDING);
 
             // Rollback Order to previous state -> PENDING
             var command = new UpdateOrderStatusCommand

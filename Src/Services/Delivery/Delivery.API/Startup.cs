@@ -1,4 +1,5 @@
 using Delivery.API.Consumers;
+using Delivery.API.Extensions;
 using EventBus.Messages.Common;
 using EventBus.Messages.Events.Order;
 using GreenPipes;
@@ -34,59 +35,9 @@ namespace Delivery.API
 
             bool useAzureServiceBus = Configuration.GetValue<bool>("UseAzureServiceBus");
             if (useAzureServiceBus)
-            {
-                services.AddMassTransit(config =>
-                {
-                    config.AddConsumer<DispatchOrderConsumer>();
-
-                    config.UsingAzureServiceBus((context, cfg) =>
-                    {
-                        cfg.Host(Configuration.GetConnectionString("AzureServiceBusConnectionString"));
-
-                        cfg.Send<OrderDelivered>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
-
-                        cfg.ReceiveEndpoint(EventBusConstants.OrderDeliveryQueue, endpoint =>
-                        {
-                            endpoint.UseMessageRetry(r =>
-                            {
-                                r.Ignore<ArgumentNullException>();
-                                r.Interval(3, TimeSpan.FromSeconds(5));
-                            });
-                            endpoint.ConfigureConsumer<DispatchOrderConsumer>(context);
-
-                            // use the outbox to prevent duplicate events from being published
-                            endpoint.UseInMemoryOutbox();
-                        });
-                    });
-                });
-            }
+                services.ConfigureMassTransitWithAzureServiceBus(Configuration);
             else
-            {
-                services.AddMassTransit(config =>
-                {
-                    config.AddConsumer<DispatchOrderConsumer>();
-
-                    config.UsingRabbitMq((ctx, config) =>
-                    {
-                        config.Host(Configuration["EventBusSettings:HostAddress"]);
-
-                        config.ReceiveEndpoint(EventBusConstants.OrderDeliveryQueue, endpoint =>
-                        {
-                            endpoint.ConfigureConsumer<DispatchOrderConsumer>(ctx);
-                            endpoint.UseMessageRetry(r =>
-                            {
-                                r.Interval(3, TimeSpan.FromMilliseconds(200));
-                                r.Ignore<ArgumentNullException>();
-                                r.Handle<InvalidOperationException>();
-                            });
-
-                            // use the outbox to prevent duplicate events from being published
-                            endpoint.UseInMemoryOutbox();
-                        });
-                    });
-                });
-            }
-            services.AddMassTransitHostedService();
+                services.ConfigureMassTransitWithRabbitMQ(Configuration);
 
             services.AddSwaggerGen(c =>
             {

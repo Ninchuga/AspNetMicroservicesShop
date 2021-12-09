@@ -24,13 +24,13 @@ namespace Shopping.OrderSagaOrchestrator.Consumers
             using var loggerScope = _logger.BeginScope("{CorrelationId}", correlationId);
             _logger.LogError("Event {EventName} failed with message: {FaultMessage} for the order with id: {OrderId}", nameof(BillOrder), faultMessage, orderId);
 
-            var command = new OrderFailedToBeBilled
+            var orderFailed = new OrderFailedToBeBilled
             {
                 CorrelationId = correlationId,
                 OrderId = orderId
             };
 
-            await context.Publish(command);
+            await context.Publish(orderFailed);
         }
     }
 }

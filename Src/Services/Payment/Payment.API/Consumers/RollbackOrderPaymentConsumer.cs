@@ -1,5 +1,6 @@
 ﻿using EventBus.Messages.Events.Order;
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

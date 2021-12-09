@@ -1,9 +1,6 @@
 ﻿using EventBus.Messages.Events.Order;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Shopping.OrderSagaOrchestrator.Consumers
@@ -22,8 +19,19 @@ namespace Shopping.OrderSagaOrchestrator.Consumers
             using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
             _logger.LogInformation("Order with id {OrderId} billed successfully.", context.Message.OrderId);
 
-            await PublishDispatchOrderCommand(context);
             await NotifyThatOrderWasBilled(context);
+            await PublishDispatchOrderCommand(context);
+        }
+
+        private async Task NotifyThatOrderWasBilled(ConsumeContext<OrderBilled> context)
+        {
+            var notifyThatOrderWasBilled = new NotifyOrderBilled
+            {
+                OrderId = context.Message.OrderId,
+                CorrelationId = context.Message.CorrelationId
+            };
+
+            await context.Publish(notifyThatOrderWasBilled);
         }
 
         private async Task PublishDispatchOrderCommand(ConsumeContext<OrderBilled> context)
@@ -38,17 +46,6 @@ namespace Shopping.OrderSagaOrchestrator.Consumers
             };
 
             await context.Publish(dispatchOrder);
-        }
-
-        private async Task NotifyThatOrderWasBilled(ConsumeContext<OrderBilled> context)
-        {
-            var notifyThatOrderWasBilled = new NotifyOrderBilled
-            {
-                OrderId = context.Message.OrderId,
-                CorrelationId = context.Message.CorrelationId
-            };
-
-            await context.Publish(notifyThatOrderWasBilled);
         }
     }
 }

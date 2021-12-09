@@ -1,9 +1,6 @@
 ﻿using EventBus.Messages.Events.Order;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Shopping.OrderSagaOrchestrator.Consumers
