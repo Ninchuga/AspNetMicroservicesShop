@@ -3,10 +3,9 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Exceptions;
+using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +16,7 @@ namespace Ordering.Application.Features.Orders.Commands
         public Guid OrderId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
+        public OrderStatus OrderStatus { get; set; }
 
         // BillingAddress
         public string FirstName { get; set; }
@@ -30,6 +30,7 @@ namespace Ordering.Application.Features.Orders.Commands
         // Payment
         public string CardName { get; set; }
         public string CardNumber { get; set; }
+        public bool OrderPaid { get; set; }
     }
 
     public class UpdateOrderCommandHandler : IRequestHandler<UpdateOrderCommand>

@@ -13,41 +13,42 @@ using System.Threading.Tasks;
 
 namespace Ordering.Application.Features.Orders.Commands
 {
-    public class UpdateOrderStatusCommand : IRequest
+    public class OrderPaidCommand : IRequest
     {
         public Guid OrderId { get; set; }
         public Guid CorrelationId { get; set; }
         public OrderStatus OrderStatus { get; set; }
     }
 
-    public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatusCommand>
+    public class OrderPaidCommandHandler : IRequestHandler<OrderPaidCommand>
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly ILogger<UpdateOrderStatusCommandHandler> _logger;
+        private readonly ILogger<OrderPaidCommandHandler> _logger;
         private readonly IHubContext<OrderStatusHub> _orderStatusHub;
 
-        public UpdateOrderStatusCommandHandler(IOrderRepository orderRepository, ILogger<UpdateOrderStatusCommandHandler> logger, IHubContext<OrderStatusHub> orderStatusHub)
+        public OrderPaidCommandHandler(IOrderRepository orderRepository, ILogger<OrderPaidCommandHandler> logger, IHubContext<OrderStatusHub> orderStatusHub)
         {
             _orderRepository = orderRepository;
             _logger = logger;
             _orderStatusHub = orderStatusHub;
         }
 
-        public async Task<Unit> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(OrderPaidCommand request, CancellationToken cancellationToken)
         {
             using var loggerScope = _logger.BeginScope("{CorrelationId}", request.CorrelationId);
 
             var order = await _orderRepository.GetOrderBy(request.OrderId);
-            if(order == null)
+            if (order == null)
             {
                 _logger.LogWarning("There is no order with id: {OrderId} to update.", request.OrderId);
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
             order.OrderStatus = request.OrderStatus;
+            order.OrderPaid = true;
             await _orderRepository.UpdateAsync(order);
 
-            _logger.LogInformation("Order id {OrderId} status updated to {NewOrderStatus}.", request.OrderId, request.OrderStatus);
+            _logger.LogInformation("Order id {OrderId} successfully paid and status updated to {NewOrderStatus}.", request.OrderId, request.OrderStatus);
 
             _logger.LogInformation("Notifing the clients about the status change...");
 

@@ -21,6 +21,8 @@ namespace Payment.API.Consumers
 
             //throw new InvalidOperationException("Failed to bill the order");
 
+            await Task.Delay(10000); // wait 10 seconds
+
             var orderBilled = new OrderBilled
             {
                 OrderId = context.Message.OrderId,

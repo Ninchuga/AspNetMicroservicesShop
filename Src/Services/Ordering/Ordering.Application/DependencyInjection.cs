@@ -35,6 +35,17 @@ namespace Ordering.Application
             })
             .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
 
+            // There is no predefined transport for SignalR. It will try to find by itself the best suited transport
+            // 1. WebSocket if newer versions of browser are used on the client
+            // 2. Server Sent Events (SSE) if WebSockets are not available
+            // 3. Long Polling
+            // Objects will be serialized by default JSON Hub Protocol in the background and sent to client
+            // MessagePack protocol for binary format is not included in default SignalR nuget package. To include it add package Microsoft.AspNetCore.SignalR.Protocols.MessagePack
+            if (configuration.GetValue<bool>("UseAzureSignalR"))
+                services.AddSignalR().AddAzureSignalR(configuration.GetConnectionString("AzureSignalRConnectionString"));
+            else
+                services.AddSignalR();
+
             return services;
         }
     }

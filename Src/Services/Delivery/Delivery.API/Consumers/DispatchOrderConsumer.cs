@@ -20,6 +20,8 @@ namespace Delivery.API.Consumers
             using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
             _logger.LogInformation("Dispatch Order event received for the order id: {OrderId}", context.Message.OrderId);
 
+            await Task.Delay(10000); // wait 10 seconds
+
             var orderDispatched = new OrderDispatched
             {
                 OrderId = context.Message.OrderId,

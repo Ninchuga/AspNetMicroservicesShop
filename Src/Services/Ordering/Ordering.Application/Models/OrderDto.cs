@@ -5,10 +5,11 @@ namespace Ordering.Application.Models
 {
     public class OrderDto
     {
+        public Guid OrderId { get; set; }
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
-        public OrderStatus OrderStatus { get; set; }
+        public string OrderStatus { get; set; }
 
         // BillingAddress
         public string FirstName { get; set; }

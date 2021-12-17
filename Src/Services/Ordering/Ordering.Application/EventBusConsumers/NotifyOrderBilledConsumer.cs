@@ -4,9 +4,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Features.Orders.Commands;
 using Ordering.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Ordering.Application.EventBusConsumers
@@ -27,7 +24,7 @@ namespace Ordering.Application.EventBusConsumers
             using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
             _logger.LogInformation("Order id: {OrderId} billed notification", context.Message.OrderId);
 
-            var command = new UpdateOrderStatusCommand
+            var command = new OrderPaidCommand
             {
                 CorrelationId = context.Message.CorrelationId,
                 OrderId = context.Message.OrderId,

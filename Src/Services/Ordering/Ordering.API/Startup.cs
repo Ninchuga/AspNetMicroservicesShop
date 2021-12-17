@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Ordering.API.Extensions;
 using Ordering.Application;
+using Ordering.Application.HubConfiguration;
 using Ordering.Infrastructure;
 using Shopping.HealthChecks;
 using System.Collections.Generic;
@@ -28,6 +29,16 @@ namespace Ordering.API
             services.AddHttpContextAccessor();
             services.AddApplicationServices(Configuration);
             services.AddInfrastructureServices(Configuration);
+
+            // Add Cors policy because of the SignalR client
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder => builder
+                    .WithOrigins(Configuration["RazorWebClientUrl"])
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+            });
 
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -90,6 +101,13 @@ namespace Ordering.API
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseCors("CorsPolicy");
+
+            if (Configuration.GetValue<bool>("UseAzureSignalR"))
+                app.UseFileServer();
+            else
+                app.UseStaticFiles();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -97,6 +115,7 @@ namespace Ordering.API
             {
                 endpoints.MapDefaultHealthChecks();
                 endpoints.MapControllers().RequireAuthorization();
+                endpoints.MapHub<OrderStatusHub>("/orderstatushub");
             });
         }
     }
