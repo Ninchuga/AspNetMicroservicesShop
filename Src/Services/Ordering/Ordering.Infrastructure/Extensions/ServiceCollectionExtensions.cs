@@ -19,6 +19,7 @@ namespace Ordering.Infrastructure.Extensions
                 config.AddConsumer<NotifyOrderBilledConsumer>();
                 config.AddConsumer<NotifyOrderDispatchedConsumer>();
                 config.AddConsumer<NotifyOrderDeliveredConsumer>();
+                config.AddConsumer<OrderPlacedFaultConsumer>();
 
                 config.UsingAzureServiceBus((context, cfg) =>
                 {
@@ -48,6 +49,11 @@ namespace Ordering.Infrastructure.Extensions
                         e.ConfigureConsumer<OrderFailedToBeBilledConsumer>(context);
                     });
 
+                    cfg.SubscriptionEndpoint<Fault<OrderPlaced>>("order-placed-fault-consumer", e =>
+                    {
+                        e.ConfigureConsumer<OrderPlacedFaultConsumer>(context);
+                    });
+
                     cfg.ConfigureEndpoints(context);
                 });
             });
@@ -64,6 +70,7 @@ namespace Ordering.Infrastructure.Extensions
                 config.AddConsumer<NotifyOrderDispatchedConsumer>();
                 config.AddConsumer<NotifyOrderBilledConsumer>();
                 config.AddConsumer<NotifyOrderDeliveredConsumer>();
+                config.AddConsumer<OrderPlacedFaultConsumer>();
 
                 config.UsingRabbitMq((context, cfg) =>
                 {
@@ -79,6 +86,7 @@ namespace Ordering.Infrastructure.Extensions
                         endpoint.ConfigureConsumer<NotifyOrderBilledConsumer>(context);
                         endpoint.ConfigureConsumer<NotifyOrderDispatchedConsumer>(context);
                         endpoint.ConfigureConsumer<NotifyOrderDeliveredConsumer>(context);
+                        endpoint.ConfigureConsumer<OrderPlacedFaultConsumer>(context);
                     });
 
                     cfg.ReceiveEndpoint(EventBusConstants.RollbackOrderQueue, endpoint =>

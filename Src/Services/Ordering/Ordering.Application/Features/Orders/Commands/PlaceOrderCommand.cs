@@ -75,22 +75,26 @@ namespace Ordering.Application.Features.Orders.Commands
             order.OrderPlaced = DateTime.UtcNow;
             order.OrderStatus = OrderStatus.PENDING;
 
+            string orderInsertionErrorMessage = string.Empty;
+
             try
             {
-                await _orderRepository.AddAsync(order);
+                bool orderInserted = await _orderRepository.AddAsync(order);
+                if(orderInserted)
+                {
+                    _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
 
-                _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
+                    //await SendMail(newOrder);
 
-                //await SendMail(newOrder);
+                    await PublishOrderPlacedEvent(order, request.CorrelationId);
 
-                //var response = await CallOrderSaga(orderEntity);
+                    // TODO: publish message to basket service queue to delete the basket items or
+                    // trigger Azure Function when order placed to delete the user basket
+                }
 
-                await PublishOrderPlacedEvent(order, request.CorrelationId);
-
-                // TODO: publish message to basket service queue to delete the basket items
-
-                //return new OrderPlacedCommandResponse(success: response.IsSuccessStatusCode, errorMessage: response.ReasonPhrase);
-                return new OrderPlacedCommandResponse(success: true, errorMessage: string.Empty);
+                return orderInserted 
+                    ? new OrderPlacedCommandResponse(success: orderInserted, errorMessage: orderInsertionErrorMessage)
+                    : new OrderPlacedCommandResponse(success: orderInserted, errorMessage: "Order failed to be inserted in db.");
             }
             catch (Exception ex)
             {
@@ -115,16 +119,6 @@ namespace Ordering.Application.Features.Orders.Commands
             await _publishEndpoint.Publish(orderPlacedEvent);
         }
 
-        private async Task<HttpResponseMessage> CallOrderSaga(Order order)
-        {
-            var httpClient = _httpClientFactory.CreateClient("OrderSaga");
-            var orderSagaRequest = new OrderSaga(order.Id, order.OrderPlaced, order.OrderStatus);
-            var requestContent = new StringContent(JsonSerializer.Serialize(orderSagaRequest), Encoding.UTF8, "application/json");
-            var response = await httpClient.PutAsync("OrderSaga/ExecuteOrderTransaction", requestContent);
-
-            return response;
-        }
-
         private async Task SendMail(Order order)
         {
             var email = new Email() { To = "ninoslav90@hotmail.com", Body = $"Order was created.", Subject = "Order was created" };
@@ -137,20 +131,6 @@ namespace Ordering.Application.Features.Orders.Commands
             {
                 _logger.LogError($"Order {order.Id} failed due to an error with the mail service: {ex.Message}");
             }
-        }
-
-        private class OrderSaga
-        {
-            public OrderSaga(Guid orderId, DateTime orderPlaced, OrderStatus orderStatus)
-            {
-                OrderId = orderId;
-                OrderPlaced = orderPlaced;
-                OrderStatus = orderStatus;
-            }
-
-            public Guid OrderId { get;  }
-            public DateTime OrderPlaced { get; }
-            public OrderStatus OrderStatus { get; }
         }
     }
 }

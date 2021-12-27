@@ -15,7 +15,6 @@ namespace Ordering.Application.Mappings
                 .ForMember(destination => destination.OrderId, op => op.MapFrom(source => source.Id))
                 .ForMember(destination => destination.OrderStatus, op => op.MapFrom(source => source.OrderStatus.GetDescription()))
                 .ReverseMap();
-            CreateMap<Order, CheckoutOrderCommand>().ReverseMap();
             CreateMap<Order, PlaceOrderCommand>().ReverseMap();
             CreateMap<Order, UpdateOrderCommand>().ReverseMap();
             CreateMap<OrderStatusUpdated, UpdateOrderStatusCommand>();

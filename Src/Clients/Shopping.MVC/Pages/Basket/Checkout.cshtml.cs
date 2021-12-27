@@ -38,7 +38,6 @@ namespace Shopping.MVC.Pages.Basket
             basketCheckout.UserName = userNameClaim.Value;
             basketCheckout.UserId = new Guid(userIdClaim.Value);
 
-            //var response = await _basketService.Checkout(basketCheckout); // old way
             var response = await _orderService.PlaceOrder(basketCheckout);
 
             return response.Success ? RedirectToPage("/Basket/CheckoutComplete") : RedirectToPage("/Error");

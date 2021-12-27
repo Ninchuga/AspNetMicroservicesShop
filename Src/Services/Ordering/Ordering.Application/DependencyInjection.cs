@@ -27,7 +27,6 @@ namespace Ordering.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddHttpClient<ITokenValidationService, TokenValidationService>();
-            services.AddScoped<BasketCheckoutConsumer>();
 
             services.AddHttpClient("OrderSaga", config =>
             {

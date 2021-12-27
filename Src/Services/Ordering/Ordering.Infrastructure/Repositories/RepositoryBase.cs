@@ -30,11 +30,12 @@ namespace Ordering.Infrastructure.Repositories
             return await _orderContext.Set<T>().Where(predicate).ToListAsync();
         }
 
-        public async Task<T> AddAsync(T entity)
+        public async Task<bool> AddAsync(T entity)
         {
             _orderContext.Set<T>().Add(entity);
-            await _orderContext.SaveChanges();
-            return entity;
+            int rowsAffected = await _orderContext.SaveChanges();
+
+            return rowsAffected > 0;
         }
 
         public async Task UpdateAsync(T entity)
