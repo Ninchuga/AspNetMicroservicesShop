@@ -84,6 +84,8 @@ namespace Ordering.Application.Features.Orders.Commands
                 {
                     _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
 
+                    // TODO: Maybe use Azure Functions to send an email
+                    // Image/logo for the email can be retreived from blob storage
                     //await SendMail(newOrder);
 
                     await PublishOrderPlacedEvent(order, request.CorrelationId);
