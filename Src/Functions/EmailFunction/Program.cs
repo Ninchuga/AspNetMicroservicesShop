@@ -15,11 +15,15 @@ namespace EmailFunction
                 {
                     worker.UseNewtonsoftJson();
                 })
-                .ConfigureAppConfiguration(config =>
+                .ConfigureAppConfiguration(configuration =>
                 {
-                    config.SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("local.settings.json")
-                        .AddEnvironmentVariables();
+                    var settings = configuration.Build();
+                    var env = settings["ASPNETCORE_ENVIRONMENT"];
+
+                    configuration.AddJsonFile("local.settings.json", optional: true);
+                    //configuration.AddJsonFile($"appsettings.{env}.json", optional: true);
+                    //configuration.AddJsonFile($"appsettings.local.json", optional: true);
+                    configuration.AddEnvironmentVariables();
                 })
                 //.UseSerilog(LoggingConfiguration.Configure)
                 .Build();

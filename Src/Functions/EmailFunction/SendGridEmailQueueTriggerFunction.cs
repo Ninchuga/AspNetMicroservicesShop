@@ -17,7 +17,7 @@ namespace EmailFunction
     public static class SendGridEmailQueueTriggerFunction
     {
         [Function(nameof(SendGridEmailQueueTriggerFunction))]
-        [SendGridOutput(ApiKey = "SendgridAPIKey")] // sends email which was built with SendGridMessage
+        [SendGridOutput()] // sends email which was built with SendGridMessage
         public static SendGridMessage Run(
             [QueueTrigger(Constants.EmailQueueName, Connection = "AzureWebJobsStorage")] Email email,
             FunctionContext context)

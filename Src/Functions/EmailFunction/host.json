@@ -10,7 +10,8 @@
   },
   "extensions": {
     "sendGrid": {
-      "from": "ninchuga@gmail.com"
+      "from": "ninchuga@gmail.com",
+      "apiKey": "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"
     }
   }
 }
