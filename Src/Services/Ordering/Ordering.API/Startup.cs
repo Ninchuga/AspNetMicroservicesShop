@@ -101,9 +101,10 @@ namespace Ordering.API
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            // Add Cors policy because of the SignalR client
             app.UseCors("CorsPolicy");
 
-            if (Configuration.GetValue<bool>("UseAzureSignalR"))
+            if (Configuration.GetValue<bool>("Azure:UseAzureSignalR"))
                 app.UseFileServer();
             else
                 app.UseStaticFiles();

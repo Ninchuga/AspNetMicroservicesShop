@@ -25,11 +25,11 @@ namespace EmailFunction
             ILogger logger = context.GetLogger(nameof(SendGridEmailQueueTriggerFunction));
 
             SendGridMessage message = new();
-            message.Subject = $"Thanks for your order #{email.OrderId}";
+            message.Subject = email.Subject;
             message.AddTo(email.CustomerEmail);
-            message.AddContent("text/plain", $"{email.CustomerName}, your order #{email.OrderId} is being processed!");
+            message.AddContent("text/plain", email.Body);
 
-            logger.LogInformation($"{nameof(SendGridEmailQueueTriggerFunction)} processed order: {email.OrderId}");
+            logger.LogInformation("{nameof(SendGridEmailQueueTriggerFunction)} sending email for the customer {CustomerEmail}", email.CustomerEmail);
 
             return message;
         }

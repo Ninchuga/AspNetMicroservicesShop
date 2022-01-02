@@ -1,18 +1,12 @@
-﻿using EventBus.Messages.Common;
-using FluentValidation;
-using GreenPipes;
-using MassTransit;
+﻿using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.Behaviours;
-using Ordering.Application.EventBusConsumers;
 using Ordering.Application.Services;
 using Shopping.Correlation;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace Ordering.Application
 {
@@ -40,7 +34,7 @@ namespace Ordering.Application
             // 3. Long Polling
             // Objects will be serialized by default JSON Hub Protocol in the background and sent to client
             // MessagePack protocol for binary format is not included in default SignalR nuget package. To include it add package Microsoft.AspNetCore.SignalR.Protocols.MessagePack
-            if (configuration.GetValue<bool>("UseAzureSignalR"))
+            if (configuration.GetValue<bool>("Azure:UseAzureSignalR"))
                 services.AddSignalR().AddAzureSignalR(configuration.GetConnectionString("AzureSignalRConnectionString"));
             else
                 services.AddSignalR();

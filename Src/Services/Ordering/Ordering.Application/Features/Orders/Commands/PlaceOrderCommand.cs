@@ -1,23 +1,15 @@
 ﻿using AutoMapper;
-using Azure.Messaging.ServiceBus;
 using Destructurama.Attributed;
-using EventBus.Messages.Common;
 using EventBus.Messages.Events.Order;
 using MassTransit;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Infrastrucutre;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Models;
-using Ordering.Application.Publishers;
 using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
-using Shopping.Correlation.Constants;
 using System;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -50,17 +42,15 @@ namespace Ordering.Application.Features.Orders.Commands
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
         private readonly ILogger<PlaceOrderCommandHandler> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IPublishEndpoint _publishEndpoint;
 
         public PlaceOrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IEmailService emailService,
-            ILogger<PlaceOrderCommandHandler> logger, IHttpClientFactory httpClientFactory, IPublishEndpoint publishEndpoint)
+            ILogger<PlaceOrderCommandHandler> logger, IPublishEndpoint publishEndpoint)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
             _emailService = emailService;
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
             _publishEndpoint = publishEndpoint;
         }
 
@@ -75,18 +65,14 @@ namespace Ordering.Application.Features.Orders.Commands
             order.OrderPlaced = DateTime.UtcNow;
             order.OrderStatus = OrderStatus.PENDING;
 
-            string orderInsertionErrorMessage = string.Empty;
-
             try
             {
                 bool orderInserted = await _orderRepository.AddAsync(order);
                 if(orderInserted)
                 {
                     _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
-
-                    // TODO: Maybe use Azure Functions to send an email
-                    // Image/logo for the email can be retreived from blob storage
-                    //await SendMail(newOrder);
+                    
+                    await _emailService.SendMailFor(order);
 
                     await PublishOrderPlacedEvent(order, request.CorrelationId);
 
@@ -95,7 +81,7 @@ namespace Ordering.Application.Features.Orders.Commands
                 }
 
                 return orderInserted 
-                    ? new OrderPlacedCommandResponse(success: orderInserted, errorMessage: orderInsertionErrorMessage)
+                    ? new OrderPlacedCommandResponse(success: orderInserted, errorMessage: string.Empty)
                     : new OrderPlacedCommandResponse(success: orderInserted, errorMessage: "Order failed to be inserted in db.");
             }
             catch (Exception ex)
@@ -121,18 +107,6 @@ namespace Ordering.Application.Features.Orders.Commands
             await _publishEndpoint.Publish(orderPlacedEvent);
         }
 
-        private async Task SendMail(Order order)
-        {
-            var email = new Email() { To = "ninoslav90@hotmail.com", Body = $"Order was created.", Subject = "Order was created" };
-
-            try
-            {
-                await _emailService.SendEmail(email);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Order {order.Id} failed due to an error with the mail service: {ex.Message}");
-            }
-        }
+        
     }
 }

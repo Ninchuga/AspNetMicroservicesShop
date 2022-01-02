@@ -42,7 +42,7 @@ namespace Ordering.Infrastructure
                 .AddDbContextCheck<OrderContext>("Order Context", tags: new string[] { "order context ready", "sql server" }) //checks the underlying context connection, calls CanConnectAsync
                 .AddRabbitMQ(configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
 
-            bool useAzureServiceBus = configuration.GetValue<bool>("UseAzureServiceBus");
+            bool useAzureServiceBus = configuration.GetValue<bool>("Azure:UseAzureServiceBus");
             if (useAzureServiceBus)
                 services.ConfigureMassTransitWithAzureServiceBus(configuration);
             else
