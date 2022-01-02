@@ -311,8 +311,8 @@ services:
         target: /root/.aspnet/DataProtection-Keys
 
     # redirection worked with ubuntu host ip 172.18.112.1 -> https://172.18.112.1:8021
-  shopping.mvc:
-    container_name: shopping.web
+  shopping.razor:
+    container_name: shopping.razor
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - IdentityProviderSettings:IdentityServiceUrl=https://localhost:8021
@@ -333,10 +333,10 @@ services:
       - ASPNETCORE_URLS=https://0.0.0.0:8999 
       - ASPNETCORE_HTTPS_PORT=8999
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.MVC.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.Razor.pfx
     volumes:
-      - ./Clients/Shopping.MVC:/root/ShoppingMVC
-      - ./Clients/Shopping.MVC/certs:/https/
+      - ./Clients/Shopping.Razor:/root/ShoppingRazor
+      - ./Clients/Shopping.Razor/certs:/https/
       - type: bind
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer

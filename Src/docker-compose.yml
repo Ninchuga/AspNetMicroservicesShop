@@ -79,11 +79,11 @@ services:
       context: .
       dockerfile: Identity/Shopping.IDP/Dockerfile
 
-  shopping.mvc:
-    image: ${DOCKER_REGISTRY-}shoppingmvc
+  shopping.razor:
+    image: ${DOCKER_REGISTRY-}shoppingrazor
     build:
       context: .
-      dockerfile: Clients/Shopping.MVC/Dockerfile
+      dockerfile: Clients/Shopping.Razor/Dockerfile
 
   shopping.webstatus:
     image: ${DOCKER_REGISTRY-}shoppingwebstatus
