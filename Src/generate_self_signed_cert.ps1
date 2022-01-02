@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 
 $rootCN = "IdentityServerDockerRootCert"
 $identityServerCNs = "shopping.identity", "localhost"
-$shoppingWebClientCNs = "shopping.web" , "localhost"
+$shoppingRazorWebClientCNs = "shopping.razor" , "localhost"
 $catalogApiCNs = "catalog.api", "localhost"
 $basketApiCNs = "basket.api", "localhost"
 $discountGrpcCNs = "discount.grpc", "localhost"
@@ -18,7 +18,7 @@ $shoppingWebStatusCNs = "shopping.webstatus", "localhost"
 
 $alreadyExistingCertsRoot = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$rootCN"}
 $alreadyExistingCertsIdentityServer = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $identityServerCNs[0])}
-$alreadyExistingCertsShoppingWebClient = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingWebClientCNs[0])}
+$alreadyExistingCertsShoppingWebClient = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingRazorWebClientCNs[0])}
 $alreadyExistingCertsCatalogApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $catalogApiCNs[0])}
 $alreadyExistingCertsBasketApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $basketApiCNs[0])}
 $alreadyExistingCertsDiscountGrpc = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $discountGrpcCNs[0])}
@@ -44,13 +44,13 @@ if ($alreadyExistingCertsIdentityServer.Count -eq 1) {
     $identityServerCert = New-SelfSignedCertificate -DnsName $identityServerCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
-# Web Client
+# Razor Web Client
 if ($alreadyExistingCertsShoppingWebClient.Count -eq 1) {
     Write-Output "Skipping creating Web client certificate as it already exists."
     $shoppingWebClientCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsShoppingWebClient[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
-    $shoppingWebClientCert = New-SelfSignedCertificate -DnsName $shoppingWebClientCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+    $shoppingWebClientCert = New-SelfSignedCertificate -DnsName $shoppingRazorWebClientCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
 # Catalog API
@@ -121,7 +121,7 @@ $password = ConvertTo-SecureString -String "password" -Force -AsPlainText
 
 $rootCertPathPfx = "D:/Practice/AspNetMicroservicesShop/Src/certs"
 $identityServerCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Identity/Shopping.IDP/certs"
-$shoppingWebClientCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Clients/Shopping.MVC/certs"
+$shoppingRazorWebClientCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Clients/Shopping.Razor/certs"
 $catalogApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Catalog/Catalog.API/certs"
 $basketApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Basket/Basket.API/certs"
 $discountGrpcCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Discount/Discount.Grpc/certs"
@@ -132,7 +132,7 @@ $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Sho
 
 [System.IO.Directory]::CreateDirectory($rootCertPathPfx) | Out-Null
 [System.IO.Directory]::CreateDirectory($identityServerCertPath) | Out-Null
-[System.IO.Directory]::CreateDirectory($shoppingWebClientCertPath) | Out-Null
+[System.IO.Directory]::CreateDirectory($shoppingRazorWebClientCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($catalogApiCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($basketApiCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($discountGrpcCertPath) | Out-Null
@@ -143,7 +143,7 @@ $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Sho
 
 Export-PfxCertificate -Cert $shoppingRootCA -FilePath "$rootCertPathPfx/shopping-root-cert.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $identityServerCert -FilePath "$identityServerCertPath/Shopping.IDP.pfx" -Password $password | Out-Null
-Export-PfxCertificate -Cert $shoppingWebClientCert -FilePath "$shoppingWebClientCertPath/Shopping.MVC.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $shoppingWebClientCert -FilePath "$shoppingRazorWebClientCertPath/Shopping.Razor.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $catalogApiCert -FilePath "$catalogApiCertPath/Catalog.API.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $basketApiCert -FilePath "$basketApiCertPath/Basket.API.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $discountGrpcCert -FilePath "$discountGrpcCertPath/Discount.Grpc.pfx" -Password $password | Out-Null

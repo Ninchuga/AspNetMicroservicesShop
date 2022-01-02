@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Shopping.MVC": {
+    "Shopping.Razor": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
