@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+    <UserSecretsId>5c7029c1a4dfc459e098c5942245ecc6</UserSecretsId>
+    <AssemblyName>Shopping.Razor</AssemblyName>
+    <RootNamespace>Shopping.Razor</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\AccessDenied.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="5.0.1" />
+    <PackageReference Include="Destructurama.Attributed" Version="3.0.0" />
+    <PackageReference Include="IdentityModel" Version="5.1.0" />
+    <PackageReference Include="IdentityModel.AspNetCore" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\AccessDenied.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\AccessDenied.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\Authorization\AccessDenied.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Shopping.Correlation\Shopping.Correlation.csproj" />
+    <ProjectReference Include="..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
+    <ProjectReference Include="..\..\Common\Shopping.Logging\Shopping.Logging.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.Aggregator", "ApiG
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{6FA489D9-6856-476E-ADF0-307F47E76617}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.MVC", "Clients\Shopping.MVC\Shopping.MVC.csproj", "{BF775ECF-5D44-4BFD-90DB-23325968FC1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.Razor", "Clients\Shopping.Razor\Shopping.Razor.csproj", "{BF775ECF-5D44-4BFD-90DB-23325968FC1E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{5668A74E-92CC-4ACE-A9BC-1A194A753EBE}"
 EndProject

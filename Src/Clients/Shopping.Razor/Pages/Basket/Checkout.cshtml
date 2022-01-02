@@ -1,0 +1,101 @@
+﻿@page
+@model Shopping.Razor.Pages.Basket.CheckoutModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<form method="post" class="form-horizontal" role="form">
+    <h4>You're just one step away from placing your order.</h4>
+
+    <input asp-for="BasketCheckout.TotalPrice" value="@Model.BasketTotalPrice" type="hidden" />
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.LastName" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.LastName" class="form-control" />
+            <span asp-validation-for="BasketCheckout.LastName" class="text-danger"></span>
+
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.FirstName" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.FirstName" class="form-control" />
+            <span asp-validation-for="BasketCheckout.FirstName" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.Address" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.Address" class="form-control" />
+            <span asp-validation-for="BasketCheckout.Address" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.City" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.City" class="form-control" />
+            <span asp-validation-for="BasketCheckout.City" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.Country" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.Country" class="form-control" />
+            <span asp-validation-for="BasketCheckout.Country" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.Email" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.Email" class="form-control" />
+            <span asp-validation-for="BasketCheckout.Email" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.CardName" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.CardName" class="form-control" />
+            <span asp-validation-for="BasketCheckout.CardName" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.CardNumber" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.CardNumber" class="form-control" />
+            <span asp-validation-for="BasketCheckout.CardNumber" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.CardExpiration" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.CardExpiration" class="form-control" />
+            <span asp-validation-for="BasketCheckout.CardExpiration" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasketCheckout.CVV" class="col-md-2 control-label"></label>
+        <div class="col-md-5">
+            <input asp-for="BasketCheckout.CVV" class="form-control" />
+            <span asp-validation-for="BasketCheckout.CVV" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-5">
+            <input type="submit" class="btn btn-primary" value="Place order" />
+        </div>
+    </div>
+
+</form>
+    

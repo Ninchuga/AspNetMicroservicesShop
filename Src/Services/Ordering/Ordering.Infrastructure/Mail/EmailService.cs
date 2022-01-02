@@ -38,7 +38,7 @@ namespace Ordering.Infrastructure.Mail
             {
                 CustomerEmail = order.Email,
                 Body = $"Hi {order.UserName}, your order #{order.Id} is being processed!",
-                Subject = $"Thanks for your order #{order.Id}"
+                Subject = $"Your order confirmation"
             };
 
             var httpClient = _httpClientFactory.CreateClient();
