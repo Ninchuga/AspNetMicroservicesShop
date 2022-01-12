@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Ordering.Infrastructure.Persistence;
 
 namespace Ordering.Infrastructure.Migrations
 {
     [DbContext(typeof(OrderContext))]
-    partial class OrderContextModelSnapshot : ModelSnapshot
+    [Migration("20220111140924_OrderItemDiscountAndPriceDecimalsTypesUpdated")]
+    partial class OrderItemDiscountAndPriceDecimalsTypesUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,10 +27,10 @@ namespace Ordering.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("OrderCancellationDate")
+                    b.Property<DateTime?>("OrderCanceled")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("OrderDate")
+                    b.Property<DateTime>("OrderPlaced")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("OrderStatus")
@@ -120,15 +122,6 @@ namespace Ordering.Infrastructure.Migrations
                         {
                             b1.Property<Guid>("OrderId")
                                 .HasColumnType("uniqueidentifier");
-
-                            b1.Property<int>("CVV")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("CardName")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("CardNumber")
-                                .HasColumnType("nvarchar(max)");
 
                             b1.Property<bool>("OrderPaid")
                                 .HasColumnType("bit");

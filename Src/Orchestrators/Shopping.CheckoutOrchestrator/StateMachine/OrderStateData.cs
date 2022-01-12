@@ -17,8 +17,8 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
     {
         public Guid CorrelationId { get; set; }
         public string CurrentState { get; set; }
-        public DateTime? OrderCreationDateTime { get; set; }
-        public DateTime? OrderCancelDateTime { get; set; }
+        public DateTime? OrderCreationDate { get; set; }
+        public DateTime? OrderCancellationDate { get; set; }
         public Guid OrderId { get; set; }
         public string PaymentCardNumber { get; set; }
         public decimal OrderTotalPrice { get; set; }

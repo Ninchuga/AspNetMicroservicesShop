@@ -27,8 +27,8 @@ namespace Payment.API.Consumers
             {
                 OrderId = context.Message.OrderId,
                 CorrelationId = context.Message.CorrelationId,
-                OrderCancelDateTime = context.Message.OrderCancelDateTime,
-                OrderCreationDateTime = context.Message.OrderCreationDateTime,
+                OrderCancellationDate = context.Message.OrderCancellationDate,
+                OrderCreationDate = context.Message.OrderCreationDate,
                 PaymentCardNumber = context.Message.PaymentCardNumber,
                 OrderTotalPrice = context.Message.OrderTotalPrice
             };

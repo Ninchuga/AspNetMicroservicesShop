@@ -27,7 +27,7 @@ namespace Shopping.Razor.Pages.Orders
             var response = await _orderService.GetOrdersFor(new Guid(userIdClaim.Value));
             if(response.Success)
             {
-                Orders = response.UserOrder.OrderByDescending(order => order.OrderPlaced).ToList().AsReadOnly();
+                Orders = response.UserOrder.OrderByDescending(order => order.OrderDate).ToList().AsReadOnly();
                 return Page();
             }
             else if (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden)

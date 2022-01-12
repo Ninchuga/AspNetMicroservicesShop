@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Shopping.Razor.Models;
+using Shopping.Razor.Responses.Order;
 using Shopping.Razor.Services;
 
 namespace Shopping.Razor.Pages.Basket
@@ -32,14 +33,19 @@ namespace Shopping.Razor.Pages.Basket
 
         public async Task<IActionResult> OnPost(BasketCheckout basketCheckout)
         {
+            PlaceOrderResponse orderResponse = new PlaceOrderResponse();
             var userNameClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("preferred_userName", StringComparison.OrdinalIgnoreCase));
             var userIdClaim = User.Claims.FirstOrDefault(claim => claim.Type.Equals("sub", StringComparison.OrdinalIgnoreCase));
             basketCheckout.UserName = userNameClaim.Value;
             basketCheckout.UserId = new Guid(userIdClaim.Value);
 
-            var response = await _orderService.PlaceOrder(basketCheckout);
+            var basketResponse = await _basketService.GetBasketFor(basketCheckout.UserId);
+            if(basketResponse.Success)
+            {
+                orderResponse = await _orderService.PlaceOrder(basketCheckout, basketResponse.BasketWithItems);
+            }
 
-            return response.Success ? RedirectToPage("/Basket/CheckoutComplete") : RedirectToPage("/Error");
+            return orderResponse.Success ? RedirectToPage("/Basket/CheckoutComplete") : RedirectToPage("/Error");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Domain.Entities;
+using Ordering.Infrastructure.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,15 @@ namespace Ordering.Infrastructure.Repositories
 {
     public class OrderRepository : RepositoryBase<Order>, IOrderRepository
     {
-        public OrderRepository(IOrderContext orderContext) : base(orderContext)
+        public OrderRepository(OrderContext orderContext) : base(orderContext)
         {
         }
 
         public async Task<Order> GetOrderBy(Guid orderId)
         {
             return await _orderContext
-               .Set<Order>()
+               .Orders
+               .Include(order => order.OrderItems)
                .AsNoTracking()
                .FirstOrDefaultAsync(order => order.Id == orderId);
         }
@@ -26,7 +28,8 @@ namespace Ordering.Infrastructure.Repositories
         public async Task<IEnumerable<Order>> GetOrdersBy(Guid userId)
         {
             var orderList = await _orderContext
-                .Set<Order>()
+                .Orders
+                .Include(order => order.OrderItems)
                 .AsNoTracking()
                 .Where(order => order.UserId == userId)
                 .ToListAsync();

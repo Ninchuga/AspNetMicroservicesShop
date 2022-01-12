@@ -27,8 +27,7 @@ namespace Ordering.Application.EventBusConsumers
             var command = new OrderPaidCommand
             {
                 CorrelationId = context.Message.CorrelationId,
-                OrderId = context.Message.OrderId,
-                OrderStatus = OrderStatus.ORDER_BILLED
+                OrderId = context.Message.OrderId
             };
 
             await _mediator.Send(command);

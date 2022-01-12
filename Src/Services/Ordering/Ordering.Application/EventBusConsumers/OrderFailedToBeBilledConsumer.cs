@@ -34,11 +34,10 @@ namespace Ordering.Application.EventBusConsumers
             _logger.LogInformation("Rolling back order {OrderId} to status {OrderStatus}", context.Message.OrderId, OrderStatus.PENDING);
 
             // Rollback Order to previous state -> PENDING
-            var command = new UpdateOrderStatusCommand
+            var command = new OrderFailedToBeBilledCommand
             {
                 CorrelationId = context.Message.CorrelationId,
-                OrderId = context.Message.OrderId,
-                OrderStatus = OrderStatus.PENDING
+                OrderId = context.Message.OrderId
             };
 
             await _mediator.Send(command);

@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace Ordering.Infrastructure.Repositories
 {
-    public class RepositoryBase<T> : IRepository<T> where T : EntityBase
+    public class RepositoryBase<T> : IRepository<T> where T : Entity
     {
-        protected readonly IOrderContext _orderContext;
+        protected readonly OrderContext _orderContext;
 
-        public RepositoryBase(IOrderContext orderContext)
+        public RepositoryBase(OrderContext orderContext)
         {
             _orderContext = orderContext;
         }

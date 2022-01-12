@@ -45,7 +45,7 @@ namespace Shopping.OrderSagaOrchestrator.Controllers
             {
                 OrderId = orderDto.OrderId,
                 CorrelationId = correlationId,
-                OrderCreationDateTime = orderDto.OrderPlaced,
+                OrderCreationDate = orderDto.OrderPlaced,
                 PaymentCardNumber = orderDto.PaymentCardNumber,
                 OrderTotalPrice = orderDto.OrderTotalPrice
             };

@@ -13,7 +13,7 @@ namespace Shopping.Razor.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        public string Address { get; set; }
+        public string Street { get; set; }
         public string Country { get; set; }
         public string City { get; set; }
 
@@ -25,6 +25,6 @@ namespace Shopping.Razor.Models
         [NotLogged]
         public string CardExpiration { get; set; }
         [NotLogged]
-        public string CVV { get; set; }
+        public int CVV { get; set; }
     }
 }

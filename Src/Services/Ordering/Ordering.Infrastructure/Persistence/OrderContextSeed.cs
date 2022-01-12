@@ -12,9 +12,9 @@ namespace Ordering.Infrastructure.Persistence
 {
     public class OrderContextSeed
     {
-        public static async Task SeedAsync(IOrderContext orderContext, ILogger<OrderContextSeed> logger)
+        public static async Task SeedAsync(OrderContext orderContext, ILogger<OrderContextSeed> logger)
         {
-            var orders = orderContext.Set<Order>();
+            var orders = orderContext.Orders;
             if (!orders.Any())
             {
                 orders.AddRange(GetPreconfiguredOrders());
@@ -25,11 +25,22 @@ namespace Ordering.Infrastructure.Persistence
 
         private static IEnumerable<Order> GetPreconfiguredOrders()
         {
+            var order = new Order(
+                    orderId: Guid.NewGuid(),
+                    userId: Guid.NewGuid(),
+                    userName: "ninchuga",
+                    totalPrice: 550,
+                    orderStatus: Domain.Common.OrderStatus.PENDING,
+                    orderDate: DateTime.UtcNow,
+                    new Domain.ValueObjects.Address("Nino", "Djukic", "someemail@hotmail.com", "Pasterova 24", "SRB", "NS"),
+                    new Domain.ValueObjects.PaymentData("Nino", "1234566777", false, 555));
+            order.AddOrderItem("1990", "IPhone 6s", 250, 10);
+
             return new List<Order>
             {
-                new Order() {Id = Guid.NewGuid(), UserName = "test seed user", FirstName = "Nino", LastName = "Djukic", 
-                    Email = "ninoslav90@hotmail.com", Address = "Pasterova", Country = "Serbia", TotalPrice = 350 }
+                order
             };
         }
     }
 }
+

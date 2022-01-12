@@ -72,7 +72,20 @@ namespace Ordering.API.Controllers
 
             var response = await _mediator.Send(command);
             return response.Success ? Ok() : BadRequest();
+        }
 
+        [HttpPost]
+        [Route("[action]")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult> CancelOrder([FromBody] CancelOrderDto order)
+        {
+            var command = new CancelOrderCommand { OrderId = order.OrderId, UserId = order.UserId };
+            command.CorrelationId = new Guid(HttpContext.Request.Headers[Headers.CorrelationIdHeader][0]);
+
+            var response = await _mediator.Send(command);
+            return response.Success ? Ok() : BadRequest();
         }
     }
 }

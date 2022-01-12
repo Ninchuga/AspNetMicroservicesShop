@@ -8,31 +8,33 @@ using Ordering.Application.HubConfiguration;
 using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ordering.Application.Features.Orders.Commands
 {
-    public class OrderPaidCommand : IRequest
+    public class OrderFailedToBeBilledCommand : IRequest
     {
         public Guid OrderId { get; set; }
         public Guid CorrelationId { get; set; }
     }
 
-    public class OrderPaidCommandHandler : IRequestHandler<OrderPaidCommand>
+    public class OrderFailedToBeBilledCommandHandler : IRequestHandler<OrderFailedToBeBilledCommand>
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly ILogger<OrderPaidCommandHandler> _logger;
+        private readonly ILogger<OrderFailedToBeBilledCommandHandler> _logger;
         private readonly IHubContext<OrderStatusHub> _orderStatusHub;
 
-        public OrderPaidCommandHandler(IOrderRepository orderRepository, ILogger<OrderPaidCommandHandler> logger, IHubContext<OrderStatusHub> orderStatusHub)
+        public OrderFailedToBeBilledCommandHandler(IOrderRepository orderRepository, ILogger<OrderFailedToBeBilledCommandHandler> logger, IHubContext<OrderStatusHub> orderStatusHub)
         {
             _orderRepository = orderRepository;
             _logger = logger;
             _orderStatusHub = orderStatusHub;
         }
 
-        public async Task<Unit> Handle(OrderPaidCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(OrderFailedToBeBilledCommand request, CancellationToken cancellationToken)
         {
             using var loggerScope = _logger.BeginScope("{CorrelationId}", request.CorrelationId);
 
@@ -43,11 +45,11 @@ namespace Ordering.Application.Features.Orders.Commands
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
-            order.SetOrderStatusToPaid();
+            order.SetOrderStatusToPending();
 
             await _orderRepository.UpdateAsync(order);
 
-            _logger.LogInformation("Order id {OrderId} successfully paid and status updated to {NewOrderStatus}.", request.OrderId, OrderStatus.ORDER_BILLED);
+            _logger.LogInformation("Order id {OrderId} failed to be billed. Reverting order status to {NewOrderStatus}.", request.OrderId, OrderStatus.PENDING);
 
             _logger.LogInformation("Notifying the clients about the status change...");
 

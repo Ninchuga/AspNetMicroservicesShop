@@ -63,7 +63,6 @@ namespace Shopping.Razor.Services
                 ProductName = catalogItem.Name,
                 ProductId = catalogItem.Id,
                 Quantity = catalogItem.Quantity,
-                Color = "Red",
                 Price = catalogItem.Price * catalogItem.Quantity
             };
 

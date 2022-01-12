@@ -40,7 +40,7 @@ namespace Shopping.OrderSagaOrchestrator.Consumers
             {
                 OrderId = context.Message.OrderId,
                 CorrelationId = context.Message.CorrelationId,
-                OrderCreationDateTime = context.Message.OrderCreationDateTime,
+                OrderCreationDate = context.Message.OrderCreationDate,
                 CustomerUsername = context.Message.CustomerUsername,
                 OrderTotalPrice = context.Message.OrderTotalPrice
             };

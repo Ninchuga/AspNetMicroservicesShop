@@ -7,9 +7,12 @@ using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Infrastrucutre;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Models;
+using Ordering.Application.Models.Responses;
 using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
+using Ordering.Domain.ValueObjects;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,14 +29,22 @@ namespace Ordering.Application.Features.Orders.Commands
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        public string Address { get; set; }
+        public string Street { get; set; }
         public string Country { get; set; }
+        public string City { get; set; }
 
         // Payment
         [NotLogged]
         public string CardName { get; set; }
         [LogMasked(ShowLast = 4)]
         public string CardNumber { get; set; }
+
+        [NotLogged]
+        public string CardExpiration { get; set; }
+        [NotLogged]
+        public int CVV { get; set; }
+
+        public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }
 
     public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, OrderPlacedCommandResponse>
@@ -59,11 +70,21 @@ namespace Ordering.Application.Features.Orders.Commands
             using var loggerScope = _logger.BeginScope("{CorrelationId} {UserId}", request.CorrelationId, request.UserId);
             _logger.LogInformation("Creating order {@Order}", request);
 
-            var order = _mapper.Map<Order>(request);
-            order.Id = Guid.NewGuid();
-            order.OrderPaid = false;
-            order.OrderPlaced = DateTime.UtcNow;
-            order.OrderStatus = OrderStatus.PENDING;
+            var order = new Order(
+                orderId: Guid.NewGuid(),
+                request.UserId,
+                request.UserName,
+                request.TotalPrice,
+                OrderStatus.PENDING,
+                orderDate: DateTime.UtcNow,
+                address: new Address(request.FirstName, request.LastName, request.Email, request.Street, request.Country, request.City),
+                paymentData: new PaymentData(request.CardName, request.CardNumber, orderPaid: false, request.CVV)
+                );
+
+            foreach (var item in request.Items)
+            {
+                order.AddOrderItem(item.ProductId, item.ProductName, item.Price, item.Discount, item.Quantity);
+            }
 
             try
             {
@@ -72,7 +93,7 @@ namespace Ordering.Application.Features.Orders.Commands
                 {
                     _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
                     
-                    await _emailService.SendMailFor(order);
+                    await _emailService.SendMailFor(request.Email, request.UserName, order.Id);
 
                     await PublishOrderPlacedEvent(order, request.CorrelationId);
 
@@ -98,15 +119,13 @@ namespace Ordering.Application.Features.Orders.Commands
             {
                 OrderId = order.Id,
                 CorrelationId = correlationId,
-                OrderCreationDateTime = order.OrderPlaced,
-                PaymentCardNumber = order.CardNumber,
+                OrderCreationDate = order.OrderDate,
+                PaymentCardNumber = order.PaymentData.CardNumber,
                 OrderTotalPrice = order.TotalPrice,
                 CustomerUsername = order.UserName
             };
             
             await _publishEndpoint.Publish(orderPlacedEvent);
         }
-
-        
     }
 }

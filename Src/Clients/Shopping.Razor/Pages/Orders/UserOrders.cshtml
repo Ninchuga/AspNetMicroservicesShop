@@ -12,7 +12,7 @@
         <tr class="columnHeader">
             <th>FIRST NAME</th>
             <th>LAST NAME</th>
-            <th>ADDRESS</th>
+            <th>STREET ADDRESS</th>
             <th>ORDER PLACED</th>
             <th>TOTAL</th>
             <th>PAID?</th>
@@ -27,8 +27,8 @@
             <tr>
                 <td>@order.FirstName</td>
                 <td>@order.LastName</td>
-                <td class="bold">@order.Address</td>
-                <td>@order.OrderPlaced.ToShortDateString()</td>
+                <td class="bold">@order.Street</td>
+                <td>@order.OrderDate.ToShortDateString()</td>
                 <td class="bold">$@order.TotalPrice</td>
                 <td class="bold">@order.OrderPaid</td>
                 <td class="bold">@order.Email</td>

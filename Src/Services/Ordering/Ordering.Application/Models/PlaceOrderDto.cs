@@ -14,11 +14,16 @@ namespace Ordering.Application.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        public string Address { get; set; }
+        public string Street { get; set; }
         public string Country { get; set; }
+        public string City { get; set; }
 
         // Payment
         public string CardName { get; set; }
         public string CardNumber { get; set; }
+        public string CardExpiration { get; set; }
+        public int CVV { get; set; }
+
+        public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }
 }

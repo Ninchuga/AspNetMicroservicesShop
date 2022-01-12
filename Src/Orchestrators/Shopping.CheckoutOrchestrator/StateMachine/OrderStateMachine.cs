@@ -1,11 +1,6 @@
 ﻿using Automatonymous;
 using EventBus.Messages.Events.Order;
 using MassTransit;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Shopping.OrderSagaOrchestrator.StateMachine
 {
@@ -64,7 +59,7 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                     .Then(context =>
                     {
                         context.Instance.OrderId = context.Data.OrderId;
-                        context.Instance.OrderCreationDateTime = context.Data.OrderCreationDateTime;
+                        context.Instance.OrderCreationDate = context.Data.OrderCreationDate;
                         context.Instance.PaymentCardNumber = context.Data.PaymentCardNumber;
                         context.Instance.OrderTotalPrice = context.Data.OrderTotalPrice;
                         context.Instance.CustomerUsername = context.Data.CustomerUsername;
@@ -78,14 +73,14 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                 When(BillOrderEvent)
                     .TransitionTo(OrderSentForBilling),
                 When(OrderCanceledEvent)
-                    .Then(context => context.Instance.OrderCancelDateTime = DateTime.Now)
+                    .Then(context => context.Instance.OrderCancellationDate = context.Data.OrderCancellationDate)
                         .TransitionTo(OrderCanceled));
 
             // Billed order
             During(OrderSentForBilling,
                 Ignore(OrderDispatchedEvent),
                 When(OrderCanceledEvent)
-                    .Then(context => context.Instance.OrderCancelDateTime = DateTime.Now)
+                    .Then(context => context.Instance.OrderCancellationDate = context.Data.OrderCancellationDate)
                         .TransitionTo(OrderCanceled),
                 When(OrderBilledEvent)
                     .TransitionTo(OrderBilled),

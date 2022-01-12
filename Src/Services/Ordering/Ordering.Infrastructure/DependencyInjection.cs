@@ -29,7 +29,8 @@ namespace Ordering.Infrastructure
                     }));
 
             // loaded once per HTTP request
-            services.AddScoped<IOrderContext>(provider => provider.GetService<OrderContext>());
+            //services.AddScoped<IOrderContext>(provider => provider.GetService<OrderContext>());
+            services.AddTransient<OrderContext>();
 
             services.AddTransient(typeof(IRepository<>), typeof(RepositoryBase<>));
             services.AddTransient<IOrderRepository, OrderRepository>();

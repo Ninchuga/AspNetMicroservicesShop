@@ -26,7 +26,7 @@ namespace Shopping.Razor.Pages.UserDetails
             UserShoppingDetails = await _shoppingService.GetUserShoppingDetails(new Guid(userIdClaim.Value));
             if (UserShoppingDetails.Success)
             {
-                UserShoppingDetails.Orders.OrderByDescending(order => order.OrderPlaced).ToList().AsReadOnly();
+                UserShoppingDetails.Orders.OrderByDescending(order => order.OrderDate).ToList().AsReadOnly();
                 UserShoppingDetails.BasketWithProducts.UserName = string.IsNullOrWhiteSpace(UserShoppingDetails.BasketWithProducts.UserName)
                     ? User.Claims.FirstOrDefault(claim => claim.Type.Equals("given_name", StringComparison.OrdinalIgnoreCase))?.Value
                     : UserShoppingDetails.BasketWithProducts.UserName;

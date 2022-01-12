@@ -23,7 +23,7 @@ namespace Shopping.OrderSagaOrchestrator.Consumers
             {
                 CorrelationId = context.Message.CorrelationId,
                 OrderId = context.Message.OrderId,
-                OrderCancelDateTime = context.Message.OrderCancelDateTime,
+                OrderCancellationDate = context.Message.OrderCancellationDate,
                 OrderTotalPrice = context.Message.OrderTotalPrice,
                 CustomerUsername = context.Message.CustomerUsername,
                 PaymentCardNumber = context.Message.PaymentCardNumber

@@ -29,15 +29,15 @@ namespace Ordering.Infrastructure.Mail
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task SendMailFor(Order order)
+        public async Task SendMailFor(string customerEmail, string userName, Guid orderId)
         {
             var emailFunctionUrl = _configuration["Azure:EmailFunctionUrl"];
 
             // Image/logo for the email can be retreived from blob storage
             var email = new Email()
             {
-                CustomerEmail = order.Email,
-                Body = $"Hi {order.UserName}, your order #{order.Id} is being processed!",
+                CustomerEmail = customerEmail,
+                Body = $"Hi {userName}, your order #{orderId} is being processed!",
                 Subject = $"Your order confirmation"
             };
 
@@ -51,13 +51,13 @@ namespace Ordering.Infrastructure.Mail
             }
             catch (Exception ex)
             {
-                _logger.LogError("Order {OrderId} for the customer {UserName} failed due to an error with the mail service: {ErrorMessage}", order.Id, order.UserName, ex.Message);
+                _logger.LogError("Order {OrderId} for the customer {UserName} failed due to an error with the mail service: {ErrorMessage}", orderId, userName, ex.Message);
             }
 
             if (response.IsSuccessStatusCode)
-                _logger.LogInformation("Email has been successfully sent to the customer {UserName}", order.UserName);
+                _logger.LogInformation("Email has been successfully sent to the customer {UserName}", userName);
             else
-                _logger.LogError("Email was not sent to the customer {UserName}", order.UserName);
+                _logger.LogError("Email was not sent to the customer {UserName}", userName);
         }
 
         public async Task<bool> SendEmail(Email email)

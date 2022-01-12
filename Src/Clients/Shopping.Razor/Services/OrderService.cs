@@ -22,11 +22,13 @@ namespace Shopping.Razor.Services
             _logger = logger;
         }
 
-        public async Task<PlaceOrderResponse> PlaceOrder(BasketCheckout basketCheckout)
+        public async Task<PlaceOrderResponse> PlaceOrder(BasketCheckout basketCheckout, BasketWithItems basket)
         {
             _logger.LogInformation("Calling Order service to place an order.");
 
-            var requestContent = new StringContent(JsonSerializer.Serialize(basketCheckout), Encoding.UTF8, "application/json");
+            var order = basketCheckout.ToOrderWithItemsFrom(basket.Items);
+
+            var requestContent = new StringContent(JsonSerializer.Serialize(order), Encoding.UTF8, "application/json");
             var response = await _httpClient.PutAsync("api/PlaceOrder", requestContent); // gateway api uri
 
             return new PlaceOrderResponse

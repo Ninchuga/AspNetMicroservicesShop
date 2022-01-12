@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
+using Ordering.Domain.ValueObjects;
+using Ordering.Infrastructure.EntityConfigurations;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,19 +13,22 @@ using System.Threading.Tasks;
 
 namespace Ordering.Infrastructure.Persistence
 {
-    public class OrderContext : DbContext, IOrderContext
+    public class OrderContext : DbContext
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
 
-            modelBuilder.Entity<Order>()
-                .Property(order => order.TotalPrice)
-                .HasColumnType("decimal(18, 4)");
+            //base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Order>()
-                .Property(order => order.OrderStatus)
-                .HasConversion<string>();
+            //modelBuilder.Entity<Order>()
+            //    .Property(order => order.TotalPrice)
+            //    .HasColumnType("decimal(18, 4)");
+
+            //modelBuilder.Entity<Order>()
+            //    .Property(order => order.OrderStatus)
+            //    .HasConversion<string>();
         }
 
         public OrderContext(DbContextOptions<OrderContext> options) : base(options)
@@ -31,6 +36,7 @@ namespace Ordering.Infrastructure.Persistence
         }
 
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         public async Task<int> SaveChanges(CancellationToken cancellationToken = default)
         {
