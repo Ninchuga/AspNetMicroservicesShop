@@ -20,34 +20,24 @@ namespace Ordering.Infrastructure.Repositories
             _orderContext = orderContext;
         }
 
-        public async Task<IReadOnlyList<T>> GetAllAsync()
-        {
-            return await _orderContext.Set<T>().ToListAsync();
-        }
+        public async Task<IReadOnlyList<T>> GetAllAsync() =>
+            await _orderContext.Set<T>().ToListAsync();
+        
+        public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate) =>
+            await _orderContext.Set<T>().Where(predicate).ToListAsync();
+        
+        public async Task Add(T entity) =>
+            await _orderContext.Set<T>().AddAsync(entity);
 
-        public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _orderContext.Set<T>().Where(predicate).ToListAsync();
-        }
-
-        public async Task<bool> AddAsync(T entity)
-        {
-            _orderContext.Set<T>().Add(entity);
-            int rowsAffected = await _orderContext.SaveChanges();
-
-            return rowsAffected > 0;
-        }
-
-        public async Task UpdateAsync(T entity)
-        {
-            _orderContext.Entry(entity).State = EntityState.Modified;
-            await _orderContext.SaveChanges();
-        }
-
-        public async Task DeleteAsync(T entity)
-        {
+        public void Delete(T entity) =>
             _orderContext.Set<T>().Remove(entity);
-            await _orderContext.SaveChanges();
+
+        public async Task<bool> SaveChanges()
+        {
+            int rowsAffected = await _orderContext.SaveChanges();
+            bool successfullySaved = rowsAffected > 0;
+
+            return successfullySaved;
         }
     }
 }

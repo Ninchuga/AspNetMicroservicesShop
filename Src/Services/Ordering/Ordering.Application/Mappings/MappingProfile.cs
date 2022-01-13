@@ -24,8 +24,6 @@ namespace Ordering.Application.Mappings
                 .ForMember(destination => destination.OrderPaid, op => op.MapFrom(source => source.PaymentData.OrderPaid))
                 .ReverseMap();
 
-            CreateMap<Order, UpdateOrderCommand>().ReverseMap();
-
             CreateMap<OrderItem, OrderItemDto>().ReverseMap();
         }
     }

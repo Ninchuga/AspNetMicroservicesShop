@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Ordering.Application.Models
 {
@@ -24,6 +23,6 @@ namespace Ordering.Application.Models
         public string CardExpiration { get; set; }
         public int CVV { get; set; }
 
-        public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
+        public List<OrderItemDto> OrderItems { get; set; } = new List<OrderItemDto>();
     }
 }

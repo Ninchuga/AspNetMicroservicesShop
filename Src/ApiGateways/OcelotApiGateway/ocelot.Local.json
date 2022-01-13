@@ -263,7 +263,7 @@
 
     //Order API
     {
-      "DownstreamPathTemplate": "/api/v1/Order/{userId}",
+      "DownstreamPathTemplate": "/api/v1/Order/GetOrders/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -271,7 +271,29 @@
           "Port": "5004"
         }
       ],
-      "UpstreamPathTemplate": "/Order/api/{userId}",
+      "UpstreamPathTemplate": "/Order/api/GetOrders/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
+        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
+      },
+      "DelegatingHandlers": [ "OrderApiTokenExchangeDelegatingHandler" ],
+      "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
+        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/Order/GetOrder/{orderId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5004"
+        }
+      ],
+      "UpstreamPathTemplate": "/Order/api/GetOrder/{orderId}",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"

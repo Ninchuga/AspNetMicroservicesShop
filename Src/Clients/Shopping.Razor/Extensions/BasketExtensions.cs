@@ -1,8 +1,6 @@
 ﻿using Shopping.Razor.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Shopping.Razor.Extensions
 {
@@ -37,6 +35,7 @@ namespace Shopping.Razor.Extensions
                 Country = checkout.Country,
                 City = checkout.City,
                 CardName = checkout.CardName,
+                CardNumber = checkout.CardNumber,
                 CardExpiration = checkout.CardExpiration,
                 CVV = checkout.CVV,
                 OrderItems = basketItems.ToOrderItems()

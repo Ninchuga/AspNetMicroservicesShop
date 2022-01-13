@@ -19,7 +19,7 @@ namespace Shopping.Aggregator.Services
 
         public async Task<IReadOnlyCollection<OrderResponseModel>> GetOrdersBy(Guid userId)
         {
-            var responseMessage = await _httpClient.GetAsync($"/api/v1/Order/{userId}");
+            var responseMessage = await _httpClient.GetAsync($"/api/v1/Order/GetOrders/{userId}");
             return responseMessage.IsSuccessStatusCode
                 ? await responseMessage.ReadContentAs<IReadOnlyCollection<OrderResponseModel>>()
                 : new List<OrderResponseModel>();

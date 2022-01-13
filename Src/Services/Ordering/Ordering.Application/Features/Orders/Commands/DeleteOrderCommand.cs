@@ -34,9 +34,16 @@ namespace Ordering.Application.Features.Orders.Commands
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
-            await _orderRepository.DeleteAsync(orderToDelete);
-
-            _logger.LogInformation($"Order {orderToDelete.Id} successfully deleted.");
+            try
+            {
+                _orderRepository.Delete(orderToDelete);
+                await _orderRepository.SaveChanges();
+                _logger.LogInformation("Order {OrderId} successfully deleted.", orderToDelete.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Order {OrderId} failed to be deleted with message {Message}.", orderToDelete.Id, ex.Message);
+            }
 
             return Unit.Value;
         }

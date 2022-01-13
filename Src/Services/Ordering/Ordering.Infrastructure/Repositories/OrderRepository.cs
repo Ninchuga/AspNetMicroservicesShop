@@ -5,7 +5,6 @@ using Ordering.Infrastructure.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Ordering.Infrastructure.Repositories
@@ -21,7 +20,6 @@ namespace Ordering.Infrastructure.Repositories
             return await _orderContext
                .Orders
                .Include(order => order.OrderItems)
-               .AsNoTracking()
                .FirstOrDefaultAsync(order => order.Id == orderId);
         }
 

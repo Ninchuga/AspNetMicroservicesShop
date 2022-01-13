@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{handler?}/{orderId?}"
 @model Shopping.Razor.Pages.Orders.UserOrdersModel
 @{
     ViewData["Title"] = "User orders";
@@ -10,30 +10,26 @@
 <table class="table">
     <thead>
         <tr class="columnHeader">
-            <th>FIRST NAME</th>
-            <th>LAST NAME</th>
+            <th>ORDER NUMBER</th>
             <th>STREET ADDRESS</th>
-            <th>ORDER PLACED</th>
+            <th>ORDER DATE</th>
             <th>TOTAL</th>
-            <th>PAID?</th>
-            <th>EMAIL</th>
-            <th>CARD NUMBER</th>
             <th>STATUS</th>
+            <td></td>
         </tr>
     </thead>
     <tbody>
         @foreach (var order in Model.Orders)
         {
             <tr>
-                <td>@order.FirstName</td>
-                <td>@order.LastName</td>
+                <td>@order.OrderId</td>
                 <td class="bold">@order.Street</td>
                 <td>@order.OrderDate.ToShortDateString()</td>
                 <td class="bold">$@order.TotalPrice</td>
-                <td class="bold">@order.OrderPaid</td>
-                <td class="bold">@order.Email</td>
-                <td class="bold">@order.CardNumber</td>
                 <td id="@($"{order.OrderId}_orderStatus")" class="bold">@order.OrderStatus</td>
+                <td>
+                    <a asp-page="/Orders/OrderDetails" asp-route-orderId="@order.OrderId">ORDER DETAILS</a>
+                </td>
             </tr>
         }
     </tbody>

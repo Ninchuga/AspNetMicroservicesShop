@@ -43,7 +43,7 @@ namespace Shopping.Razor.Services
         {
             _logger.LogDebug("Getting orders for the user with id: {UserId}", userId);
 
-            var responseMessage = await _httpClient.GetAsync($"api/{userId}"); // call from api gateway
+            var responseMessage = await _httpClient.GetAsync($"api/GetOrders/{userId}"); // call from api gateway
             if (responseMessage.IsSuccessStatusCode)
             {
                 var orders = await responseMessage.ReadContentAs<List<UserOrder>>();
@@ -53,6 +53,13 @@ namespace Shopping.Razor.Services
             {
                 return new UserOrdersResponse { StatusCode = responseMessage.StatusCode, ErrorMessage = responseMessage.ReasonPhrase, Success = false };
             }
+        }
+
+        public async Task<UserOrder> GetOrderBy(Guid orderId)
+        {
+            var responseMessage = await _httpClient.GetAsync($"api/GetOrder/{orderId}"); // call from api gateway
+            var order = await responseMessage.ReadContentAs<UserOrder>();
+            return order;
         }
     }
 }

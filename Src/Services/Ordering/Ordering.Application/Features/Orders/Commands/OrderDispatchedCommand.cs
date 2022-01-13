@@ -47,7 +47,7 @@ namespace Ordering.Application.Features.Orders.Commands
 
             order.SetOrderStatusToDispatched();
 
-            await _orderRepository.UpdateAsync(order);
+            await _orderRepository.SaveChanges();
 
             _logger.LogInformation("Order id {OrderId} status updated to {NewOrderStatus}.", request.OrderId, OrderStatus.ORDER_DISPATCHED);
 

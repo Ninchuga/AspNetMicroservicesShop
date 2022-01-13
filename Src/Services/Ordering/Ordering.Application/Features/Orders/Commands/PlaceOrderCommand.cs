@@ -44,7 +44,7 @@ namespace Ordering.Application.Features.Orders.Commands
         [NotLogged]
         public int CVV { get; set; }
 
-        public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
+        public List<OrderItemDto> OrderItems { get; set; } = new List<OrderItemDto>();
     }
 
     public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, OrderPlacedCommandResponse>
@@ -81,15 +81,16 @@ namespace Ordering.Application.Features.Orders.Commands
                 paymentData: new PaymentData(request.CardName, request.CardNumber, orderPaid: false, request.CVV)
                 );
 
-            foreach (var item in request.Items)
+            foreach (var item in request.OrderItems)
             {
                 order.AddOrderItem(item.ProductId, item.ProductName, item.Price, item.Discount, item.Quantity);
             }
 
             try
             {
-                bool orderInserted = await _orderRepository.AddAsync(order);
-                if(orderInserted)
+                await _orderRepository.Add(order);
+                bool orderInserted = await _orderRepository.SaveChanges();
+                if (orderInserted)
                 {
                     _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
                     

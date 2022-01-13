@@ -8,11 +8,8 @@ using Ordering.Application.Exceptions;
 using Ordering.Application.Helpers;
 using Ordering.Application.HubConfiguration;
 using Ordering.Application.Models.Responses;
-using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,9 +17,16 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class CancelOrderCommand : IRequest<CancelOrderCommandResponse>
     {
-        public Guid OrderId { get; set; }
-        public Guid UserId { get; set; }
-        public Guid CorrelationId { get; set; }
+        public CancelOrderCommand(Guid orderId, Guid userId, Guid correlationId)
+        {
+            OrderId = orderId;
+            UserId = userId;
+            CorrelationId = correlationId;
+        }
+
+        public Guid OrderId { get; }
+        public Guid UserId { get; }
+        public Guid CorrelationId { get; }
     }
 
     public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, CancelOrderCommandResponse>
@@ -56,7 +60,7 @@ namespace Ordering.Application.Features.Orders.Commands
             {
                 order.SetCanceledOrderStatusAndTime();
 
-                await _orderRepository.UpdateAsync(order);
+                await _orderRepository.SaveChanges();
 
                 await PublishOrderCanceledEvent(request.CorrelationId, order);
             }

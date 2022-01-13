@@ -45,7 +45,7 @@ namespace Ordering.Application.Features.Orders.Commands
 
             order.SetOrderStatusToPaid();
 
-            await _orderRepository.UpdateAsync(order);
+            await _orderRepository.SaveChanges();
 
             _logger.LogInformation("Order id {OrderId} successfully paid and status updated to {NewOrderStatus}.", request.OrderId, OrderStatus.ORDER_BILLED);
 

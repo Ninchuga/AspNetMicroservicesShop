@@ -47,7 +47,7 @@ namespace Ordering.Application.Features.Orders.Commands
 
             order.SetOrderStatusToPending();
 
-            await _orderRepository.UpdateAsync(order);
+            await _orderRepository.SaveChanges();
 
             _logger.LogInformation("Order id {OrderId} failed to be billed. Reverting order status to {NewOrderStatus}.", request.OrderId, OrderStatus.PENDING);
 
