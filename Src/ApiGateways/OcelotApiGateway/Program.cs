@@ -20,6 +20,7 @@ namespace OcelotApiGateway
                     // for docker environment EnvironmentName will be 'Development'
                     // and for for local it will be 'Local' because we set that in launchSettings.json
                     config.AddJsonFile($"ocelot.{hostingContext.HostingEnvironment.EnvironmentName}.json", true, true);
+                    config.AddEnvironmentVariables();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

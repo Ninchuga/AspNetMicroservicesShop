@@ -77,7 +77,7 @@ namespace OcelotApiGateway.DelegatingHandlers
             {
                 { "subject_token_type", "urn:ietf:params:oauth:token-type:access_token" },
                 { "subject_token", incomingToken }, // subject_token is an access token passed from the Client App (MVC)
-                { "scope", "openid profile orderapi.read" }
+                { "scope", "openid profile orderapi" }
             };
 
             var tokenResponse = await httpClient.RequestTokenAsync(new TokenRequest

@@ -21,4 +21,8 @@ RUN dotnet publish "OcelotApiGateway.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "OcelotApiGateway.dll"]
+#ENTRYPOINT ["dotnet", "OcelotApiGateway.dll"]
+
+COPY ./ApiGateways/OcelotApiGateway/docker-entrypoint.sh /app/docker-entrypoint.sh
+
+ENTRYPOINT ["./docker-entrypoint.sh"]

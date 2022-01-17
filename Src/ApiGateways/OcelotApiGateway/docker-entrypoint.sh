@@ -10,4 +10,4 @@ chmod 644 /usr/local/share/ca-certificates/
 update-ca-certificates
 
 # start the app
-dotnet Shopping.Razor.dll
+dotnet OcelotApiGateway.dll

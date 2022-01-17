@@ -53,9 +53,7 @@ namespace Shopping.Aggregator
                  options.RequireHttpsMetadata = false;
              });
 
-            services.AddTransient<CatalogApiTokenExchangeDelegatingHandler>();
-            services.AddTransient<BasketApiTokenExchangeDelegatingHandler>();
-            services.AddTransient<OrderApiTokenExchangeDelegatingHandler>();
+            services.AddTransient<TokenExchangeDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
 
             IPolicyRegistry<string> registry = services.AddPolicyRegistry()
@@ -68,7 +66,7 @@ namespace Shopping.Aggregator
 
             services.AddHttpClient<ICatalogService, CatalogService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Catalog:CatalogUrl"]))
-                .AddHttpMessageHandler<CatalogApiTokenExchangeDelegatingHandler>()
+                .AddHttpMessageHandler<TokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())
@@ -77,7 +75,7 @@ namespace Shopping.Aggregator
 
             services.AddHttpClient<IBasketService, BasketService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Basket:BasketUrl"]))
-                .AddHttpMessageHandler<BasketApiTokenExchangeDelegatingHandler>()
+                .AddHttpMessageHandler<TokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())
@@ -86,7 +84,7 @@ namespace Shopping.Aggregator
 
             services.AddHttpClient<IOrderService, OrderService>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Ordering:OrderingUrl"]))
-                .AddHttpMessageHandler<OrderApiTokenExchangeDelegatingHandler>()
+                .AddHttpMessageHandler<TokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())

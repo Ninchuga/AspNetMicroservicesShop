@@ -46,14 +46,13 @@ namespace OcelotApiGateway
              {
                  options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
                  options.Audience = "shoppinggateway";
+                 options.RequireHttpsMetadata = false;
              });
 
             services.AddHttpClient();
 
             services.AddOcelot()
-                .AddDelegatingHandler<CatalogApiTokenExchangeDelegatingHandler>()
-                .AddDelegatingHandler<BasketApiTokenExchangeDelegatingHandler>()
-                .AddDelegatingHandler<OrderApiTokenExchangeDelegatingHandler>()
+                .AddDelegatingHandler<TokenExchangeDelegatingHandler>()
                 .AddPolly();
         }
 
@@ -72,8 +71,7 @@ namespace OcelotApiGateway
                 endpoint.MapDefaultHealthChecks();
             });
 
-            //app.AddCorrelationLoggingMiddleware();
-
+            app.UseHttpsRedirection();
             // Ocelot will not pass request to any middleware so we can delete anything after it
             // Ocelot will handle the request all by itself
             await app.UseOcelot();

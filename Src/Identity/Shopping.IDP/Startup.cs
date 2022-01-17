@@ -53,8 +53,13 @@ namespace Shopping.IDP
             services.AddIdentityServer(x => x.IssuerUri = Configuration["IdentityIssuer"])
                 .AddSigningCredential(Certificate.Get())
                 //.AddDeveloperSigningCredential()
+                //.AddInMemoryApiResources(Config.ApiResources)
+                //.AddInMemoryApiScopes(Config.ApiScopes)
+                //.AddInMemoryClients(Config.Clients(Configuration))
+                //.AddInMemoryIdentityResources(Config.IdentityResources)
+                //.AddTestUsers(Config.GetUsers())
                 .AddAspNetIdentity<ApplicationUser>()
-                // this adds the config data from DB (clients, resources)
+                 // this adds the config data from DB (clients, resources)
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = builder => builder.UseSqlServer(connectionString,
@@ -93,6 +98,11 @@ namespace Shopping.IDP
 
             // uncomment if you want to add MVC
             app.UseStaticFiles();
+
+            // Fix a problem with chrome. Chrome enabled a new feature "Cookies without SameSite must be secure", 
+            // the coockies shold be expided from https, but in eShop, the internal comunicacion in aks and docker compose is http.
+            // To avoid this problem, the policy of cookies shold be in Lax mode.
+            app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
             app.UseRouting();
 
             app.UseIdentityServer();

@@ -17,7 +17,7 @@
         //"AllowedScopes": [ "catalogapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
       "FileCacheOptions": { "TtlSeconds": 30 },
-      "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -39,7 +39,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "catalogapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -61,7 +61,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "catalogapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "CatalogApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -84,7 +84,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -110,7 +110,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -136,7 +136,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -162,7 +162,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -188,7 +188,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -199,72 +199,10 @@
       //  "CurrentUser": "Claims[sub] > value"
       //}
     },
-    {
-      "DownstreamPathTemplate": "/api/v1/Basket/Checkout",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": "5001"
-        }
-      ],
-      "UpstreamPathTemplate": "/Basket/api/Checkout",
-      "UpstreamHttpMethod": [ "POST" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
-        //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
-      },
-      "DelegatingHandlers": [ "BasketApiTokenExchangeDelegatingHandler" ],
-      "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
-        "ExceptionsAllowedBeforeBreaking": 3,
-        "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
-      },
-      // we don't need to pass this anymore because user info can be extracted from the incoming scope in the services
-      //"AddHeadersToRequest": { // custom header that finds authenticated user sub claim value and pass it to downstream services
-      //  "CurrentUser": "Claims[sub] > value"
-      //},
-      "RateLimitOptions": {
-        "ClientWhitelist": [],
-        "EnableRateLimiting": true,
-        "Period": "3s",
-        "PeriodTimespan": 1,
-        "Limit": 1
-      }
-    },
-    // TODO: Remove Discount API configuration because it will never be accessed through API Gateway directly but from the Basket API
-    //Discount API
-    //{
-    //  "DownstreamPathTemplate": "/api/v1/Discount/{productName}",
-    //  "DownstreamScheme": "http",
-    //  "DownstreamHostAndPorts": [
-    //    {
-    //      "Host": "localhost",
-    //      //"Port": "8002" // for docker api
-    //      "Port": "5002"
-    //    }
-    //  ],
-    //  "UpstreamPathTemplate": "/Discount/api/{productName}",
-    //  "UpstreamHttpMethod": [ "GET", "DELETE" ]
-    //},
-    //{
-    //  "DownstreamPathTemplate": "/api/v1/Discount",
-    //  "DownstreamScheme": "http",
-    //  "DownstreamHostAndPorts": [
-    //    {
-    //      "Host": "localhost",
-    //      //"Port": "8002" // for docker api
-    //      "Port": "5002"
-    //    }
-    //  ],
-    //  "UpstreamPathTemplate": "/Discount/api",
-    //  "UpstreamHttpMethod": [ "PUT", "POST" ]
-    //},
-
     //Order API
     {
       "DownstreamPathTemplate": "/api/v1/Order/GetOrders/{userId}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -277,7 +215,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "OrderApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -286,7 +224,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/v1/Order/GetOrder/{orderId}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -299,7 +237,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "OrderApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -308,7 +246,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/v1/Order/PlaceOrder",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -321,7 +259,7 @@
         "AuthenticationProviderKey": "ShoppingGatewayAuthenticationScheme"
         //"AllowedScopes": [ "basketapi.fullaccess" ] // Ocelot checks for these scopes before sending the request to a microservice
       },
-      "DelegatingHandlers": [ "OrderApiTokenExchangeDelegatingHandler" ],
+      "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
         "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
@@ -330,10 +268,19 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:5010",
-    //"RequestIdKey": "X-Correlation-ID"
+    "BaseUrl": "https://localhost:5010"
   },
   "IdentityProviderSettings": {
     "IdentityServiceUrl": "https://localhost:44318"
+  },
+  "DownstreamServicesTokenExhangeCacheKeys": {
+    "BasketApi": "gatewayandaggregatortodownstreamtokenexchangeclient_basketapi",
+    "CatalogApi": "gatewayandaggregatortodownstreamtokenexchangeclient_catalogapi",
+    "OrderApi": "gatewayandaggregatortodownstreamtokenexchangeclient_orderapi"
+  },
+  "DownstreamServicesScopes": {
+    "BasketApi": "openid profile basketapi.fullaccess",
+    "CatalogApi": "openid profile catalogapi.fullaccess",
+    "OrderApi": "openid profile orderapi.fullaccess"
   }
 }

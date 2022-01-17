@@ -6,6 +6,7 @@
 $ErrorActionPreference = "Stop"
 
 $rootCN = "IdentityServerDockerRootCert"
+$hostDockerCNs = 'host.docker.internal'
 $identityServerCNs = "shopping.identity", "localhost"
 $shoppingRazorWebClientCNs = "shopping.razor" , "localhost"
 $catalogApiCNs = "catalog.api", "localhost"
@@ -17,6 +18,7 @@ $shoppingAggregatorCNs = "shopping.aggregator", "localhost"
 $shoppingWebStatusCNs = "shopping.webstatus", "localhost"
 
 $alreadyExistingCertsRoot = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$rootCN"}
+$alreadyExistingHostDockerInternal = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$hostDockerCNs"}
 $alreadyExistingCertsIdentityServer = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $identityServerCNs[0])}
 $alreadyExistingCertsShoppingWebClient = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingRazorWebClientCNs[0])}
 $alreadyExistingCertsCatalogApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $catalogApiCNs[0])}
@@ -33,6 +35,14 @@ if ($alreadyExistingCertsRoot.Count -eq 1) {
     $shoppingRootCA = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsRoot[0]
 } else {
     $shoppingRootCA = New-SelfSignedCertificate -Subject $rootCN -KeyUsageProperty Sign -KeyUsage CertSign -CertStoreLocation Cert:\LocalMachine\My
+}
+
+# host.docker.internal
+if ($alreadyExistingHostDockerInternal.Count -eq 1) {
+    Write-Output "Skipping creating host.docker.internal certificate as it already exists."
+    $hostDockerInternalCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingHostDockerInternal[0]
+} else {
+    $hostDockerInternalCert = New-SelfSignedCertificate -DnsName $hostDockerCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
 # Identity Provider
@@ -120,6 +130,7 @@ if ($alreadyExistingCertsShoppingWebStatus.Count -eq 1) {
 $password = ConvertTo-SecureString -String "password" -Force -AsPlainText
 
 $rootCertPathPfx = "D:/Practice/AspNetMicroservicesShop/Src/certs"
+$hostDockerInternalCertPath = "D:/Practice/AspNetMicroservicesShop/Src/certs"
 $identityServerCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Identity/Shopping.IDP/certs"
 $shoppingRazorWebClientCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Clients/Shopping.Razor/certs"
 $catalogApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Catalog/Catalog.API/certs"
@@ -131,6 +142,7 @@ $shoppingAggregatorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGatewa
 $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Shopping.WebStatus/certs"
 
 [System.IO.Directory]::CreateDirectory($rootCertPathPfx) | Out-Null
+[System.IO.Directory]::CreateDirectory($hostDockerInternalCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($identityServerCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($shoppingRazorWebClientCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($catalogApiCertPath) | Out-Null
@@ -142,6 +154,7 @@ $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Sho
 [System.IO.Directory]::CreateDirectory($shoppingWebStatusCertPath) | Out-Null
 
 Export-PfxCertificate -Cert $shoppingRootCA -FilePath "$rootCertPathPfx/shopping-root-cert.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $hostDockerInternalCert -FilePath "$rootCertPathPfx/host-docker-internal.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $identityServerCert -FilePath "$identityServerCertPath/Shopping.IDP.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $shoppingWebClientCert -FilePath "$shoppingRazorWebClientCertPath/Shopping.Razor.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $catalogApiCert -FilePath "$catalogApiCertPath/Catalog.API.pfx" -Password $password | Out-Null
@@ -169,8 +182,16 @@ $rootCertAlreadyTrusted = ($store.Certificates | Where-Object {$_.Subject -eq "C
 
 if ($rootCertAlreadyTrusted -eq $false) {
 	Write-Output "Adding the root CA certificate to the trust store."
-    #$store.Add($shoppingRootCA)
 	$store.Add($cert)
 }
 
 $store.Close()
+
+# Path where my local trusted certificates are stored
+# Cert:\LocalMachine\My
+
+#Delete by thumbprint
+#Get-ChildItem Cert:\LocalMachine\My\D20159B7772E33A6A33E436C938C6FE764367396 | Remove-Item
+
+#Delete by subject/serialnumber/issuer/whatever
+#Get-ChildItem Cert:\LocalMachine\My | Where-Object { $_.Subject -match 'CN=shopping.identity' } | Remove-Item

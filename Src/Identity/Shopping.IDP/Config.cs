@@ -4,8 +4,10 @@
 
 using IdentityServer4;
 using IdentityServer4.Models;
+using IdentityServer4.Test;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace Shopping.IDP
 {
@@ -46,7 +48,7 @@ namespace Shopping.IDP
                 },
                 new ApiResource("orderapi", "Order API")
                 {
-                    Scopes = { "orderapi.read", "orderapi.write" }
+                    Scopes = { "orderapi.fullaccess" }
                 },
                 new ApiResource("shoppingaggregator", "Shopping Aggregator")
                 {
@@ -65,8 +67,7 @@ namespace Shopping.IDP
                 new ApiScope("basketapi.fullaccess", "Basket API Full Access"),
                 new ApiScope("discount.fullaccess", "Discount API Full Access"),
                 new ApiScope("shoppinggateway.fullaccess", "Shopping Gateway Full Access"),
-                new ApiScope("orderapi.read", "Order API Read Operations"),
-                new ApiScope("orderapi.write", "Order API Write Operations"),
+                new ApiScope("orderapi.fullaccess", "Order API Operations"),
                 new ApiScope("shoppingaggregator.fullaccess", "Shopping Aggregator Full Access")
             };
 
@@ -108,21 +109,24 @@ namespace Shopping.IDP
                 {
                     ClientName = "Shopping Web App Client",
                     ClientId = "shopping_web_client",
-                    ClientUri = configuration["WebClientUrls:ClientUri"],
-                    AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
+                    ClientUri = configuration["WebClientUrls:ClientUrl"],
+                    AllowedGrantTypes = GrantTypes.CodeAndClientCredentials, // GrantTypes.Hybrid, 
                     //AllowedCorsOrigins = new[] { "https://localhost:8999", "https://shopping.web:8999" },
+                    AllowAccessTokensViaBrowser = false,
+                    RequireConsent = false,
                     AllowOfflineAccess = true, // we are allowing the client to use refresh token
+                    AlwaysIncludeUserClaimsInIdToken = true,
                     //AccessTokenLifetime = 60, // never use it less than 5 minutes in production, these 60 seconds are just for the dev purpose
                     RedirectUris = new List<string>()
                     {
                         // host address of our web application (MVC client)
                         //"https://localhost:4999/signin-oidc"
-                        $"{configuration["WebClientUrls:SignInUrl"]}"
+                        $"{configuration["WebClientUrls:Razor"]}/signin-oidc"
                     },
                     PostLogoutRedirectUris = new List<string>()
                     {
                         //"https://localhost:4999/signout-callback-oidc"
-                        $"{configuration["WebClientUrls:SignOutUrl"]}"
+                        $"{configuration["WebClientUrls:Razor"]}/signout-callback-oidc"
                     },
                     AllowedScopes =
                     {
@@ -130,9 +134,8 @@ namespace Shopping.IDP
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Address,
+                        IdentityServerConstants.StandardScopes.OfflineAccess,
                         "roles",
-                        // "catalogapi.fullaccess", // disallow to request this scope because api gateway will request it through token exchange
-                        // "basketapi.fullaccess",
                         "shoppinggateway.fullaccess",
                         "shoppingaggregator.fullaccess"
                     },
@@ -153,8 +156,7 @@ namespace Shopping.IDP
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "discount.fullaccess",
-                        "orderapi.write"
+                        "discount.fullaccess"
                     }
                 },
                 new Client
@@ -169,7 +171,7 @@ namespace Shopping.IDP
                         IdentityServerConstants.StandardScopes.Profile,
                         "catalogapi.fullaccess",
                         "basketapi.fullaccess",
-                        "orderapi.read"
+                        "orderapi.fullaccess"
                     }
                 }
             };
