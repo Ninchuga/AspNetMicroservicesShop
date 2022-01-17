@@ -3,6 +3,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
 WORKDIR /app
 EXPOSE 80
+EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
@@ -21,4 +22,8 @@ RUN dotnet publish "Discount.Grpc.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Discount.Grpc.dll"]
+#ENTRYPOINT ["dotnet", "Discount.Grpc.dll"]
+
+COPY ./Services/Discount/Discount.Grpc/docker-entrypoint.sh /app/docker-entrypoint.sh
+
+ENTRYPOINT ["./docker-entrypoint.sh"]

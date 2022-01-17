@@ -93,8 +93,12 @@ namespace Ordering.Application.Features.Orders.Commands
                 if (orderInserted)
                 {
                     _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
-                    
+
+                    _logger.LogInformation("Sending email for the created order {OrderId}", order.Id);
+
                     await _emailService.SendMailFor(request.Email, request.UserName, order.Id);
+
+                    _logger.LogInformation("Publishing {EventName} event...", nameof(OrderPlaced));
 
                     await PublishOrderPlacedEvent(order, request.CorrelationId);
 

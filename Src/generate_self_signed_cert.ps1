@@ -6,7 +6,7 @@
 $ErrorActionPreference = "Stop"
 
 $rootCN = "IdentityServerDockerRootCert"
-$hostDockerCNs = 'host.docker.internal'
+#$hostDockerCNs = 'host.docker.internal'
 $identityServerCNs = "shopping.identity", "localhost"
 $shoppingRazorWebClientCNs = "shopping.razor" , "localhost"
 $catalogApiCNs = "catalog.api", "localhost"
@@ -15,7 +15,10 @@ $discountGrpcCNs = "discount.grpc", "localhost"
 $orderingApiCNs = "ordering.api", "localhost"
 $ocelotGatewayCNs = "ocelotapigateway", "localhost"
 $shoppingAggregatorCNs = "shopping.aggregator", "localhost"
-$shoppingWebStatusCNs = "shopping.webstatus", "localhost"
+$shoppingWebStatusCNs = "shopping.webstatus", "localhost",
+$shoppingOrderSagaCNs = "shopping.ordersagaorchestrator", "localhost"
+$paymentApiCNs = "payment.api", "localhost"
+$deliveryApiCNs = "delivery.api", "localhost"
 
 $alreadyExistingCertsRoot = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$rootCN"}
 $alreadyExistingHostDockerInternal = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$hostDockerCNs"}
@@ -28,6 +31,9 @@ $alreadyExistingCertsOrderApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recur
 $alreadyExistingCertsOcelotGatewayApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $ocelotGatewayCNs[0])}
 $alreadyExistingCertsShoppingAggreagtorApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingAggregatorCNs[0])}
 $alreadyExistingCertsShoppingWebStatus = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingWebStatusCNs[0])}
+$alreadyExistingCertsShoppingOrderSaga = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingOrderSagaCNs[0])}
+$alreadyExistingCertsPaymentApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $paymentApiCNs[0])}
+$alreadyExistingCertsDeliveryApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $deliveryApiCNs[0])}
 
 # Root cert
 if ($alreadyExistingCertsRoot.Count -eq 1) {
@@ -38,12 +44,12 @@ if ($alreadyExistingCertsRoot.Count -eq 1) {
 }
 
 # host.docker.internal
-if ($alreadyExistingHostDockerInternal.Count -eq 1) {
-    Write-Output "Skipping creating host.docker.internal certificate as it already exists."
-    $hostDockerInternalCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingHostDockerInternal[0]
-} else {
-    $hostDockerInternalCert = New-SelfSignedCertificate -DnsName $hostDockerCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
-}
+# if ($alreadyExistingHostDockerInternal.Count -eq 1) {
+    # Write-Output "Skipping creating host.docker.internal certificate as it already exists."
+    # $hostDockerInternalCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingHostDockerInternal[0]
+# } else {
+    # $hostDockerInternalCert = New-SelfSignedCertificate -DnsName $hostDockerCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+# }
 
 # Identity Provider
 if ($alreadyExistingCertsIdentityServer.Count -eq 1) {
@@ -126,6 +132,33 @@ if ($alreadyExistingCertsShoppingWebStatus.Count -eq 1) {
     $shoppingWebStatusCert = New-SelfSignedCertificate -DnsName $shoppingWebStatusCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
+# Shopping Order Saga Orchestrator
+if ($alreadyExistingCertsShoppingOrderSaga.Count -eq 1) {
+    Write-Output "Skipping creating Order Saga Orchestrator certificate as it already exists."
+    $shoppingOrderSagaOrchestratorCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsShoppingOrderSaga[0]
+} else {
+    # Create a SAN cert for both web-api and localhost.
+    $shoppingOrderSagaOrchestratorCert = New-SelfSignedCertificate -DnsName $shoppingOrderSagaCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+}
+
+# Shopping Payment API
+if ($alreadyExistingCertsPaymentApi.Count -eq 1) {
+    Write-Output "Skipping creating Payment API certificate as it already exists."
+    $paymentApiCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsPaymentApi[0]
+} else {
+    # Create a SAN cert for both web-api and localhost.
+    $paymentApiCert = New-SelfSignedCertificate -DnsName $paymentApiCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+}
+
+# Shopping Delivery API
+if ($alreadyExistingCertsDeliveryApi.Count -eq 1) {
+    Write-Output "Skipping creating Delivery API certificate as it already exists."
+    $deliveryApiCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsDeliveryApi[0]
+} else {
+    # Create a SAN cert for both web-api and localhost.
+    $deliveryApiCert = New-SelfSignedCertificate -DnsName $deliveryApiCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+}
+
 # Export it for docker container to pick up later.
 $password = ConvertTo-SecureString -String "password" -Force -AsPlainText
 
@@ -140,6 +173,9 @@ $orderApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Ordering/O
 $ocelotGatewayCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGateways/OcelotApiGateway/certs"
 $shoppingAggregatorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGateways/Shopping.Aggregator/certs"
 $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Shopping.WebStatus/certs"
+$orderSagaOrchestratorCertPath = "D:/ractice/AspNetMicroservicesShop/Src/Orchestrators/Shopping.CheckoutOrchestrator/certs"
+$paymentApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Payment/Payment.API/certs"
+$deliveryApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Delivery/Delivery.API/certs"
 
 [System.IO.Directory]::CreateDirectory($rootCertPathPfx) | Out-Null
 [System.IO.Directory]::CreateDirectory($hostDockerInternalCertPath) | Out-Null
@@ -152,6 +188,9 @@ $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Sho
 [System.IO.Directory]::CreateDirectory($ocelotGatewayCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($shoppingAggregatorCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($shoppingWebStatusCertPath) | Out-Null
+[System.IO.Directory]::CreateDirectory($orderSagaOrchestratorCertPath) | Out-Null
+[System.IO.Directory]::CreateDirectory($paymentApiCertPath) | Out-Null
+[System.IO.Directory]::CreateDirectory($deliveryApiCertPath) | Out-Null
 
 Export-PfxCertificate -Cert $shoppingRootCA -FilePath "$rootCertPathPfx/shopping-root-cert.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $hostDockerInternalCert -FilePath "$rootCertPathPfx/host-docker-internal.pfx" -Password $password | Out-Null
@@ -164,6 +203,9 @@ Export-PfxCertificate -Cert $orderApiCert -FilePath "$orderApiCertPath/Ordering.
 Export-PfxCertificate -Cert $ocelotGatewayCert -FilePath "$ocelotGatewayCertPath/OcelotApiGateway.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $shoppingAggregatorCert -FilePath "$shoppingAggregatorCertPath/Shopping.Aggregator.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $shoppingWebStatusCert -FilePath "$shoppingWebStatusCertPath/Shopping.WebStatus.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $shoppingOrderSagaOrchestratorCert -FilePath "$orderSagaOrchestratorCertPath/Shopping.CheckoutOrchestrator.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $paymentApiCert -FilePath "$paymentApiCertPath/Payment.API.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $deliveryApiCert -FilePath "$deliveryApiCertPath/Delivery.API.pfx" -Password $password | Out-Null
 
 # Export .cer to be converted to .crt to be trusted within the Docker container.
 $rootCertPathCer = "$rootCertPathPfx/shopping-root-cert.cer"

@@ -10,4 +10,4 @@ chmod 644 /usr/local/share/ca-certificates/
 update-ca-certificates
 
 # start the app
-dotnet Catalog.API.dll
+dotnet Ordering.API.dll

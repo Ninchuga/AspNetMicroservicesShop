@@ -22,4 +22,8 @@ RUN dotnet publish "Shopping.Aggregator.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Shopping.Aggregator.dll"]
+#ENTRYPOINT ["dotnet", "Shopping.Aggregator.dll"]
+
+COPY ./ApiGateways/Shopping.Aggregator/docker-entrypoint.sh /app/docker-entrypoint.sh
+
+ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -286,8 +286,8 @@
       "DelegatingHandlers": [ "TokenExchangeDelegatingHandler" ],
       "QoSOptions": { // Quality of Service options -> enable circuit breaker pattern with polly
         "ExceptionsAllowedBeforeBreaking": 3,
-        "DurationOfBreak": 10000, // means the circuit breaker will stay open for 10 second after it is tripped.
-        "TimeoutValue": 10000 // means if a request takes more than 10 seconds it will automatically be timed out.
+        "DurationOfBreak": 20000, // means the circuit breaker will stay open for 20 second after it is tripped.
+        "TimeoutValue": 20000 // means if a request takes more than 20 seconds it will automatically be timed out.
       }
     }
   ],

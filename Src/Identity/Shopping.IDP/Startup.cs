@@ -99,13 +99,14 @@ namespace Shopping.IDP
             // uncomment if you want to add MVC
             app.UseStaticFiles();
 
+            app.UseForwardedHeaders();
+            app.UseIdentityServer();
+
             // Fix a problem with chrome. Chrome enabled a new feature "Cookies without SameSite must be secure", 
             // the coockies shold be expided from https, but in eShop, the internal comunicacion in aks and docker compose is http.
             // To avoid this problem, the policy of cookies shold be in Lax mode.
             app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
             app.UseRouting();
-
-            app.UseIdentityServer();
 
             // uncomment, if you want to add MVC
             app.UseAuthorization();

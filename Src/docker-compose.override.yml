@@ -115,8 +115,7 @@ services:
       - IdentityIssuer=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
       - "ConnectionStrings:IdentityDb=Server=identitydb;Database=IdentityDb;User Id=sa;Password=September24#;"
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
-      #- ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.IDP.pfx
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/host-docker-internal.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.IDP.pfx
       - WebClientUrls:Razor=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8999
       - Logging:ElasticUrl=http://elastics:9200
     depends_on:
@@ -143,7 +142,6 @@ services:
       - ASPNETCORE_URLS=https://0.0.0.0:443;http://0.0.0.0:80
       - ASPNETCORE_HTTPS_PORT=8000
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
-      #- ASPNETCORE_Kestrel__Certificates__Default__Path=/https/host-docker-internal.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Catalog.API.pfx
     depends_on:
       - catalogdb
@@ -227,8 +225,8 @@ services:
     container_name: ordering.api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "ConnectionStrings:OrderingConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=SwN12345678;"
-      - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
+      - ConnectionStrings:OrderingConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=SwN12345678;
+      - EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672
       - IdentityProviderSettings:IdentityServiceUrl=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
       - Logging:ElasticUrl=http://elastics:9200
       - ASPNETCORE_URLS=https://0.0.0.0:443;http://0.0.0.0:80

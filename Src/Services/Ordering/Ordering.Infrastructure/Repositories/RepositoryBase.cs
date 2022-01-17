@@ -34,10 +34,11 @@ namespace Ordering.Infrastructure.Repositories
 
         public async Task<bool> SaveChanges()
         {
-            int rowsAffected = await _orderContext.SaveChanges();
-            bool successfullySaved = rowsAffected > 0;
+            int insertedEntitiesNumber = await _orderContext.SaveChanges();
 
-            return successfullySaved;
+            return SuccessfullySavedBy(insertedEntitiesNumber);
         }
+
+        private bool SuccessfullySavedBy(int entitiesInserted) => entitiesInserted > 0;
     }
 }
