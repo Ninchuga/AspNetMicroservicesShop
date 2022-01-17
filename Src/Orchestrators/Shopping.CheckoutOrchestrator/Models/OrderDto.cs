@@ -6,7 +6,7 @@ namespace Shopping.OrderSagaOrchestrator.Models
     {
         public Guid OrderId { get; set; }
         public DateTime OrderPlaced { get; set; }
-        public OrderStatus OrderStatus { get; set; }
+        public string OrderStatus { get; set; }
         public decimal OrderTotalPrice { get; set; }
         public string PaymentCardNumber { get; set; }
     }

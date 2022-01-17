@@ -202,7 +202,7 @@
     //Order API
     {
       "DownstreamPathTemplate": "/api/v1/Order/GetOrders/{userId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -224,7 +224,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/v1/Order/GetOrder/{orderId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -246,7 +246,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/v1/Order/PlaceOrder",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -268,7 +268,7 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:5010"
+    "BaseUrl": "http://localhost:5010"
   },
   "IdentityProviderSettings": {
     "IdentityServiceUrl": "https://localhost:44318"
@@ -279,8 +279,8 @@
     "OrderApi": "gatewayandaggregatortodownstreamtokenexchangeclient_orderapi"
   },
   "DownstreamServicesScopes": {
-    "BasketApi": "openid profile basketapi.fullaccess",
-    "CatalogApi": "openid profile catalogapi.fullaccess",
-    "OrderApi": "openid profile orderapi.fullaccess"
+    "BasketApi": "basketapi.fullaccess",
+    "CatalogApi": "catalogapi.fullaccess",
+    "OrderApi": "orderapi.fullaccess"
   }
 }

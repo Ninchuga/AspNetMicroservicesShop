@@ -9,12 +9,16 @@
     <PackageReference Include="MassTransit.RabbitMQ" Version="7.2.4" />
     <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="7.2.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="IdentityModel" Version="5.1.0" />
+    <PackageReference Include="IdentityModel.AspNetCore" Version="3.0.0" />
+    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="5.0.1" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\EventBus.Messages\EventBus.Messages.csproj" />
+    <ProjectReference Include="..\..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
     <ProjectReference Include="..\..\..\Common\Shopping.Logging\Shopping.Logging.csproj" />
-    <ProjectReference Include="..\..\..\Common\Shopping.WebStatus\Shopping.WebStatus.csproj" />
   </ItemGroup>
 
 </Project>

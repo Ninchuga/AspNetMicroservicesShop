@@ -139,7 +139,7 @@ namespace Shopping.Aggregator
 
             app.AddCorrelationLoggingMiddleware();
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthentication();

@@ -88,7 +88,7 @@ namespace Shopping.Aggregator.DelegatingHandlers
             {
                 { "subject_token_type", "urn:ietf:params:oauth:token-type:access_token" },
                 { "subject_token", incomingToken }, // subject_token is an access token passed from the Client App (MVC)
-                { "scope", downstreamServiceScopes }
+                { "scope", $"openid profile {downstreamServiceScopes}" }
             };
 
             _logger.LogInformation("Requesting access token from {TokenEndpoint}", discoveryDocumentResponse.TokenEndpoint);
@@ -113,11 +113,11 @@ namespace Shopping.Aggregator.DelegatingHandlers
 
         private (string, string) ResolveDownstreamServicesTokenExchangeCacheKeyAndScopes(string requestUri, IConfiguration configuration)
         {
-            if (requestUri.Contains("Catalog"))
+            if (requestUri.Contains("Catalog", StringComparison.OrdinalIgnoreCase))
                 return (configuration["DownstreamServicesTokenExhangeCacheKeys:CatalogApi"], configuration["DownstreamServicesScopes:CatalogApi"]);
-            if (requestUri.Contains("Basket"))
+            if (requestUri.Contains("Basket", StringComparison.OrdinalIgnoreCase))
                 return (configuration["DownstreamServicesTokenExhangeCacheKeys:BasketApi"], configuration["DownstreamServicesScopes:BasketApi"]);
-            if (requestUri.Contains("Order"))
+            if (requestUri.Contains("Order", StringComparison.OrdinalIgnoreCase))
                 return (configuration["DownstreamServicesTokenExhangeCacheKeys:OrderApi"], configuration["DownstreamServicesScopes:OrderApi"]);
 
             return (string.Empty, string.Empty);

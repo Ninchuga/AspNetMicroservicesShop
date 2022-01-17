@@ -21,12 +21,7 @@ namespace Ordering.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddHttpClient<ITokenValidationService, TokenValidationService>();
-
-            services.AddHttpClient("OrderSaga", config =>
-            {
-                config.BaseAddress = new Uri(configuration["OrderSagaUrl"]);
-            })
-            .AddHttpMessageHandler<CorrelationIdDelegatingHandler>();
+            services.AddHttpClient<ITokenExchangeService, TokenExchangeService>();
 
             // There is no predefined transport for SignalR. It will try to find by itself the best suited transport
             // 1. WebSocket if newer versions of browser are used on the client

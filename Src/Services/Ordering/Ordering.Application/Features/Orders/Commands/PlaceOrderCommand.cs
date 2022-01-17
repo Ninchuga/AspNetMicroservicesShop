@@ -3,11 +3,13 @@ using Destructurama.Attributed;
 using EventBus.Messages.Events.Order;
 using MassTransit;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Infrastrucutre;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Models;
 using Ordering.Application.Models.Responses;
+using Ordering.Application.Services;
 using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
 using Ordering.Domain.ValueObjects;
@@ -54,15 +56,19 @@ namespace Ordering.Application.Features.Orders.Commands
         private readonly IEmailService _emailService;
         private readonly ILogger<PlaceOrderCommandHandler> _logger;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ITokenExchangeService _tokenExchangeService;
+        private readonly IConfiguration _configuration;
 
         public PlaceOrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IEmailService emailService,
-            ILogger<PlaceOrderCommandHandler> logger, IPublishEndpoint publishEndpoint)
+            ILogger<PlaceOrderCommandHandler> logger, IPublishEndpoint publishEndpoint, ITokenExchangeService tokenExchangeService, IConfiguration configuration)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
             _emailService = emailService;
             _logger = logger;
             _publishEndpoint = publishEndpoint;
+            _tokenExchangeService = tokenExchangeService;
+            _configuration = configuration;
         }
 
         public async Task<OrderPlacedCommandResponse> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -120,6 +126,10 @@ namespace Ordering.Application.Features.Orders.Commands
 
         private async Task PublishOrderPlacedEvent(Order order, Guid correlationId)
         {
+            string accessToken = await _tokenExchangeService.ExchangeAccessToken(
+                tokenExchangeCacheKey: _configuration["DownstreamServicesTokenExhangeCacheKeys:OrderSagaOrchestrator"],
+                serviceScopes: _configuration["DownstreamServicesScopes:OrderSagaOrchestrator"]);
+
             var orderPlacedEvent = new OrderPlaced
             {
                 OrderId = order.Id,
@@ -129,6 +139,7 @@ namespace Ordering.Application.Features.Orders.Commands
                 OrderTotalPrice = order.TotalPrice,
                 CustomerUsername = order.UserName
             };
+            orderPlacedEvent.SecurityContext.AccessToken = accessToken;
             
             await _publishEndpoint.Publish(orderPlacedEvent);
         }

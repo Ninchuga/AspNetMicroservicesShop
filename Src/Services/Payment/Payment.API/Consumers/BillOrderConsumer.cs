@@ -1,6 +1,8 @@
 ﻿using EventBus.Messages.Events.Order;
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Payment.API.Services;
 using System.Threading.Tasks;
 
 namespace Payment.API.Consumers
@@ -8,10 +10,16 @@ namespace Payment.API.Consumers
     public class BillOrderConsumer : IConsumer<BillOrder>
     {
         private readonly ILogger<BillOrderConsumer> _logger;
+        private readonly ITokenValidationService _tokenValidationService;
+        private readonly ITokenExchangeService _tokenExchangeService;
+        private readonly IConfiguration _configuration;
 
-        public BillOrderConsumer(ILogger<BillOrderConsumer> logger)
+        public BillOrderConsumer(ILogger<BillOrderConsumer> logger, ITokenValidationService tokenValidationService, ITokenExchangeService tokenExchangeService, IConfiguration configuration)
         {
             _logger = logger;
+            _tokenValidationService = tokenValidationService;
+            _tokenExchangeService = tokenExchangeService;
+            _configuration = configuration;
         }
 
         public async Task Consume(ConsumeContext<BillOrder> context)
@@ -21,7 +29,19 @@ namespace Payment.API.Consumers
 
             //throw new InvalidOperationException("Failed to bill the order");
 
+            var tokenValidated = await _tokenValidationService.ValidateTokenAsync(context.Message.SecurityContext.AccessToken, context.SentTime.Value);
+            if (!tokenValidated)
+            {
+                _logger.LogError("Access token validation failed in consumer {ConsumerName}", nameof(BillOrderConsumer));
+                return;
+            }
+
             await Task.Delay(10000); // wait 10 seconds
+
+            string accessToken = await _tokenExchangeService.ExchangeAccessToken(
+                tokenExchangeCacheKey: _configuration["DownstreamServicesTokenExhangeCacheKeys:OrderSagaOrchestrator"],
+                serviceScopes: _configuration["DownstreamServicesScopes:OrderSagaOrchestrator"],
+                context.Message.SecurityContext.AccessToken);
 
             var orderBilled = new OrderBilled
             {
@@ -32,7 +52,7 @@ namespace Payment.API.Consumers
                 PaymentCardNumber = context.Message.PaymentCardNumber,
                 OrderTotalPrice = context.Message.OrderTotalPrice
             };
-
+            orderBilled.SecurityContext.AccessToken = accessToken;
             
             await context.Publish(orderBilled);
         }

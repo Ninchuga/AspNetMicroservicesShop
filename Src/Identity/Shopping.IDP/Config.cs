@@ -53,7 +53,19 @@ namespace Shopping.IDP
                 new ApiResource("shoppingaggregator", "Shopping Aggregator")
                 {
                     Scopes = { "shoppingaggregator.fullaccess" }
-                }
+                },
+                new ApiResource("ordersagaorchestrator", "Order Saga Orchestrator")
+                {
+                    Scopes = { "ordersagaorchestrator.fullaccess" }
+                },
+                new ApiResource("paymentapi", "Payment API")
+                {
+                    Scopes = { "paymentapi.fullaccess" }
+                },
+                new ApiResource("deliveryapi", "Delivery API")
+                {
+                    Scopes = { "deliveryapi.fullaccess" }
+                },
             };
 
         // Defines API's that are going to be used from the Client
@@ -68,7 +80,10 @@ namespace Shopping.IDP
                 new ApiScope("discount.fullaccess", "Discount API Full Access"),
                 new ApiScope("shoppinggateway.fullaccess", "Shopping Gateway Full Access"),
                 new ApiScope("orderapi.fullaccess", "Order API Operations"),
-                new ApiScope("shoppingaggregator.fullaccess", "Shopping Aggregator Full Access")
+                new ApiScope("shoppingaggregator.fullaccess", "Shopping Aggregator Full Access"),
+                new ApiScope("paymentapi.fullaccess", "Payment API Full Access"),
+                new ApiScope("deliveryapi.fullaccess", "Delivery API Full Access"),
+                new ApiScope("ordersagaorchestrator.fullaccess", "Order Saga Orchesteator Full Access")
             };
 
         // This is defined in Client applications (e.g. MVC client app)
@@ -148,15 +163,16 @@ namespace Shopping.IDP
                 // Client for downstream services without user interaction (no login page with username and password)
                 new Client
                 {
-                    ClientId = "shoppingbasketdownastreamtokenexchangeclient",
-                    ClientName = "Shopping Basket Token Exchange Client",
+                    ClientId = "downstreamservicestokenexchangeclient",
+                    ClientName = "Downstream Services Token Exchange Client",
                     AllowedGrantTypes = new[] { "urn:ietf:params:oauth:grant-type:token-exchange" },
                     ClientSecrets = { new Secret("downstreamtokenexchangesecret".Sha256()) },
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "discount.fullaccess"
+                        "discount.fullaccess",
+                        "ordersagaorchestrator.fullaccess"
                     }
                 },
                 new Client
@@ -172,6 +188,21 @@ namespace Shopping.IDP
                         "catalogapi.fullaccess",
                         "basketapi.fullaccess",
                         "orderapi.fullaccess"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "ordersagaorchestratortokenexchangeclient",
+                    ClientName = "Order Saga Orchestrator Token Exchange Client",
+                    AllowedGrantTypes = new[] { "urn:ietf:params:oauth:grant-type:token-exchange" },
+                    ClientSecrets = { new Secret("ordersagaorchestratortokenexchangeclientsecret".Sha256()) },
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "orderapi.fullaccess",
+                        "paymentapi.fullaccess",
+                        "deliveryapi.fullaccess"
                     }
                 }
             };

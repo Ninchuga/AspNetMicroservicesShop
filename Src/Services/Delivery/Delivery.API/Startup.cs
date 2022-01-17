@@ -1,21 +1,16 @@
-using Delivery.API.Consumers;
 using Delivery.API.Extensions;
-using EventBus.Messages.Common;
-using EventBus.Messages.Events.Order;
-using GreenPipes;
-using MassTransit;
+using Delivery.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Shopping.HealthChecks;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Delivery.API
 {
@@ -32,6 +27,11 @@ namespace Delivery.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            // Used for storing access tokens in the cache in a delegating handlers
+            services.AddAccessTokenManagement();
+
+            services.AddHttpClient<ITokenValidationService, TokenValidationService>();
+            services.AddHttpClient<ITokenExchangeService, TokenExchangeService>();
 
             bool useAzureServiceBus = Configuration.GetValue<bool>("UseAzureServiceBus");
             if (useAzureServiceBus)
@@ -39,9 +39,49 @@ namespace Delivery.API
             else
                 services.ConfigureMassTransitWithRabbitMQ(Configuration);
 
+            services.AddHealthChecks()
+                .AddRabbitMQ(Configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+             .AddJwtBearer(options =>
+             {
+                 options.Authority = Configuration["IdentityProviderSettings:IdentityServiceUrl"];
+                 options.Audience = "deliveryapi";
+                 options.RequireHttpsMetadata = false;
+             });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Delivery API", Version = "v1" });
+                c.CustomSchemaIds(x => x.FullName);
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"bearer {token}\""
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 
@@ -55,12 +95,15 @@ namespace Delivery.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Delivery Api v1"));
             }
 
+            app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultHealthChecks();
                 endpoints.MapControllers();
             });
         }

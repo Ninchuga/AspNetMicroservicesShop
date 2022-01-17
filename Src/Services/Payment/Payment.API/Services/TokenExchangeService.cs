@@ -1,60 +1,52 @@
 ﻿using IdentityModel.AspNetCore.AccessTokenManagement;
 using IdentityModel.Client;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Basket.API.Services.Tokens
+namespace Payment.API.Services
 {
-    [Obsolete]
-    public class OrderTokenService : ITokenExchangeService
+    public class TokenExchangeService : ITokenExchangeService
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IClientAccessTokenCache _clientAccessTokenCache;
-        private const string OrderApiAccessTokenCacheKey = "downstreamservicestokenexchangeclient_orderapi";
 
-        public OrderTokenService(HttpClient httpClient,
-            IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IClientAccessTokenCache clientAccessTokenCache)
+        public TokenExchangeService(HttpClient httpClient, IConfiguration configuration, IClientAccessTokenCache clientAccessTokenCache)
         {
             _httpClient = httpClient;
             _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
             _clientAccessTokenCache = clientAccessTokenCache;
         }
 
-        public async Task<string> GetAccessTokenForDownstreamService()
+        public async Task<string> ExchangeAccessToken(string tokenExchangeCacheKey, string downstreamServiceScopes, string subjectAccessToken)
         {
             // GetAsync() will only return access token if it's not expired
-            var item = await _clientAccessTokenCache.GetAsync(OrderApiAccessTokenCacheKey); // prepend audience name of the downstream service to the ClientId
+            var item = await _clientAccessTokenCache.GetAsync(tokenExchangeCacheKey); // prepend audience name of the downstream service to the ClientId
             if (item != null)
             {
                 return item.AccessToken;
             }
 
             var discoveryDocumentResponse = await _httpClient.GetDiscoveryDocumentAsync(_configuration["IdentityProviderSettings:IdentityServiceUrl"]);
-
             if (discoveryDocumentResponse.IsError)
             {
                 throw new Exception(discoveryDocumentResponse.Error);
             }
-            var subjectToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+
             var customParams = new Dictionary<string, string>
             {
                 { "subject_token_type", "urn:ietf:params:oauth:token-type:access_token" },
-                { "subject_token", subjectToken }, // subject_token is an access token passed to Basket API from the Client App (MVC)
-                { "scope", "openid profile orderapi.write" }
+                { "subject_token", subjectAccessToken }, // subject_token is an access token passed from publisher of the event (saga orchestrator)
+                { "scope", $"openid profile {downstreamServiceScopes}" }
             };
 
             var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest
             {
                 Address = discoveryDocumentResponse.TokenEndpoint,
-                GrantType = "urn:ietf:params:oauth:grant-type:token-exchange", // token exchange grant type
+                GrantType = "urn:ietf:params:oauth:grant-type:token-exchange",
                 Parameters = new Parameters(customParams),
                 ClientId = "downstreamservicestokenexchangeclient",
                 ClientSecret = "downstreamtokenexchangesecret",
@@ -66,7 +58,7 @@ namespace Basket.API.Services.Tokens
             }
 
             await _clientAccessTokenCache.SetAsync(
-                OrderApiAccessTokenCacheKey,
+                tokenExchangeCacheKey,
                 tokenResponse.AccessToken,
                 tokenResponse.ExpiresIn);
 

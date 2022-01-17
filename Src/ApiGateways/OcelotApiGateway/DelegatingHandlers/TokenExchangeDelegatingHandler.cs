@@ -18,7 +18,6 @@ namespace OcelotApiGateway.DelegatingHandlers
         private readonly IConfiguration _configuration;
         private readonly IClientAccessTokenCache _clientAccessTokenCache;
         private readonly ILogger<TokenExchangeDelegatingHandler> _logger;
-        //private const string BasketApiTokenExchangeCacheKey = "gatewayandaggregatortodownstreamtokenexchangeclient_basketapi";
 
         public TokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration, 
             IClientAccessTokenCache clientAccessTokenCache, ILogger<TokenExchangeDelegatingHandler> logger)
@@ -89,7 +88,7 @@ namespace OcelotApiGateway.DelegatingHandlers
             {
                 { "subject_token_type", "urn:ietf:params:oauth:token-type:access_token" },
                 { "subject_token", incomingToken }, // subject_token is an access token passed from the Client App (MVC)
-                { "scope", downstreamServiceScopes }
+                { "scope", $"openid profile {downstreamServiceScopes}" }
             };
 
             _logger.LogInformation("Requesting access token from {TokenEndpoint}", discoveryDocumentResponse.TokenEndpoint);

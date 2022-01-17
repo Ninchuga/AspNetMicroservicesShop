@@ -17,7 +17,7 @@ namespace Basket.API.Services.Tokens
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IClientAccessTokenCache _clientAccessTokenCache;
-        private const string DiscountApiAccessTokenCacheKey = "shoppingbasketdownastreamtokenexchangeclient_discountapi";
+        private const string DiscountApiAccessTokenCacheKey = "downstreamservicestokenexchangeclient_discountapi";
 
         public DiscountTokenService(HttpClient httpClient,
             IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IClientAccessTokenCache clientAccessTokenCache)
@@ -56,7 +56,7 @@ namespace Basket.API.Services.Tokens
                 Address = discoveryDocumentResponse.TokenEndpoint,
                 GrantType = "urn:ietf:params:oauth:grant-type:token-exchange", // token exchange grant type
                 Parameters = new Parameters(customParams),
-                ClientId = "shoppingbasketdownastreamtokenexchangeclient",
+                ClientId = "downstreamservicestokenexchangeclient",
                 ClientSecret = "downstreamtokenexchangesecret",
             });
 

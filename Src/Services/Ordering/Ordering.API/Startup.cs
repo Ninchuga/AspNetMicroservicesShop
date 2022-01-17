@@ -26,6 +26,8 @@ namespace Ordering.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Used for storing access tokens in the cache in a delegating handlers
+            services.AddAccessTokenManagement();
             services.AddHttpContextAccessor();
             services.AddApplicationServices(Configuration);
             services.AddInfrastructureServices(Configuration);

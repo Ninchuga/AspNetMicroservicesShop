@@ -1,14 +1,10 @@
-﻿using AutoMapper;
-using EventBus.Messages.Events.Order;
+﻿using EventBus.Messages.Events.Order;
 using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Features.Orders.Commands;
 using Ordering.Application.Services;
 using Ordering.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Ordering.Application.EventBusConsumers
@@ -32,6 +28,13 @@ namespace Ordering.Application.EventBusConsumers
             _logger.LogInformation("Order with id: {OrderId} failed to be billed with a reason: {Reason}.", 
                 context.Message.OrderId, context.Message.Reason);
             _logger.LogInformation("Rolling back order {OrderId} to status {OrderStatus}", context.Message.OrderId, OrderStatus.PENDING);
+
+            var tokenValidated = await _tokenValidationService.ValidateTokenAsync(context.Message.SecurityContext.AccessToken, context.SentTime.Value);
+            if (!tokenValidated)
+            {
+                _logger.LogError("Access token validation failed in consumer {ConsumerName}", nameof(OrderFailedToBeBilledConsumer));
+                return;
+            }
 
             // Rollback Order to previous state -> PENDING
             var command = new OrderFailedToBeBilledCommand
