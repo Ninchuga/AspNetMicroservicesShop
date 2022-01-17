@@ -38,6 +38,17 @@ services:
     volumes:
       - order_data:/var/opt/mssql
 
+  ordersagadb:
+    container_name: ordersagadb
+    environment:
+      SA_PASSWORD: "September24#"
+      ACCEPT_EULA: "Y"
+    restart: always
+    ports:
+      - 1435:1433
+    volumes:
+      - order_saga_data:/var/opt/mssql
+
   identitydb:
     container_name: identitydb
     environment:
@@ -375,4 +386,81 @@ services:
         target: /https-root/shopping-root-cert.cer
     ports:
       - 8007:80
+
+  shopping.ordersagaorchestrator:
+    container_name: shopping.ordersagaorchestrator
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - IdentityProviderSettings:IdentityServiceUrl=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
+      - Logging:ElasticUrl=http://elastics:9200
+      - ConnectionStrings:OrderSagaConnectionString=Server=ordersagadb;Database=OrderDb;User Id=sa;Password=September24#;
+      #- ConnectionStrings:AzureServiceBusConnectionString=
+      - EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672
+      - UseAzureServiceBus=true
+      - ASPNETCORE_URLS=https://0.0.0.0:443;http://0.0.0.0:80
+      - ASPNETCORE_HTTPS_PORT=8008
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.OrderSagaOrchestrator.pfx
+    ports:
+      - "8008:443"
+    volumes:
+      - ./Orchestrators/Shopping.OrderSagaOrchestrator:/root/OrderSagaOrchestrator
+      - ./Orchestrators/Shopping.OrderSagaOrchestrator/certs:/https/
+      - type: bind
+        source: ./certs/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
+    depends_on:
+      - rabbitmq
+      - ordering.api
+      - ordersagadb
+
+  payment.api:
+    container_name: payment.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - IdentityProviderSettings:IdentityServiceUrl=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
+      - Logging:ElasticUrl=http://elastics:9200
+      - EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672
+      #- ConnectionStrings:AzureServiceBusConnectionString=
+      - UseAzureServiceBus=true
+      - ASPNETCORE_URLS=https://0.0.0.0:443;http://0.0.0.0:80
+      - ASPNETCORE_HTTPS_PORT=8009
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Payment.API.pfx
+    ports:
+      - "8009:443"
+    volumes:
+      - ./Services/Payment/Payment.API:/root/Payment
+      - ./Services/Payment/Payment.API/certs:/https/
+      - type: bind
+        source: ./certs/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
+    depends_on:
+      - rabbitmq
+      - shopping.ordersagaorchestrator
+
+  delivery.api:
+    container_name: delivery.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - IdentityProviderSettings:IdentityServiceUrl=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
+      - Logging:ElasticUrl=http://elastics:9200
+      - EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672
+      #- ConnectionStrings:AzureServiceBusConnectionString=
+      - UseAzureServiceBus=true
+      - ASPNETCORE_URLS=https://0.0.0.0:443;http://0.0.0.0:80
+      - ASPNETCORE_HTTPS_PORT=8010
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Delivery.API.pfx
+    ports:
+      - "8010:443"
+    volumes:
+      - ./Services/Delivery/Delivery.API:/root/Delivery
+      - ./Services/Delivery/Delivery.API/certs:/https/
+      - type: bind
+        source: ./certs/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
+    depends_on:
+      - rabbitmq
+      - shopping.ordersagaorchestrator
 

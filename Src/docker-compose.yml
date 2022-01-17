@@ -13,6 +13,9 @@ services:
   orderdb:
     image: mcr.microsoft.com/mssql/server:2017-latest
 
+  ordersagadb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+
   identitydb:
     image: mcr.microsoft.com/mssql/server:2017-latest
 
@@ -91,18 +94,37 @@ services:
       context: .
       dockerfile: Common/Shopping.WebStatus/Dockerfile
 
+  shopping.ordersagaorchestrator:
+    image: ${DOCKER_REGISTRY-}shoppingordersagaorchestrator
+    build:
+      context: .
+      dockerfile: Orchestrators/Shopping.CheckoutOrchestrator/Dockerfile
+
+  payment.api:
+    image: ${DOCKER_REGISTRY-}paymentapi
+    build:
+      context: .
+      dockerfile: Services/Payment/Payment.API/Dockerfile
+
+  delivery.api:
+    image: ${DOCKER_REGISTRY-}deliveryapi
+    build:
+      context: .
+      dockerfile: Services/Delivery/Delivery.API/Dockerfile
+
 volumes:
   mongo_data:
   portainer_data:
   postgres_data:
   pgadmin_data:
   order_data:
+  order_saga_data:
   identity_data:
   logging_data:
     driver: local
 
-#networks:
- # elastic:
-  #  driver: bridge
+
+
+
 
 
