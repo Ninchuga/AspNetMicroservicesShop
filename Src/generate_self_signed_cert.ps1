@@ -3,6 +3,8 @@
 # When using localhost - API cannot see the IdentityServer from within the docker-compose'd network.
 # You have to run this script as Administrator (open Powershell by right click -> Run as Administrator).
 
+# Run script with PowerShell version < 6.0
+
 $ErrorActionPreference = "Stop"
 
 $rootCN = "IdentityServerDockerRootCert"
@@ -21,7 +23,6 @@ $paymentApiCNs = "payment.api", "localhost"
 $deliveryApiCNs = "delivery.api", "localhost"
 
 $alreadyExistingCertsRoot = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$rootCN"}
-$alreadyExistingHostDockerInternal = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$hostDockerCNs"}
 $alreadyExistingCertsIdentityServer = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $identityServerCNs[0])}
 $alreadyExistingCertsShoppingWebClient = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingRazorWebClientCNs[0])}
 $alreadyExistingCertsCatalogApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $catalogApiCNs[0])}
@@ -42,14 +43,6 @@ if ($alreadyExistingCertsRoot.Count -eq 1) {
 } else {
     $shoppingRootCA = New-SelfSignedCertificate -Subject $rootCN -KeyUsageProperty Sign -KeyUsage CertSign -CertStoreLocation Cert:\LocalMachine\My
 }
-
-# host.docker.internal
-# if ($alreadyExistingHostDockerInternal.Count -eq 1) {
-    # Write-Output "Skipping creating host.docker.internal certificate as it already exists."
-    # $hostDockerInternalCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingHostDockerInternal[0]
-# } else {
-    # $hostDockerInternalCert = New-SelfSignedCertificate -DnsName $hostDockerCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
-# }
 
 # Identity Provider
 if ($alreadyExistingCertsIdentityServer.Count -eq 1) {
@@ -163,7 +156,6 @@ if ($alreadyExistingCertsDeliveryApi.Count -eq 1) {
 $password = ConvertTo-SecureString -String "password" -Force -AsPlainText
 
 $rootCertPathPfx = "D:/Practice/AspNetMicroservicesShop/Src/certs"
-$hostDockerInternalCertPath = "D:/Practice/AspNetMicroservicesShop/Src/certs"
 $identityServerCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Identity/Shopping.IDP/certs"
 $shoppingRazorWebClientCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Clients/Shopping.Razor/certs"
 $catalogApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Catalog/Catalog.API/certs"
@@ -173,12 +165,11 @@ $orderApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Ordering/O
 $ocelotGatewayCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGateways/OcelotApiGateway/certs"
 $shoppingAggregatorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGateways/Shopping.Aggregator/certs"
 $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Shopping.WebStatus/certs"
-$orderSagaOrchestratorCertPath = "D:/ractice/AspNetMicroservicesShop/Src/Orchestrators/Shopping.CheckoutOrchestrator/certs"
+$orderSagaOrchestratorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Orchestrators/Shopping.CheckoutOrchestrator/certs"
 $paymentApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Payment/Payment.API/certs"
 $deliveryApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Delivery/Delivery.API/certs"
 
 [System.IO.Directory]::CreateDirectory($rootCertPathPfx) | Out-Null
-[System.IO.Directory]::CreateDirectory($hostDockerInternalCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($identityServerCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($shoppingRazorWebClientCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($catalogApiCertPath) | Out-Null
@@ -193,7 +184,6 @@ $deliveryApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Deliver
 [System.IO.Directory]::CreateDirectory($deliveryApiCertPath) | Out-Null
 
 Export-PfxCertificate -Cert $shoppingRootCA -FilePath "$rootCertPathPfx/shopping-root-cert.pfx" -Password $password | Out-Null
-Export-PfxCertificate -Cert $hostDockerInternalCert -FilePath "$rootCertPathPfx/host-docker-internal.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $identityServerCert -FilePath "$identityServerCertPath/Shopping.IDP.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $shoppingWebClientCert -FilePath "$shoppingRazorWebClientCertPath/Shopping.Razor.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $catalogApiCert -FilePath "$catalogApiCertPath/Catalog.API.pfx" -Password $password | Out-Null

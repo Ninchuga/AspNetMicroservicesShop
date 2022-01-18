@@ -1,8 +1,5 @@
 ﻿using Automatonymous;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Shopping.OrderSagaOrchestrator.StateMachine
 {
@@ -25,6 +22,6 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
         public string CustomerUsername { get; set; }
 
         // If using Optimistic concurrency, this property is required
-        //public byte[] RowVersion { get; set; }
+        public byte[] RowVersion { get; set; }
     }
 }

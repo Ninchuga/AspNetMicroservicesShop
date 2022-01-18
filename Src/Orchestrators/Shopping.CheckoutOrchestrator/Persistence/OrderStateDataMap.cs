@@ -2,10 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Shopping.OrderSagaOrchestrator.StateMachine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Shopping.OrderSagaOrchestrator.Persistence
 {
@@ -21,7 +17,7 @@ namespace Shopping.OrderSagaOrchestrator.Persistence
                 .HasMaxLength(64);
 
             // If using Optimistic concurrency, otherwise remove this property
-            //entity.Property(x => x.RowVersion).IsRowVersion();
+            entity.Property(x => x.RowVersion).IsRowVersion();
         }
     }
 }

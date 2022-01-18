@@ -92,7 +92,7 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
                 config.AddSagaStateMachine<OrderStateMachine, OrderStateData>()
                     .EntityFrameworkRepository(repo =>
                     {
-                        repo.ConcurrencyMode = MassTransit.EntityFrameworkCoreIntegration.ConcurrencyMode.Pessimistic;
+                        repo.ConcurrencyMode = MassTransit.EntityFrameworkCoreIntegration.ConcurrencyMode.Optimistic;
 
                         repo.AddDbContext<DbContext, OrderSagaContext>((provider, builder) =>
                         {
