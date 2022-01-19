@@ -3,14 +3,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using Shopping.HealthChecks;
 using Shopping.OrderSagaOrchestrator.Extensions;
 using Shopping.OrderSagaOrchestrator.Services;
-using System;
-using System.Collections.Generic;
 
 namespace Shopping.OrderSagaOrchestrator
 {
@@ -44,9 +40,7 @@ namespace Shopping.OrderSagaOrchestrator
                     .ConfigureMassTransitWithRabbitMQ(Configuration);
             }
 
-            services.AddHealthChecks()
-                .AddSqlServer(Configuration.GetConnectionString("OrderSagaConnectionString"), name: "Order Saga Orchestrator Db", tags: new string[] { "order saga db ready", "sql server" })
-                .AddRabbitMQ(Configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
+            services.AddOrderSagaOrchestratorHealthChecks(Configuration);
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(options =>
@@ -56,39 +50,7 @@ namespace Shopping.OrderSagaOrchestrator
                  options.RequireHttpsMetadata = false;
              });
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Order Saga Orchestrator", Version = "v1" });
-                c.CustomSchemaIds(x => x.FullName);
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"bearer {token}\""
-                });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            },
-                            Scheme = "oauth2",
-                            Name = "Bearer",
-                            In = ParameterLocation.Header,
-
-                        },
-                        new List<string>()
-                    }
-                });
-            });
+            services.AddSwagger();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

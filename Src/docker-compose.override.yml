@@ -394,7 +394,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - IdentityProviderSettings:IdentityServiceUrl=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
       - Logging:ElasticUrl=http://elastics:9200
-      - ConnectionStrings:OrderSagaConnectionString=Server=ordersagadb;Database=OrderDb;User Id=sa;Password=September24#;
+      - ConnectionStrings:OrderSagaConnectionString=Server=ordersagadb;Database=OrderSagaDb;User Id=sa;Password=September24#;
       #- ConnectionStrings:AzureServiceBusConnectionString=
       - EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672
       - UseAzureServiceBus=true
