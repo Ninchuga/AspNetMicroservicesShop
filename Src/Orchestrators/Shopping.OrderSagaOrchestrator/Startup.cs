@@ -39,7 +39,10 @@ namespace Shopping.OrderSagaOrchestrator
             if (useAzureServiceBus)
                 services.ConfigureMassTransitWithAzureServiceBus(Configuration);
             else
-                services.ConfigureMassTransitWithRabbitMQ(Configuration);
+            {
+                services.ConfigureDatabase(Configuration)
+                    .ConfigureMassTransitWithRabbitMQ(Configuration);
+            }
 
             services.AddHealthChecks()
                 .AddRabbitMQ(Configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));

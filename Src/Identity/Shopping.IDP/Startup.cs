@@ -96,7 +96,6 @@ namespace Shopping.IDP
 
             //app.UseCors(builder => builder.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
-            // uncomment if you want to add MVC
             app.UseStaticFiles();
 
             app.UseForwardedHeaders();
@@ -108,7 +107,6 @@ namespace Shopping.IDP
             app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
             app.UseRouting();
 
-            // uncomment, if you want to add MVC
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {

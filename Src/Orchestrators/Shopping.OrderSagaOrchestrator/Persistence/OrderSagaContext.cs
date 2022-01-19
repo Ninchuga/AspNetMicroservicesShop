@@ -1,7 +1,6 @@
 ﻿using MassTransit.EntityFrameworkCoreIntegration;
 using MassTransit.EntityFrameworkCoreIntegration.Mappings;
 using Microsoft.EntityFrameworkCore;
-using Shopping.OrderSagaOrchestrator.Models;
 using System.Collections.Generic;
 
 namespace Shopping.OrderSagaOrchestrator.Persistence

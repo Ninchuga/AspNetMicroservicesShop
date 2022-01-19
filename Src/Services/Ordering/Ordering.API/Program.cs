@@ -3,9 +3,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Ordering.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
-using Ordering.API.Extensions;
 using Serilog;
 using Shopping.Logging;
+using Shopping.HostCustomization;
 
 namespace Ordering.API
 {

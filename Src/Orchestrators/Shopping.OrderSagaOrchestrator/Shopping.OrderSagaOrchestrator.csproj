@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\EventBus.Messages\EventBus.Messages.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Host\Shopping.HostCustomization\Shopping.HostCustomization.csproj" />
     <ProjectReference Include="..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
     <ProjectReference Include="..\..\Common\Shopping.Logging\Shopping.Logging.csproj" />
   </ItemGroup>

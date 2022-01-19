@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Shopping.IDP.Extensions;
 using Shopping.IDP.Persistence;
 using System;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Shopping.IDP.Models;
 using Shopping.Logging;
 using Microsoft.Extensions.Configuration;
+using Shopping.HostCustomization;
 
 namespace Shopping.IDP
 {

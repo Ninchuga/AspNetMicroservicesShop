@@ -11,6 +11,7 @@ COPY ["Identity/Shopping.IDP/Shopping.IDP.csproj", "Identity/Shopping.IDP/"]
 COPY ["Common/Shopping.Logging/Shopping.Logging.csproj", "Common/Shopping.Logging/"]
 COPY ["Common/Shopping.Correlation/Shopping.Correlation.csproj", "Common/Shopping.Correlation/"]
 COPY ["Common/Shopping.HealthChecks/Shopping.HealthChecks.csproj", "Common/Shopping.HealthChecks/"]
+COPY ["BuildingBlocks/Host/Shopping.HostCustomization/Shopping.HostCustomization.csproj", "BuildingBlocks/Host/Shopping.HostCustomization/"]
 RUN dotnet restore "Identity/Shopping.IDP/Shopping.IDP.csproj"
 COPY . .
 WORKDIR "/src/Identity/Shopping.IDP"

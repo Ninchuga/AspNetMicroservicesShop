@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Shopping.Logging;
+using Shopping.OrderSagaOrchestrator.Extensions;
 
 namespace Shopping.OrderSagaOrchestrator
 {
@@ -9,7 +10,10 @@ namespace Shopping.OrderSagaOrchestrator
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args)
+                .Build()
+                .EligibleForDatabaseMigration()
+                .Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

@@ -74,7 +74,7 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
                 });
             });
 
-            // Used to start bus
+            // Used to start the MassTransit bus
             services.AddMassTransitHostedService();
         }
 
@@ -92,16 +92,8 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
                 config.AddSagaStateMachine<OrderStateMachine, OrderStateData>()
                     .EntityFrameworkRepository(repo =>
                     {
+                        repo.ExistingDbContext<OrderSagaContext>();
                         repo.ConcurrencyMode = MassTransit.EntityFrameworkCoreIntegration.ConcurrencyMode.Optimistic;
-
-                        repo.AddDbContext<DbContext, OrderSagaContext>((provider, builder) =>
-                        {
-                            builder.UseSqlServer(configuration.GetConnectionString("OrderSagaConnectionString"), m =>
-                            {
-                                m.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-                                m.MigrationsHistoryTable($"__{nameof(OrderSagaContext)}");
-                            });
-                        });
                     });
 
                 config.UsingRabbitMq((context, cfg) =>
@@ -132,6 +124,24 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
             });
 
             services.AddMassTransitHostedService(); // used for health check and for starting and stopping the bus
+        }
+
+        public static IServiceCollection ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<OrderSagaContext>(options =>
+                    options.UseSqlServer(configuration.GetConnectionString("OrderSagaConnectionString"), option =>
+                    {
+                        option.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                        option.MigrationsHistoryTable($"__{nameof(OrderSagaContext)}");
+
+                        // EF connection resiliency
+                        option.EnableRetryOnFailure(
+                            maxRetryCount: 10,
+                            maxRetryDelay: TimeSpan.FromSeconds(5),
+                            errorNumbersToAdd: null);
+                    }));
+
+            return services;
         }
     }
 }
