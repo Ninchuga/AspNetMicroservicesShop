@@ -317,7 +317,6 @@ services:
       #- "8005:80"
       - "8005:443"
 
-    # redirection worked with ubuntu host ip 172.18.112.1 -> https://172.18.112.1:8021
   shopping.razor:
     container_name: shopping.razor
     environment:
@@ -368,7 +367,7 @@ services:
       - HealthChecksUI__HealthChecks__6__Name=Ocelot Gateway Health Check
       - HealthChecksUI__HealthChecks__6__Uri=https://ocelotapigateway/healthcheck
       - HealthChecksUI__HealthChecks__7__Name=Order Saga Orchestrator Health Check
-      - HealthChecksUI__HealthChecks__7__Uri=https://ordersagaorchestrator/healthcheck
+      - HealthChecksUI__HealthChecks__7__Uri=https://shopping.ordersagaorchestrator/healthcheck
       - HealthChecksUI__HealthChecks__8__Name=Payment API Health Check
       - HealthChecksUI__HealthChecks__8__Uri=https://payment.api/healthcheck
       - HealthChecksUI__HealthChecks__9__Name=Delivery API Health Check
@@ -376,6 +375,8 @@ services:
       - GrpcSettings:DiscountUrl=https://discount.grpc
       - GrpcSettings:UsingDocker=true
       - Logging:ElasticUrl=http://elastics:9200
+      - ASPNETCORE_URLS=https://0.0.0.0:443;http://0.0.0.0:80
+      - ASPNETCORE_HTTPS_PORT=8007 
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.WebStatus.pfx
     volumes:
@@ -385,7 +386,7 @@ services:
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
     ports:
-      - 8007:80
+      - "8007:443"
 
   shopping.ordersagaorchestrator:
     container_name: shopping.ordersagaorchestrator

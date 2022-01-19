@@ -165,7 +165,7 @@ $orderApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Ordering/O
 $ocelotGatewayCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGateways/OcelotApiGateway/certs"
 $shoppingAggregatorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/ApiGateways/Shopping.Aggregator/certs"
 $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Shopping.WebStatus/certs"
-$orderSagaOrchestratorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Orchestrators/Shopping.CheckoutOrchestrator/certs"
+$orderSagaOrchestratorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Orchestrators/Shopping.OrderSagaOrchestrator/certs"
 $paymentApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Payment/Payment.API/certs"
 $deliveryApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Delivery/Delivery.API/certs"
 
@@ -193,7 +193,7 @@ Export-PfxCertificate -Cert $orderApiCert -FilePath "$orderApiCertPath/Ordering.
 Export-PfxCertificate -Cert $ocelotGatewayCert -FilePath "$ocelotGatewayCertPath/OcelotApiGateway.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $shoppingAggregatorCert -FilePath "$shoppingAggregatorCertPath/Shopping.Aggregator.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $shoppingWebStatusCert -FilePath "$shoppingWebStatusCertPath/Shopping.WebStatus.pfx" -Password $password | Out-Null
-Export-PfxCertificate -Cert $shoppingOrderSagaOrchestratorCert -FilePath "$orderSagaOrchestratorCertPath/Shopping.CheckoutOrchestrator.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $shoppingOrderSagaOrchestratorCert -FilePath "$orderSagaOrchestratorCertPath/Shopping.OrderSagaOrchestrator.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $paymentApiCert -FilePath "$paymentApiCertPath/Payment.API.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $deliveryApiCert -FilePath "$deliveryApiCertPath/Delivery.API.pfx" -Password $password | Out-Null
 

@@ -45,6 +45,7 @@ namespace Shopping.OrderSagaOrchestrator
             }
 
             services.AddHealthChecks()
+                .AddSqlServer(Configuration.GetConnectionString("OrderSagaConnectionString"), name: "Order Saga Orchestrator Db", tags: new string[] { "order saga db ready", "sql server" })
                 .AddRabbitMQ(Configuration["EventBusSettings:HostAddress"], null, "Rabbit MQ", HealthStatus.Degraded, tags: new string[] { "rabbit ready" }, TimeSpan.FromSeconds(5));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

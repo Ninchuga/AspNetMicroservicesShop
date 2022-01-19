@@ -98,7 +98,7 @@ services:
     image: ${DOCKER_REGISTRY-}shoppingordersagaorchestrator
     build:
       context: .
-      dockerfile: Orchestrators/Shopping.CheckoutOrchestrator/Dockerfile
+      dockerfile: Orchestrators/Shopping.OrderSagaOrchestrator/Dockerfile
 
   payment.api:
     image: ${DOCKER_REGISTRY-}paymentapi
@@ -122,6 +122,7 @@ volumes:
   identity_data:
   logging_data:
     driver: local
+
 
 
 
