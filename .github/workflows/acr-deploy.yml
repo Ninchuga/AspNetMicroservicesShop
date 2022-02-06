@@ -23,8 +23,8 @@ jobs:
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
         - run: |
-            cd ./Src/Clients/Shopping.Razor
-            docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/web.razor:${{ github.sha }} -f Dockerfile ..
+            cd ./Src
+            docker build -f ./Clients/Shopping.Razor/Dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/web.razor:${{ github.sha }} .
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/web.razor:${{ github.sha }}
         #- run: |
         #    docker build ./Src/Identity/Shopping.IDP -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/identityprovider:${{ github.sha }}
