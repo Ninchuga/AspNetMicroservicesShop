@@ -23,6 +23,6 @@ jobs:
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
         - run: |
-            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/web.razor:${{ github.sha }} -f ./Src/Clients/Shopping.Razor/DockerFile
+            docker build -f ./Clients/Shopping.Razor/DockerFile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/web.razor:${{ github.sha }}
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/web.razor:${{ github.sha }}
         
