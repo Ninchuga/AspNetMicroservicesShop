@@ -1,0 +1,94 @@
+# we are creating a pod, we are pulling it from our docker image in the cloud, and we are exposing port 80 and 443
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webrazor-deployment
+  namespace: dev
+  labels:
+    app: webrazor-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: webrazor
+  template:
+    metadata:
+      labels:
+        app: webrazor
+        service: webrazor
+    spec:
+      containers:
+      - name: webrazor
+        image: shoppingportalacr.azurecr.io/web.razor:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        - name: https
+          containerPort: 443
+          protocol: TCP
+        env:
+        - name: ASPNETCORE_URLS
+          value: https://+:443;http://+:80
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+          value: "password"
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+          value: "/https/Shopping.Razor.pfx"
+      imagePullSecrets:
+        - name: acrandaksshopping-secret
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webrazor-service
+  namespace: dev
+  labels:
+    app: webrazor
+    service: webrazor
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  selector:
+    service: webrazor
+---
+# This will setup an ingress controller to expose your site on the aforementioned SSL + DNS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webrazor-ingress
+  namespace: dev
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  tls:
+  - hosts:
+    - demo.myshoppingportal.com # <yourdns>
+    secretName: websitesecret
+  rules:
+  - host: demo.myshoppingportal.com # <yourdns>
+    http:
+      paths:
+      - path: /testpath
+        pathType: Prefix
+        backend:
+          service:
+            name: webrazor
+            port: 
+              number: 443
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: webrazor
+            port: 
+              number: 443

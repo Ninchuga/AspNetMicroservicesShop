@@ -139,9 +139,6 @@ services:
       - type: bind
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
-      - type: bind
-        source: ./certs/host-docker-internal.pfx
-        target: /https/host-docker-internal.pfx
 
   catalog.api:
     container_name: catalog.api
@@ -163,9 +160,6 @@ services:
       - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
-      - type: bind
-        source: ./certs/host-docker-internal.pfx
-        target: /https/host-docker-internal.pfx  
     ports:
       #- "8000:80"
       - "8000:443"
@@ -281,9 +275,6 @@ services:
       - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
-      - type: bind
-        source: ./certs/host-docker-internal.pfx
-        target: /https/host-docker-internal.pfx
     ports:
       #- "8006:80"
       - "8006:443"
@@ -335,11 +326,8 @@ services:
       - ./Clients/Shopping.Razor:/root/ShoppingRazor
       - ./Clients/Shopping.Razor/certs:/https/
       - type: bind
-        source: ./certs/shopping-root-cert.cer
-        target: /https-root/shopping-root-cert.cer
-      - type: bind
-        source: ./certs/host-docker-internal.pfx
-        target: /https/host-docker-internal.pfx
+        source: ./certs/shopping-root-cert.crt
+        target: /https-root/shopping-root-cert.crt
     depends_on:
       - shopping.idp
       - shopping.aggregator
