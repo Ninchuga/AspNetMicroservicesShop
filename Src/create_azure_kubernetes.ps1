@@ -55,6 +55,7 @@ az keyvault secret set `
 # Store service principal ID in AKV (the registry *username*)
 # use the app id of the service principal which we'll use as the username when authenticating to our ACR
 # app id will be used as our username when authenticating to ACR
+# Store also in GitHub secret REGISTRY_USERNAME because it will be used to login to ACR to build and push container image
 $ACR_SP_APP_ID=$(az ad sp list `
                     --display-name $SP_NAME `
                     --query "[].appId" `
@@ -71,7 +72,7 @@ az keyvault secret set `
     # To delegate permissions, create a role assignment using the az role assignment create command. 
     # Assign the appId to a particular scope, such as a resource group or virtual network resource. 
     # A role then defines what permissions the service principal has on the resource, as shown in the following example:
-    az role assignment create --assignee $SP_APPID --scope $ACR_NAME --role Contributor
+    az role assignment create --assignee $ACR_SP_APP_ID --scope $ACR_REGISTRY_ID --role AcrPush
 
     # DISPLAY SP
     # objectId
@@ -86,12 +87,29 @@ az keyvault secret set `
 
     az ad sp list --show-mine --query "[].{id:appId, tenant:appOwnerTenantId}"
 
+# create our ACR Task. This task will setup an automated trigger on code commit which will run a docker build and push the container to your registry
+$GIT_USER='Ninchuga'
+$GIT_TOKEN='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'
+az acr task create `
+    --registry $ACR_NAME `
+    --name webrazor-build-task `
+    --context https://github.com/$GIT_USER/AspNetMicroservicesShop.git#main `
+    --file acrmultitask.yaml `
+    --git-access-token $GIT_TOKEN
+
+    # trigger ACR Task manually to check if it's working
+    az acr task run --registry $ACR_NAME --name webrazor-build-task
+
+    # To verify that your tasks have run successfully use the below command
+    az acr task list-runs --registry $ACR_NAME --output table
+
+
 # 4 - Create the Kubernetes cluster with repository group and service principal created earlier
 $AKS_NAME='shoppingPortalAKSCluster'
 az aks create `
     --resource-group shopping-portal `
     --name $AKS_NAME `
-    --service-principal $SP_APPID `
+    --service-principal $ACR_SP_APP_ID `
     --client-secret $SP_PASSWD `
     --node-count 1 `
     --generate-ssh-keys
@@ -176,3 +194,17 @@ az ad sp list
 az ad sp delete --id edfa2c36-84ef-43c4-9d83-d93a7b138797
 
 az ad sp show --id a497d64c-6ad7-4f16-b9c5-d1f36ac27a84
+
+
+# create a container in ACI (ACI resource will be created as well if doesn't exist)
+# we use created service principal to log in to ACR and pull the image that we specified and create the container from it
+$ACR_LOGINSERVER=$(az acr show --name $ACR_NAME --query loginServer --output tsv)
+az container create `
+		--resource-group $MAIN_RES_GROUP `
+		--name webrazor-aci `
+		--dns-name-label webrazor-aci-dns-name `
+		--ports 443 `
+		--image $ACR_LOGINSERVER/web.razor:a3c16ee728f205dcc8650e65a42d240e5c4a833b `
+		--registry-login-server $ACR_LOGINSERVER `
+		--registry-username $(az keyvault secret show --vault-name $AKV_NAME --name $ACR_NAME-push-usr --query value -o tsv) `
+		--registry-password $(az keyvault secret show --vault-name $AKV_NAME --name $ACR_NAME-push-pwd --query value -o tsv)
