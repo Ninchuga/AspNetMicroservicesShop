@@ -97,7 +97,7 @@ az keyvault secret set `
 az acr task create `
     --registry $ACR_NAME `
     --name webrazor-build-task `
-    --context https://github.com/$GIT_USER/AspNetMicroservicesShop.git#main:src `
+    --context https://github.com/$GIT_USER/AspNetMicroservicesShop.git#main `
     --file Src/acrmultitask.yaml `
     --git-access-token $(az keyvault secret show --vault-name $AKV_NAME --name $ACR_NAME-git-acr-task-token --query value -o tsv)
 
