@@ -89,13 +89,17 @@ az keyvault secret set `
 
 # create our ACR Task. This task will setup an automated trigger on code commit which will run a docker build and push the container to your registry
 $GIT_USER='Ninchuga'
-$GIT_TOKEN='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'
+az keyvault secret set `
+    --vault-name $AKV_NAME `
+    --name $ACR_NAME-git-acr-task-token `
+    --value '<git-personal-access-token>'
+
 az acr task create `
     --registry $ACR_NAME `
     --name webrazor-build-task `
     --context https://github.com/$GIT_USER/AspNetMicroservicesShop.git#main `
-    --file acrmultitask.yaml `
-    --git-access-token $GIT_TOKEN
+    --file Src/acrmultitask.yaml `
+    --git-access-token $(az key vault secret show --vault-name $AKV_NAME --name $ACR_NAME-git-acr-task-token --query value -o tsv)
 
     # trigger ACR Task manually to check if it's working
     az acr task run --registry $ACR_NAME --name webrazor-build-task
