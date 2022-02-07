@@ -2,7 +2,7 @@ version: v1.1.0
 steps:
 # Build target image
 # The image targets the Run.Registry, the registry where the task is run, and is tagged with a unique ACR Tasks run ID.
-- build: -t {{.Run.Registry}}/web.razor:{{.Run.ID}} -f Dockerfile .
+- build: -t {{.Run.Registry}}/web.razor:{{.Run.ID}} -f ./Clients/Shopping.Razor/Dockerfile .
 # Run image in a temporary container. This example starts a long-running container in the background and returns the container ID, then stops the container. 
 # In a real-world scenario, you might include steps to test the running container to ensure it runs correctly.
 - cmd: -t {{.Run.Registry}}/web.razor:{{.Run.ID}}
