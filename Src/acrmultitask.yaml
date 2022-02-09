@@ -4,7 +4,7 @@ steps:
 # Build target image
 # The image targets the Run.Registry, the registry where the task is run, and is tagged with a unique ACR Tasks run ID.
 # Last argument ./Src in build step is the docker build context
-- build: -t $Registry/web.razor:$ID -f ./Clients/Shopping.Razor/Dockerfile ./Src
+- build: -t $Registry/web.razor:$ID -f ./Src/Clients/Shopping.Razor/Dockerfile ./Src
   id: build-web.razor-image
   #workingDirectory: ./Src -> this is how we can set working directory, than we can set docker build context to be just dot (.)
 - push:
