@@ -5,12 +5,13 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+# If the .csproj paths are surronded with brackets [] COPY will fail on GitHub workflow build and in Azure ACR Task build
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["Clients/Shopping.Razor/Shopping.Razor.csproj", "Clients/Shopping.Razor/"]
+COPY "Clients/Shopping.Razor/Shopping.Razor.csproj", "Clients/Shopping.Razor/"
 COPY "Common/Shopping.Correlation/Shopping.Correlation.csproj" "Common/Shopping.Correlation/"
-COPY ["Common/Shopping.Logging/Shopping.Logging.csproj", "Common/Shopping.Logging/"]
-COPY ["Common/Shopping.HealthChecks/Shopping.HealthChecks.csproj", "Common/Shopping.HealthChecks/"]
+COPY "Common/Shopping.Logging/Shopping.Logging.csproj", "Common/Shopping.Logging/"
+COPY "Common/Shopping.HealthChecks/Shopping.HealthChecks.csproj", "Common/Shopping.HealthChecks/"
 RUN dotnet restore "Clients/Shopping.Razor/Shopping.Razor.csproj"
 COPY . .
 WORKDIR "/src/Clients/Shopping.Razor"
