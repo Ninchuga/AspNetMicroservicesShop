@@ -14,11 +14,11 @@ steps:
 # Run image in a temporary container. This example starts a long-running container in the background and returns the container ID, then stops the container. 
 # In a real-world scenario, you might include steps to test the running container to ensure it runs correctly.
 - cmd: -t $Registry/web.razor:$ID
-  id: test
-  disableWorkingDirectoryOverride: true
+  id: test-image  
   detach: true
   #entrypoint: 
   ports: ["8080:80"]
+  workingDirectory: /app
   #env: ["host=helloworld:80"]
 - cmd: docker stop test
 # Push image pushes the image that was built to the run registry
