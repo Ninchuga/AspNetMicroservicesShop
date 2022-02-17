@@ -3,13 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Shopping.Razor.Models
+namespace Basket.API.Entities
 {
-    public class BasketWithItems
+    public class ShoppingBasket
     {
         public Guid UserId { get; set; }
-        public string UserName { get; set; }
-        public List<BasketItem> Items { get; set; } = new List<BasketItem>();
+        public List<ShoppingBasketItem> Items { get; set; } = new List<ShoppingBasketItem>();
+
+        public ShoppingBasket()
+        {
+        }
+
+        public ShoppingBasket(Guid userId)
+        {
+            UserId = userId;
+        }
+
         public decimal TotalPrice
         {
             get
@@ -17,8 +26,7 @@ namespace Shopping.Razor.Models
                 decimal totalPrice = 0;
                 foreach (var item in Items)
                 {
-                    //totalPrice += item.Price * item.Quantity;
-                    totalPrice += item.PriceWithDiscount;
+                    totalPrice += item.Price * item.Quantity;
                 }
 
                 return totalPrice;

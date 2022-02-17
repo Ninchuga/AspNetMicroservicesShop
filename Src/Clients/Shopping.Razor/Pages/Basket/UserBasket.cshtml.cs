@@ -11,7 +11,7 @@ namespace Shopping.Razor.Pages.Basket
 {
     public class UserBasketModel : PageModel
     {
-        public BasketWithItems UserBasket { get; set; }
+        public ShoppingBasket UserBasket { get; set; }
 
         private readonly BasketService _basketService;
 

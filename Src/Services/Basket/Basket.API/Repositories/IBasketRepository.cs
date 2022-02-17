@@ -8,8 +8,8 @@ namespace Basket.API.Repositories
 {
     public interface IBasketRepository
     {
-        Task<ShoppingCart> GetBasket(Guid userId);
-        Task<ShoppingCart> UpdateBasket(ShoppingCart basket);
+        Task<ShoppingBasket> GetBasket(Guid userId);
+        Task<ShoppingBasket> UpdateBasket(ShoppingBasket basket);
         Task DeleteBasket(Guid userId);
     }
 }

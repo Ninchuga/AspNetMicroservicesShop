@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Shopping.Razor.Models
+﻿namespace Shopping.Razor.Models
 {
-    public class BasketItem
+    public class ShoppingBasketItem
     {
         public string ProductId { get; init; }
 

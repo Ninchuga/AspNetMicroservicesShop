@@ -1,9 +1,9 @@
 using Basket.API.Extensions;
-using Basket.API.Factories;
 using Basket.API.GrpcServices;
 using Basket.API.Policies;
 using Basket.API.Repositories;
 using Basket.API.Services.Basket;
+using Basket.API.Services.Tokens;
 using Discount.Grpc.Protos;
 using IdentityServer4.AccessTokenValidation;
 using MassTransit;
@@ -61,10 +61,10 @@ namespace Basket.API
             services.AddScoped<IBasketRepository, BasketRepository>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<DiscountGrpcService>();
-            services.AddTransient<ITokenExchangeServiceFactory, TokenExchangeServiceFactory>();
             services.AddAutoMapper(typeof(Startup));
             services.AddTransient<AccessTokenInterceptor>();
             services.AddTransient<CorrelationIdInterceptor>();
+            services.AddTransient<ITokenExchangeService, TokenExchangeService>();
 
             services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(o =>
             {

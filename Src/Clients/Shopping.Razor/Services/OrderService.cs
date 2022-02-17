@@ -22,7 +22,7 @@ namespace Shopping.Razor.Services
             _logger = logger;
         }
 
-        public async Task<PlaceOrderResponse> PlaceOrder(BasketCheckout basketCheckout, BasketWithItems basket)
+        public async Task<PlaceOrderResponse> PlaceOrder(BasketCheckout basketCheckout, ShoppingBasket basket)
         {
             _logger.LogInformation("Calling Order service to place an order.");
 

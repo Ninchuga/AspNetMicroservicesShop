@@ -1,6 +1,4 @@
-﻿using Basket.API.DTOs;
-using Basket.API.Entities;
-using Basket.API.Responses;
+﻿using Basket.API.Entities;
 using System;
 using System.Threading.Tasks;
 
@@ -8,11 +6,10 @@ namespace Basket.API.Services.Basket
 {
     public interface IBasketService
     {
-        Task<ShoppingCart> GetBasketBy(Guid userId);
-        Task<CheckoutBasketResponse> CheckoutBasket(BasketCheckout basketCheckout, Guid userId, string correlationId = null);
-        Task<ShoppingCart> UpdateBasket(ShoppingCart basket);
+        Task<ShoppingBasket> GetBasketBy(Guid userId);
+        Task<ShoppingBasket> UpdateBasket(ShoppingBasket basket);
         Task DeleteBasket(Guid userId);
-        Task<ShoppingCart> DeleteBasketItem(Guid userId, string itemId);
-        Task AddItemToBasket(Guid userId, ShoppingCartItem item);
+        Task<ShoppingBasket> DeleteBasketItem(Guid userId, string itemId);
+        Task AddItemToBasket(Guid userId, ShoppingBasketItem item);
     }
 }

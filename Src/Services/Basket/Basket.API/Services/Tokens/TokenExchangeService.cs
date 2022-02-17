@@ -5,21 +5,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Basket.API.Services.Tokens
 {
-    [Obsolete]
-    public class OrderTokenService : ITokenExchangeService
+    public class TokenExchangeService : ITokenExchangeService
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IClientAccessTokenCache _clientAccessTokenCache;
-        private const string OrderApiAccessTokenCacheKey = "downstreamservicestokenexchangeclient_orderapi";
 
-        public OrderTokenService(HttpClient httpClient,
+        public TokenExchangeService(HttpClient httpClient,
             IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IClientAccessTokenCache clientAccessTokenCache)
         {
             _httpClient = httpClient;
@@ -28,10 +27,10 @@ namespace Basket.API.Services.Tokens
             _clientAccessTokenCache = clientAccessTokenCache;
         }
 
-        public async Task<string> GetAccessTokenForDownstreamService()
+        public async Task<string> GetAccessTokenForDownstreamService(string downstreamApiAccessTokenCacheKey, string downstreamApiScopes)
         {
             // GetAsync() will only return access token if it's not expired
-            var item = await _clientAccessTokenCache.GetAsync(OrderApiAccessTokenCacheKey); // prepend audience name of the downstream service to the ClientId
+            var item = await _clientAccessTokenCache.GetAsync(downstreamApiAccessTokenCacheKey); // prepend audience name of the downstream service to the ClientId
             if (item != null)
             {
                 return item.AccessToken;
@@ -48,7 +47,7 @@ namespace Basket.API.Services.Tokens
             {
                 { "subject_token_type", "urn:ietf:params:oauth:token-type:access_token" },
                 { "subject_token", subjectToken }, // subject_token is an access token passed to Basket API from the Client App (MVC)
-                { "scope", "openid profile orderapi.write" }
+                { "scope", $"openid profile {downstreamApiScopes}" }
             };
 
             var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest
@@ -66,7 +65,7 @@ namespace Basket.API.Services.Tokens
             }
 
             await _clientAccessTokenCache.SetAsync(
-                OrderApiAccessTokenCacheKey,
+                downstreamApiAccessTokenCacheKey,
                 tokenResponse.AccessToken,
                 tokenResponse.ExpiresIn);
 

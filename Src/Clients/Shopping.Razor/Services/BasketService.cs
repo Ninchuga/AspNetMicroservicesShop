@@ -39,7 +39,7 @@ namespace Shopping.Razor.Services
             var responseMessage = await _httpClient.GetAsync($"api/{userId}"); // call from api gateway
             if (responseMessage.IsSuccessStatusCode)
             {
-                var basket = await responseMessage.ReadContentAs<BasketWithItems>();
+                var basket = await responseMessage.ReadContentAs<ShoppingBasket>();
                 return new BasketResponse { Success = true, StatusCode = responseMessage.StatusCode, BasketWithItems = basket };
             }
             else
@@ -58,7 +58,7 @@ namespace Shopping.Razor.Services
             // @ preffix in Serilog is used for complex object
             _logger.LogDebug("Adding catalog item to basket {@CatalogItem}", catalogItem);
 
-            var basketItem = new BasketItem
+            var basketItem = new ShoppingBasketItem
             {
                 ProductName = catalogItem.Name,
                 ProductId = catalogItem.Id,
@@ -82,7 +82,7 @@ namespace Shopping.Razor.Services
             var responseMessage = await _httpClient.DeleteAsync($"api/DeleteBasketItem/{itemId}"); // gateway api uri
             if (responseMessage.IsSuccessStatusCode)
             {
-                var basket = await responseMessage.ReadContentAs<BasketWithItems>();
+                var basket = await responseMessage.ReadContentAs<ShoppingBasket>();
                 return new BasketResponse { Success = true, StatusCode = responseMessage.StatusCode, BasketWithItems = basket };
             }
             else
