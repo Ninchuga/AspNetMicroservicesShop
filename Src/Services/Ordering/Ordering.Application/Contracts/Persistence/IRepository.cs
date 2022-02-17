@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ordering.Application.Contracts.Persistence
 {
-    public interface IRepository<T> where T : Entity
+    public interface IRepository<T> where T : class, IAggregateRoot
 	{
 		Task<IReadOnlyList<T>> GetAllAsync();
 		Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate);

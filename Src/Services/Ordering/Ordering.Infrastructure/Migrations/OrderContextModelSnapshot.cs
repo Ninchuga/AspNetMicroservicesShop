@@ -22,7 +22,6 @@ namespace Ordering.Infrastructure.Migrations
             modelBuilder.Entity("Ordering.Domain.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("OrderCancellationDate")
@@ -52,9 +51,10 @@ namespace Ordering.Infrastructure.Migrations
 
             modelBuilder.Entity("Ordering.Domain.Entities.OrderItem", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal>("Discount")
                         .HasColumnType("decimal(18,2)");
@@ -96,9 +96,6 @@ namespace Ordering.Infrastructure.Migrations
                             b1.Property<string>("Country")
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.Property<string>("Email")
-                                .HasColumnType("nvarchar(max)");
-
                             b1.Property<string>("FirstName")
                                 .HasColumnType("nvarchar(max)");
 
@@ -114,15 +111,30 @@ namespace Ordering.Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
+
+                            b1.OwnsOne("Ordering.Domain.ValueObjects.Email", "Email", b2 =>
+                                {
+                                    b2.Property<Guid>("AddressOrderId")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<string>("Value")
+                                        .HasColumnType("nvarchar(max)");
+
+                                    b2.HasKey("AddressOrderId");
+
+                                    b2.ToTable("Orders");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("AddressOrderId");
+                                });
+
+                            b1.Navigation("Email");
                         });
 
                     b.OwnsOne("Ordering.Domain.ValueObjects.PaymentData", "PaymentData", b1 =>
                         {
                             b1.Property<Guid>("OrderId")
                                 .HasColumnType("uniqueidentifier");
-
-                            b1.Property<int>("CVV")
-                                .HasColumnType("int");
 
                             b1.Property<string>("CardName")
                                 .HasColumnType("nvarchar(max)");
@@ -139,6 +151,24 @@ namespace Ordering.Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
+
+                            b1.OwnsOne("Ordering.Domain.ValueObjects.CVV", "CVV", b2 =>
+                                {
+                                    b2.Property<Guid>("PaymentDataOrderId")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<int>("Value")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("PaymentDataOrderId");
+
+                                    b2.ToTable("Orders");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("PaymentDataOrderId");
+                                });
+
+                            b1.Navigation("CVV");
                         });
 
                     b.Navigation("Address");

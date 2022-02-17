@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Ordering.Domain.Entities
 {
-    public class Order : Entity
+    public class Order : BaseEntity<Guid>, IAggregateRoot
     {
         public Guid UserId { get; }
         public string UserName { get; }
@@ -64,15 +64,15 @@ namespace Ordering.Domain.Entities
             }
             else
             {
-                var orderItem = new OrderItem(Guid.NewGuid(), productId, quantity, itemPrice, productName, discount);
+                var orderItem = new OrderItem(productId, quantity, itemPrice, productName, discount);
                 _orderItems.Add(orderItem);
             }
         }
 
-        public void SetOrderStatusToPaid()
+        public void SetOrderToPaid()
         {
             OrderStatus = OrderStatus.ORDER_BILLED;
-            PaymentData.SetOrderToPaid();
+            PaymentData = PaymentData.OrderIsPaid();
         }
 
         public void SetOrderStatusToDelivered() => OrderStatus = OrderStatus.ORDER_DELIVERED;

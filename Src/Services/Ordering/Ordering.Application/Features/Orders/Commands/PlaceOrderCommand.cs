@@ -83,8 +83,8 @@ namespace Ordering.Application.Features.Orders.Commands
                 request.TotalPrice,
                 OrderStatus.PENDING,
                 orderDate: DateTime.UtcNow,
-                address: new Address(request.FirstName, request.LastName, request.Email, request.Street, request.Country, request.City),
-                paymentData: new PaymentData(request.CardName, request.CardNumber, orderPaid: false, request.CVV)
+                address: new Address(request.FirstName, request.LastName, Email.From(request.Email), request.Street, request.Country, request.City),
+                paymentData: PaymentData.From(request.CardName, request.CardNumber, orderPaid: false, CVV.From(request.CVV))
                 );
 
             foreach (var item in request.OrderItems)

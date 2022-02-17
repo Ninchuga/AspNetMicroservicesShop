@@ -43,7 +43,7 @@ namespace Ordering.Application.Features.Orders.Commands
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
-            order.SetOrderStatusToPaid();
+            order.SetOrderToPaid();
 
             await _orderRepository.SaveChanges();
 

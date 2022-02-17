@@ -5,9 +5,11 @@ namespace Ordering.Domain.ValueObjects
 {
     public class Address : ValueObject
     {
-        public Address() { }
+        // Empty constructor in this case is required by EF Core
+        // because has a complex type as a parameter in the default constructor
+        private Address() { }
 
-        public Address(string firstName, string lastName, string email, string street, string country, string city)
+        public Address(string firstName, string lastName, Email email, string street, string country, string city)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -19,7 +21,7 @@ namespace Ordering.Domain.ValueObjects
 
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
-        public string Email { get; private set; } // this should be a Value Object
+        public Email Email { get; private set; }
         public string Street { get; private set; }
         public string Country { get; private set; }
         public string City { get; private set; }

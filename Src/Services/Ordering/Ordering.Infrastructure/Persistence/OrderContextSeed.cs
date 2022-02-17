@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Domain.Entities;
+using Ordering.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,8 +33,8 @@ namespace Ordering.Infrastructure.Persistence
                     totalPrice: 550,
                     orderStatus: Domain.Common.OrderStatus.PENDING,
                     orderDate: DateTime.UtcNow,
-                    new Domain.ValueObjects.Address("Nino", "Djukic", "someemail@hotmail.com", "Pasterova 24", "SRB", "NS"),
-                    new Domain.ValueObjects.PaymentData("Nino", "1234566777", false, 555));
+                    new Address("Nino", "Djukic", Email.From("someemail@hotmail.com"), "Pasterova 24", "SRB", "NS"),
+                    PaymentData.From("Nino", "1234566777", false, CVV.From(555)));
             order.AddOrderItem("1990", "IPhone 6s", 250, 10);
 
             return new List<Order>

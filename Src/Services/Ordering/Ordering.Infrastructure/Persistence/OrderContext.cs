@@ -19,16 +19,6 @@ namespace Ordering.Infrastructure.Persistence
         {
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
             modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
-
-            //base.OnModelCreating(modelBuilder);
-
-            //modelBuilder.Entity<Order>()
-            //    .Property(order => order.TotalPrice)
-            //    .HasColumnType("decimal(18, 4)");
-
-            //modelBuilder.Entity<Order>()
-            //    .Property(order => order.OrderStatus)
-            //    .HasConversion<string>();
         }
 
         public OrderContext(DbContextOptions<OrderContext> options) : base(options)

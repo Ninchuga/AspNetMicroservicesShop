@@ -4,10 +4,10 @@ using System;
 
 namespace Ordering.Domain.Entities
 {
-    public class OrderItem : Entity
+    public class OrderItem : BaseEntity<int>
     {
-        public OrderItem(Guid id, string productId, int quantity, decimal price, string productName, decimal discount)
-            : base(id)
+        public OrderItem(string productId, int quantity, decimal price, string productName, decimal discount)
+            : base(default)
         {
             ProductId = productId;
             Quantity = quantity;

@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ordering.Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Ordering.Infrastructure.EntityConfigurations
 {
@@ -14,7 +12,7 @@ namespace Ordering.Infrastructure.EntityConfigurations
             builder.HasKey(i => i.Id);
 
             builder.Property(i => i.Id)
-                .IsRequired();
+                .ValueGeneratedOnAdd();
 
             // shadow property (FK) for Order entity Id
             builder.Property<Guid>("OrderId")

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Ordering.Infrastructure.Repositories
 {
-    public class RepositoryBase<T> : IRepository<T> where T : Entity
+    public class RepositoryBase<T> : IRepository<T> where T : class, IAggregateRoot
     {
         protected readonly OrderContext _orderContext;
 
@@ -39,6 +39,6 @@ namespace Ordering.Infrastructure.Repositories
             return SuccessfullySavedBy(insertedEntitiesNumber);
         }
 
-        private bool SuccessfullySavedBy(int entitiesInserted) => entitiesInserted > 0;
+        private bool SuccessfullySavedBy(int insertedEntitiesNumber) => insertedEntitiesNumber > 0;
     }
 }

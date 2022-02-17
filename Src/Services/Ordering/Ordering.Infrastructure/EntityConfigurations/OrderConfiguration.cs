@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Ordering.Infrastructure.EntityConfigurations
 {
@@ -15,6 +12,7 @@ namespace Ordering.Infrastructure.EntityConfigurations
             builder.HasKey(o => o.Id);
 
             builder.Property(o => o.Id)
+                .ValueGeneratedNever()
                 .IsRequired();
 
             builder
@@ -43,19 +41,35 @@ namespace Ordering.Infrastructure.EntityConfigurations
                 .Property(o => o.OrderCancellationDate)
                 .IsRequired(false);
 
-            builder.OwnsOne(o => o.Address);
-            // to change value object Address property names from Address_Street
-            // use o.Property(p => p.Street).HasColumnName("ShipsToStreet");
-
-            builder.OwnsOne(o => o.PaymentData);
-
             // If its set to IsRequired EF will use cascade deleting by default
             builder.HasMany(o => o.OrderItems)
                 .WithOne()
                 .IsRequired();
 
-            var navigation = builder.Metadata.FindNavigation(nameof(Order.OrderItems));
-            navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
+            var orderItemsNavigation = builder.Metadata.FindNavigation(nameof(Order.OrderItems));
+            orderItemsNavigation.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            // Configures a relationship where the Address is owned by (or part of) Order.
+            // to change value object Address property names from Address_Street
+            // use o.Property(p => p.Street).HasColumnName("ShipsToStreet");
+            builder.OwnsOne(
+                order => order.Address,
+                    addressNavigationBuilder =>
+                    {
+                        // Configures a relationship where the Email is owned by (or part of) Addresses.
+                        // In this case, is not used "ToTable();" to maintain the owned and owner in the same table. 
+                        addressNavigationBuilder.OwnsOne(address => address.Email);
+                    });
+
+            // Configures a relationship where the PaymentData is owned by (or part of) Order.
+            builder.OwnsOne(
+                order => order.PaymentData,
+                    paymentDataNavigationBuilder =>
+                    {
+                        // Configures a relationship where the Email is owned by (or part of) Addresses.
+                        // In this case, is not used "ToTable();" to maintain the owned and owner in the same table. 
+                        paymentDataNavigationBuilder.OwnsOne(address => address.CVV);
+                    });
         }
     }
 }

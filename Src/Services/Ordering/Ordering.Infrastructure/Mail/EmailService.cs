@@ -34,7 +34,7 @@ namespace Ordering.Infrastructure.Mail
             var emailFunctionUrl = _configuration["Azure:EmailFunctionUrl"];
 
             // Image/logo for the email can be retreived from blob storage
-            var email = new Email()
+            var email = new EmailTemplate()
             {
                 CustomerEmail = customerEmail,
                 Body = $"Hi {userName}, your order #{orderId} is being processed!",
@@ -60,7 +60,7 @@ namespace Ordering.Infrastructure.Mail
                 _logger.LogError("Email was not sent to the customer {UserName}", userName);
         }
 
-        public async Task<bool> SendEmail(Email email)
+        public async Task<bool> SendEmail(EmailTemplate email)
         {
             var client = new SendGridClient(_emailSettings.ApiKey);
 

@@ -8,6 +8,6 @@ namespace Ordering.Application.Contracts.Infrastrucutre
     public interface IEmailService
     {
         Task SendMailFor(string email, string userName, Guid orderId);
-        Task<bool> SendEmail(Email email);
+        Task<bool> SendEmail(EmailTemplate email);
     }
 }
