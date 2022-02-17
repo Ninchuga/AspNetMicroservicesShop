@@ -50,15 +50,22 @@ namespace Ordering.Infrastructure.EntityConfigurations
             orderItemsNavigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
             // Configures a relationship where the Address is owned by (or part of) Order.
-            // to change value object Address property names from Address_Street
-            // use o.Property(p => p.Street).HasColumnName("ShipsToStreet");
             builder.OwnsOne(
                 order => order.Address,
                     addressNavigationBuilder =>
                     {
                         // Configures a relationship where the Email is owned by (or part of) Addresses.
                         // In this case, is not used "ToTable();" to maintain the owned and owner in the same table. 
-                        addressNavigationBuilder.OwnsOne(address => address.Email);
+                        addressNavigationBuilder.OwnsOne(
+                            address => address.Email, 
+                                emailNavigationBuilder =>
+                                {
+                                    // update column to "Address_Email" instead of default name "Address_Email_Value"
+                                    emailNavigationBuilder
+                                        .Property(email => email.Value)
+                                        .HasColumnName("Address_Email");
+                                }
+                            );
                     });
 
             // Configures a relationship where the PaymentData is owned by (or part of) Order.
@@ -68,7 +75,16 @@ namespace Ordering.Infrastructure.EntityConfigurations
                     {
                         // Configures a relationship where the Email is owned by (or part of) Addresses.
                         // In this case, is not used "ToTable();" to maintain the owned and owner in the same table. 
-                        paymentDataNavigationBuilder.OwnsOne(address => address.CVV);
+                        paymentDataNavigationBuilder.OwnsOne(
+                            pd => pd.CVV,
+                                cvvNavigationBuilder =>
+                                {
+                                    // update column to "PaymentData_CVV" instead of default name "PaymentData_CVV_Value"
+                                    cvvNavigationBuilder
+                                        .Property(cvv => cvv.Value)
+                                        .HasColumnName("PaymentData_CVV");
+                                }
+                            );
                     });
         }
     }
