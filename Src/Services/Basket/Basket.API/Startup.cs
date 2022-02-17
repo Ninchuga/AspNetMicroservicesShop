@@ -1,6 +1,5 @@
 using Basket.API.Extensions;
 using Basket.API.GrpcServices;
-using Basket.API.Policies;
 using Basket.API.Repositories;
 using Basket.API.Services.Basket;
 using Basket.API.Services.Tokens;
@@ -15,6 +14,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Shopping.HealthChecks;
+using Shopping.Policies.Grpc;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

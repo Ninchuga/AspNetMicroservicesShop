@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Basket.API.Policies
+namespace Shopping.Policies.Grpc
 {
     public class GrpcPolicies
     {
@@ -41,7 +41,6 @@ namespace Basket.API.Policies
         {
             return Policy.HandleResult<HttpResponseMessage>(r => 
             {
-
                 var grpcStatus = StatusManager.GetStatusCode(r);
                 var httpStatusCode = r.StatusCode;
 
@@ -59,7 +58,6 @@ namespace Basket.API.Policies
         {
             return Policy.HandleResult<HttpResponseMessage>(r => 
             {
-
                 var grpcStatus = StatusManager.GetStatusCode(r);
                 var httpStatusCode = r.StatusCode;
 
