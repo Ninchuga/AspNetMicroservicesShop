@@ -43,7 +43,7 @@ namespace Payment.API.Consumers
                 serviceScopes: _configuration["DownstreamServicesScopes:OrderSagaOrchestrator"],
                 context.Message.SecurityContext.AccessToken);
 
-            var orderBilled = new OrderBilled
+            var orderPaid = new OrderPaid
             {
                 OrderId = context.Message.OrderId,
                 CorrelationId = context.Message.CorrelationId,
@@ -52,9 +52,9 @@ namespace Payment.API.Consumers
                 PaymentCardNumber = context.Message.PaymentCardNumber,
                 OrderTotalPrice = context.Message.OrderTotalPrice
             };
-            orderBilled.SecurityContext.AccessToken = accessToken;
+            orderPaid.SecurityContext.AccessToken = accessToken;
             
-            await context.Publish(orderBilled);
+            await context.Publish(orderPaid);
         }
     }
 }

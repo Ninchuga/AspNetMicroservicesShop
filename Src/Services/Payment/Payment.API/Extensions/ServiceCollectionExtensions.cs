@@ -22,7 +22,7 @@ namespace Payment.API.Extensions
                 {
                     cfg.Host(configuration.GetConnectionString("AzureServiceBusConnectionString"));
 
-                    cfg.Send<OrderBilled>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
+                    cfg.Send<OrderPaid>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
 
                     cfg.SubscriptionEndpoint<BillOrder>("bill-order-consumer", e =>
                     {

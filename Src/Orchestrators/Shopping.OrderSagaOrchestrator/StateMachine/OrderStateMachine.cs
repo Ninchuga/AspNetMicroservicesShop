@@ -14,7 +14,7 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
         public State Pending { get; private set; }
         public State OrderPlaced { get; private set; }
         public State OrderSentForBilling { get; private set; }
-        public State OrderBilled { get; private set; }
+        public State OrderPaid { get; private set; }
         public State OrderFailedToBeBilled { get; private set; }
         public State OrderWaitingToBeDispatched { get; private set; }
         public State OrderDispatched { get; private set; }
@@ -24,7 +24,7 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
 
         public Event<OrderPlaced> OrderPlacedEvent { get; private set; }
         public Event<BillOrder> BillOrderEvent { get; private set; }
-        public Event<OrderBilled> OrderBilledEvent { get; private set; }
+        public Event<OrderPaid> OrderBilledEvent { get; private set; }
         public Event<DispatchOrder> DispatchOrderEvent { get; private set; }
         public Event<OrderDispatched> OrderDispatchedEvent { get; private set; }
         public Event<OrderDelivered> OrderDeliveredEvent { get; private set; }
@@ -83,12 +83,12 @@ namespace Shopping.OrderSagaOrchestrator.StateMachine
                     .Then(context => context.Instance.OrderCancellationDate = context.Data.OrderCancellationDate)
                         .TransitionTo(OrderCanceled),
                 When(OrderBilledEvent)
-                    .TransitionTo(OrderBilled),
+                    .TransitionTo(OrderPaid),
                 When(BillOrderFaultEvent) // rollback will be handled inside BillOrderFaultConsumer
                     .TransitionTo(OrderFailedToBeBilled));
 
             // Waiting to be dispatched
-            During(OrderBilled,
+            During(OrderPaid,
                 Ignore(OrderDispatchedEvent),
                 When(DispatchOrderEvent)
                     .TransitionTo(OrderWaitingToBeDispatched));

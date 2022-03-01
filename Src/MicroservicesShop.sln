@@ -84,6 +84,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Host", "Host", "{4787E3E7-5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.HostCustomization", "BuildingBlocks\Host\Shopping.HostCustomization\Shopping.HostCustomization.csproj", "{33874545-14AD-42E1-8551-3A0800DA88A6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{19D5280F-9228-4289-A392-CDC69D976B84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.UnitTests", "Tests\Shopping.UnitTests\Shopping.UnitTests.csproj", "{681DB0C3-D916-4F00-A403-BCAB2289BBBB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -182,6 +186,10 @@ Global
 		{33874545-14AD-42E1-8551-3A0800DA88A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33874545-14AD-42E1-8551-3A0800DA88A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33874545-14AD-42E1-8551-3A0800DA88A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681DB0C3-D916-4F00-A403-BCAB2289BBBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{681DB0C3-D916-4F00-A403-BCAB2289BBBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{681DB0C3-D916-4F00-A403-BCAB2289BBBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{681DB0C3-D916-4F00-A403-BCAB2289BBBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -216,6 +224,7 @@ Global
 		{711CFC57-3BF2-4FFB-A5DD-47F01802B6EA} = {12B5FE04-6130-4C77-A007-693723E29401}
 		{4787E3E7-5584-4D98-BFF4-659DC7CADE40} = {E6F6CDC7-8135-48DE-B91F-CEDD6E96EF1F}
 		{33874545-14AD-42E1-8551-3A0800DA88A6} = {4787E3E7-5584-4D98-BFF4-659DC7CADE40}
+		{681DB0C3-D916-4F00-A403-BCAB2289BBBB} = {19D5280F-9228-4289-A392-CDC69D976B84}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8EEB88D2-331A-434A-A689-A2D159C22075}

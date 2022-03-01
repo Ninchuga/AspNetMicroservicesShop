@@ -7,8 +7,8 @@ namespace Ordering.Domain.Common
         [Description("Pending")]
         PENDING,
 
-        [Description("Order Billed")]
-        ORDER_BILLED,
+        [Description("Order Paid")]
+        ORDER_PAID,
 
         [Description("Order Dispatched")]
         ORDER_DISPATCHED,

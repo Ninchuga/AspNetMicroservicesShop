@@ -27,7 +27,7 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
 
                 config.AddConsumer<OrderPlacedConsumer>();
                 config.AddConsumer<OrderCanceledConsumer>();
-                config.AddConsumer<OrderBilledConsumer>();
+                config.AddConsumer<OrderPaidConsumer>();
                 config.AddConsumer<BillOrderFaultConsumer>();
                 config.AddConsumer<OrderDispatchedConsumer>();
                 config.AddConsumer<OrderDeliveredConsumer>();
@@ -53,9 +53,9 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
                         e.ConfigureConsumer<OrderCanceledConsumer>(context);
                     });
 
-                    cfg.SubscriptionEndpoint<OrderBilled>("order-billed-consumer", e =>
+                    cfg.SubscriptionEndpoint<OrderPaid>("order-paid-consumer", e =>
                     {
-                        e.ConfigureConsumer<OrderBilledConsumer>(context);
+                        e.ConfigureConsumer<OrderPaidConsumer>(context);
                     });
 
                     cfg.SubscriptionEndpoint<Fault<BillOrder>>("bill-order-fault-consumer", e =>
@@ -87,7 +87,7 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
             {
                 config.AddConsumer<OrderPlacedConsumer>();
                 config.AddConsumer<OrderCanceledConsumer>();
-                config.AddConsumer<OrderBilledConsumer>();
+                config.AddConsumer<OrderPaidConsumer>();
                 config.AddConsumer<BillOrderFaultConsumer>();
                 config.AddConsumer<OrderDispatchedConsumer>();
                 config.AddConsumer<OrderDeliveredConsumer>();
@@ -115,7 +115,7 @@ namespace Shopping.OrderSagaOrchestrator.Extensions
                         endpoint.StateMachineSaga<OrderStateData>(context);
                         endpoint.ConfigureConsumer<OrderPlacedConsumer>(context);
                         endpoint.ConfigureConsumer<OrderCanceledConsumer>(context);
-                        endpoint.ConfigureConsumer<OrderBilledConsumer>(context);
+                        endpoint.ConfigureConsumer<OrderPaidConsumer>(context);
                         endpoint.ConfigureConsumer<BillOrderFaultConsumer>(context);
                         endpoint.ConfigureConsumer<OrderDispatchedConsumer>(context);
                         endpoint.ConfigureConsumer<OrderDeliveredConsumer>(context);

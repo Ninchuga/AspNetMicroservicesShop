@@ -16,7 +16,7 @@ namespace Ordering.Infrastructure.Extensions
             services.AddMassTransit(config =>
             {
                 config.AddConsumer<OrderFailedToBeBilledConsumer>();
-                config.AddConsumer<NotifyOrderBilledConsumer>();
+                config.AddConsumer<NotifyOrderPaidConsumer>();
                 config.AddConsumer<NotifyOrderDispatchedConsumer>();
                 config.AddConsumer<NotifyOrderDeliveredConsumer>();
                 config.AddConsumer<OrderPlacedFaultConsumer>();
@@ -29,9 +29,9 @@ namespace Ordering.Infrastructure.Extensions
                     cfg.Send<OrderPlaced>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
                     cfg.Send<OrderCanceled>(s => s.UseSessionIdFormatter(c => c.Message.CorrelationId.ToString()));
 
-                    cfg.SubscriptionEndpoint<NotifyOrderBilled>("notify-order-billed-consumer", e =>
+                    cfg.SubscriptionEndpoint<NotifyOrderPaid>("notify-order-paid-consumer", e =>
                     {
-                        e.ConfigureConsumer<NotifyOrderBilledConsumer>(context);
+                        e.ConfigureConsumer<NotifyOrderPaidConsumer>(context);
                     });
 
                     cfg.SubscriptionEndpoint<NotifyOrderDispatched>("notify-order-dispatched-consumer", e =>
@@ -58,7 +58,7 @@ namespace Ordering.Infrastructure.Extensions
                 });
             });
 
-            // Used to start bus
+            // Used to start the bus
             services.AddMassTransitHostedService();
         }
 
@@ -68,7 +68,7 @@ namespace Ordering.Infrastructure.Extensions
             {
                 config.AddConsumer<OrderFailedToBeBilledConsumer>();
                 config.AddConsumer<NotifyOrderDispatchedConsumer>();
-                config.AddConsumer<NotifyOrderBilledConsumer>();
+                config.AddConsumer<NotifyOrderPaidConsumer>();
                 config.AddConsumer<NotifyOrderDeliveredConsumer>();
                 config.AddConsumer<OrderPlacedFaultConsumer>();
 
@@ -83,7 +83,7 @@ namespace Ordering.Infrastructure.Extensions
                             r.Ignore<ArgumentNullException>();
                             r.Interval(3, TimeSpan.FromSeconds(5));
                         });
-                        endpoint.ConfigureConsumer<NotifyOrderBilledConsumer>(context);
+                        endpoint.ConfigureConsumer<NotifyOrderPaidConsumer>(context);
                         endpoint.ConfigureConsumer<NotifyOrderDispatchedConsumer>(context);
                         endpoint.ConfigureConsumer<NotifyOrderDeliveredConsumer>(context);
                         endpoint.ConfigureConsumer<OrderPlacedFaultConsumer>(context);

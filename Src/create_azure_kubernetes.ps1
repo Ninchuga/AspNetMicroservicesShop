@@ -40,9 +40,9 @@ az ad sp create-for-rbac `
                 #--output tsv)
 
 # Copy entire JSON output from above command and use it in GitHub workflow action.
-# Place entire JSON in AZURE_ACR_SP_CREDENTIALS secret and use it for Azure CLI Login
+# Place entire JSON in AZURE_ACR_SP_CREDENTIALS secret in GitHub and use it for Azure CLI Login
 # Store also in GitHub secret REGISTRY_PASSWORD because it will be used to login to ACR to build and push container image
-$SP_PASSWD='e97DIrBl2WmpHHp~rgsqD3ySs_v57uWZsL' # copy client_secret from JSON which we use as a password
+$SP_PASSWD='' # copy client_secret from JSON which we use as a password
 az keyvault secret set `
     --vault-name $AKV_NAME `
     --name $ACR_NAME-push-pwd `
@@ -53,7 +53,6 @@ az keyvault secret set `
 
 # Next, store the service principal's appId in the vault, which is the username you pass to Azure Container Registry for authentication
 # Store service principal ID in AKV (the registry *username*)
-# use the app id of the service principal which we'll use as the username when authenticating to our ACR
 # app id will be used as our username when authenticating to ACR
 # Store also in GitHub secret REGISTRY_USERNAME because it will be used to login to ACR to build and push container image
 $ACR_SP_APP_ID=$(az ad sp list `

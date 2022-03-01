@@ -8,28 +8,28 @@ using System.Threading.Tasks;
 
 namespace Ordering.Application.EventBusConsumers
 {
-    public class NotifyOrderBilledConsumer : IConsumer<NotifyOrderBilled>
+    public class NotifyOrderPaidConsumer : IConsumer<NotifyOrderPaid>
     {
-        private readonly ILogger<NotifyOrderBilledConsumer> _logger;
+        private readonly ILogger<NotifyOrderPaidConsumer> _logger;
         private readonly IMediator _mediator;
         private readonly ITokenValidationService _tokenValidationService;
 
-        public NotifyOrderBilledConsumer(ILogger<NotifyOrderBilledConsumer> logger, IMediator mediator, ITokenValidationService tokenValidationService)
+        public NotifyOrderPaidConsumer(ILogger<NotifyOrderPaidConsumer> logger, IMediator mediator, ITokenValidationService tokenValidationService)
         {
             _logger = logger;
             _mediator = mediator;
             _tokenValidationService = tokenValidationService;
         }
 
-        public async Task Consume(ConsumeContext<NotifyOrderBilled> context)
+        public async Task Consume(ConsumeContext<NotifyOrderPaid> context)
         {
             using var loggerScope = _logger.BeginScope("{CorrelationId}", context.Message.CorrelationId);
-            _logger.LogInformation("Order id: {OrderId} billed notification", context.Message.OrderId);
+            _logger.LogInformation("Order id: {OrderId} paid notification", context.Message.OrderId);
 
             var tokenValidated = await _tokenValidationService.ValidateTokenAsync(context.Message.SecurityContext.AccessToken, context.SentTime.Value);
             if (!tokenValidated)
             {
-                _logger.LogError("Access token validation failed in consumer {ConsumerName}", nameof(NotifyOrderBilledConsumer));
+                _logger.LogError("Access token validation failed in consumer {ConsumerName}", nameof(NotifyOrderPaidConsumer));
                 return;
             }
 

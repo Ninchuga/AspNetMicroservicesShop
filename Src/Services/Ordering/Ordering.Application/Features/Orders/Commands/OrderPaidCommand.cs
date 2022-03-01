@@ -47,7 +47,7 @@ namespace Ordering.Application.Features.Orders.Commands
 
             await _orderRepository.SaveChanges();
 
-            _logger.LogInformation("Order id {OrderId} successfully paid and status updated to {NewOrderStatus}.", request.OrderId, OrderStatus.ORDER_BILLED);
+            _logger.LogInformation("Order id {OrderId} successfully paid and status updated to {NewOrderStatus}.", request.OrderId, OrderStatus.ORDER_PAID);
 
             _logger.LogInformation("Notifying the clients about the status change...");
 

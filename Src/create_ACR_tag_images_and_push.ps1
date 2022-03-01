@@ -3,7 +3,7 @@
 $ACR_NAME='shoppingportalacr'  #<---- THIS NEEDS TO BE GLOBALLY unique inside of Azure
 az acr create `
 	--resource-group shopping-portal `
-	--name $ACRName `
+	--name $ACR_NAME `
 	--sku Standard
 
 

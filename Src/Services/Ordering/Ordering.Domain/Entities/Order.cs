@@ -18,8 +18,6 @@ namespace Ordering.Domain.Entities
 
         // BillingAddress
         public Address Address { get; private set; }
-
-        // Payment
         public PaymentData PaymentData { get; private set; }
 
         private List<OrderItem> _orderItems;
@@ -71,8 +69,8 @@ namespace Ordering.Domain.Entities
 
         public void SetOrderToPaid()
         {
-            OrderStatus = OrderStatus.ORDER_BILLED;
-            PaymentData = PaymentData.OrderIsPaid();
+            OrderStatus = OrderStatus.ORDER_PAID;
+            PaymentData = PaymentData.PaidOrder();
         }
 
         public void SetOrderStatusToDelivered() => OrderStatus = OrderStatus.ORDER_DELIVERED;
@@ -83,12 +81,15 @@ namespace Ordering.Domain.Entities
 
         public void SetCanceledOrderStatusAndTime()
         {
-            var isValidToCancel = OrderDate.AddHours(24) > DateTime.UtcNow;
-            if (!isValidToCancel)
-                throw new OrderingDomainException("You can only cancel your order in 24h when the order was placed.");
+            if (OrderStatus == OrderStatus.ORDER_CANCELED)
+                throw new OrderCancelationException("Order is already canceled.");
 
-            if (OrderStatus != OrderStatus.PENDING || OrderStatus != OrderStatus.ORDER_FAILED_TO_BE_BILLED)
-                throw new OrderingDomainException("Order is already billed and can't be canceled.");
+            bool isValidToCancel = OrderDate.AddHours(24) > DateTime.UtcNow;
+            if (!isValidToCancel && (OrderStatus == OrderStatus.PENDING || OrderStatus == OrderStatus.ORDER_FAILED_TO_BE_BILLED))
+                throw new OrderCancelationException("You can only cancel your order in the first 24h when the order was placed.");
+
+            if (OrderStatus != OrderStatus.PENDING && OrderStatus != OrderStatus.ORDER_FAILED_TO_BE_BILLED)
+                throw new OrderCancelationException("Order is already billed and can't be canceled.");
 
             OrderStatus = OrderStatus.ORDER_CANCELED;
             OrderCancellationDate = DateTime.UtcNow;
