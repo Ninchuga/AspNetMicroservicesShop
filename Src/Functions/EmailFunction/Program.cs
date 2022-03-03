@@ -1,7 +1,6 @@
 using EmailFunction.Extensions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using System.IO;
+using System;
 using System.Threading.Tasks;
 
 namespace EmailFunction
@@ -11,20 +10,22 @@ namespace EmailFunction
         public static async Task Main()
         {
             var host = new HostBuilder()
+                .ConfigureAppConfiguration(configuration =>
+                {
+                    var env = Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT");
+
+                    // in the local environment function adds by default json file local.settings.json
+                    //configuration.AddJsonFile($"secrets.settings.json", optional: true, reloadOnChange: true)
+                             //    .AddEnvironmentVariables();
+                })
                 .ConfigureFunctionsWorkerDefaults(worker =>
                 {
                     worker.UseNewtonsoftJson();
                 })
-                .ConfigureAppConfiguration(configuration =>
-                {
-                    var settings = configuration.Build();
-                    var env = settings["ASPNETCORE_ENVIRONMENT"];
-
-                    configuration.AddJsonFile("local.settings.json", optional: true);
-                    //configuration.AddJsonFile($"appsettings.{env}.json", optional: true);
-                    //configuration.AddJsonFile($"appsettings.local.json", optional: true);
-                    configuration.AddEnvironmentVariables();
-                })
+                //.ConfigureServices(services =>
+                //{
+                //    // add dependencies in here if there are any
+                //})
                 //.UseSerilog(LoggingConfiguration.Configure)
                 .Build();
 

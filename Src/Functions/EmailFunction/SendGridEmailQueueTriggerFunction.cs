@@ -29,7 +29,7 @@ namespace EmailFunction
             message.AddTo(email.CustomerEmail);
             message.AddContent("text/plain", email.Body);
 
-            logger.LogInformation("{nameof(SendGridEmailQueueTriggerFunction)} sending email for the customer {CustomerEmail}", email.CustomerEmail);
+            logger.LogInformation("Sending email for the customer {CustomerEmail}", email.CustomerEmail);
 
             return message;
         }
