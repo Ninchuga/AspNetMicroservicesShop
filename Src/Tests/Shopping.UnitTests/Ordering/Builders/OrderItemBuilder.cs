@@ -1,7 +1,7 @@
 ﻿using Ordering.Domain.Entities;
 using System;
 
-namespace Shopping.UnitTests.Utility
+namespace Shopping.UnitTests.Ordering.Builders
 {
     public class OrderItemBuilder
     {
@@ -23,6 +23,16 @@ namespace Shopping.UnitTests.Utility
         public static OrderItem BuildWithProductId(string productId)
         {
             return new OrderItem(productId, Quantity, Price, ProductName, Discount);
+        }
+
+        public static OrderItem BuildWithQuantityAndPrice(int quantity, decimal price)
+        {
+            return new OrderItem(GenerateProductId(), quantity, price, ProductName, Discount);
+        }
+
+        public static OrderItem BuildWithQuantityAndPriceAndDiscount(int quantity, decimal price, decimal discount)
+        {
+            return new OrderItem(GenerateProductId(), quantity, price, ProductName, discount);
         }
 
         private static string GenerateProductId()

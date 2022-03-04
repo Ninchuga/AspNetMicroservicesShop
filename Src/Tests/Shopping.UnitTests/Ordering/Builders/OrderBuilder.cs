@@ -3,7 +3,7 @@ using Ordering.Domain.Entities;
 using Ordering.Domain.ValueObjects;
 using System;
 
-namespace Shopping.UnitTests.Utility
+namespace Shopping.UnitTests.Ordering.Builders
 {
     public class OrderBuilder
     {

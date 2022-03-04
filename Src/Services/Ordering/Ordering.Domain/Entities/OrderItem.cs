@@ -27,7 +27,7 @@ namespace Ordering.Domain.Entities
         {
             if (discount < 0)
             {
-                throw new OrderingDomainException("Discount is not valid");
+                throw new OrderingDomainException("Discount is not valid for the order item");
             }
 
             Discount = discount;
@@ -37,7 +37,7 @@ namespace Ordering.Domain.Entities
         {
             if (quantity < 0)
             {
-                throw new OrderingDomainException("Invalid quantity");
+                throw new OrderingDomainException("Invalid order item quantity");
             }
 
             Quantity += quantity;

@@ -2,12 +2,10 @@
 using Ordering.Domain.Common;
 using Ordering.Domain.Entities;
 using Ordering.Domain.Exceptions;
+using Shopping.UnitTests.Ordering.Builders;
 using Shopping.UnitTests.Utility;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Shopping.UnitTests.Ordering
