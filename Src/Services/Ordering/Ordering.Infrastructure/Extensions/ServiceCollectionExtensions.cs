@@ -101,7 +101,7 @@ namespace Ordering.Infrastructure.Extensions
                 });
             });
 
-            // Used to start bus
+            // Used to start the bus
             services.AddMassTransitHostedService();
         }
     }

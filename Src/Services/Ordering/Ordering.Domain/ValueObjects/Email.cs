@@ -18,7 +18,7 @@ namespace Ordering.Domain.ValueObjects
         public static Email From(string email)
         {
             if (string.IsNullOrEmpty(email))
-                throw new ArgumentException("Email can't be empty");
+                throw new ArgumentNullException("Email can't be empty");
             if (email.Length > 100)
                 throw new ArgumentException("E-mail is too long");
             if (!Regex.IsMatch(email, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"))

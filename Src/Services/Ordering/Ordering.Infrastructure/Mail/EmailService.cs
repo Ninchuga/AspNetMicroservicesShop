@@ -31,6 +31,8 @@ namespace Ordering.Infrastructure.Mail
 
         public async Task SendMailFor(string customerEmail, string userName, Guid orderId)
         {
+            _logger.LogInformation("Sending email for the created order {OrderId}", orderId);
+
             var emailFunctionUrl = _configuration["Azure:EmailFunctionUrl"];
 
             // Image/logo for the email can be retreived from blob storage

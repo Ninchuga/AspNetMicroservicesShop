@@ -15,6 +15,7 @@ using Ordering.Domain.Entities;
 using Ordering.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -52,18 +53,16 @@ namespace Ordering.Application.Features.Orders.Commands
     public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, OrderPlacedCommandResponse>
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
         private readonly ILogger<PlaceOrderCommandHandler> _logger;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly ITokenExchangeService _tokenExchangeService;
         private readonly IConfiguration _configuration;
 
-        public PlaceOrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IEmailService emailService,
+        public PlaceOrderCommandHandler(IOrderRepository orderRepository, IEmailService emailService,
             ILogger<PlaceOrderCommandHandler> logger, IPublishEndpoint publishEndpoint, ITokenExchangeService tokenExchangeService, IConfiguration configuration)
         {
             _orderRepository = orderRepository;
-            _mapper = mapper;
             _emailService = emailService;
             _logger = logger;
             _publishEndpoint = publishEndpoint;
@@ -75,6 +74,9 @@ namespace Ordering.Application.Features.Orders.Commands
         {
             using var loggerScope = _logger.BeginScope("{CorrelationId} {UserId}", request.CorrelationId, request.UserId);
             _logger.LogInformation("Creating order {@Order}", request);
+
+            if (!request.OrderItems.Any())
+                return new OrderPlacedCommandResponse(success: false, errorMessage: "Order must have at least one order item.");
 
             var order = new Order(
                 orderId: Guid.NewGuid(),
@@ -100,11 +102,7 @@ namespace Ordering.Application.Features.Orders.Commands
                 {
                     _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
 
-                    _logger.LogInformation("Sending email for the created order {OrderId}", order.Id);
-
                     await _emailService.SendMailFor(request.Email, request.UserName, order.Id);
-
-                    _logger.LogInformation("Publishing {EventName} event...", nameof(OrderPlaced));
 
                     await PublishOrderPlacedEvent(order, request.CorrelationId);
 
@@ -114,13 +112,13 @@ namespace Ordering.Application.Features.Orders.Commands
 
                 return orderInserted 
                     ? new OrderPlacedCommandResponse(success: orderInserted, errorMessage: string.Empty)
-                    : new OrderPlacedCommandResponse(success: orderInserted, errorMessage: "Order failed to be inserted in db.");
+                    : new OrderPlacedCommandResponse(success: orderInserted, errorMessage: "Order was not inserted in db.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Order for the user {UserId} failed to be created.", request.UserId);
+                _logger.LogError(ex, "There was an unexpected error for the {UserId} in {CommandHandler}", request.UserId, nameof(PlaceOrderCommandHandler));
 
-                return new OrderPlacedCommandResponse(success: false, ex.Message);
+                return new OrderPlacedCommandResponse(success: false, $"{nameof(PlaceOrderCommandHandler)} failed with message: {ex.Message}");
             }
         }
 
@@ -140,7 +138,9 @@ namespace Ordering.Application.Features.Orders.Commands
                 CustomerUsername = order.UserName
             };
             orderPlacedEvent.SecurityContext.AccessToken = accessToken;
-            
+
+            _logger.LogInformation("Publishing {EventName} event...", nameof(OrderPlaced));
+
             await _publishEndpoint.Publish(orderPlacedEvent);
         }
     }
