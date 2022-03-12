@@ -12,7 +12,7 @@ namespace Ordering.Application.Mappings
         {
             CreateMap<Order, OrderDto>()
                 .ForMember(destination => destination.OrderId, op => op.MapFrom(source => source.Id))
-                .ForMember(destination => destination.OrderStatus, op => op.MapFrom(source => source.OrderStatus.GetDescription()))
+                .ForMember(destination => destination.OrderStatus, op => op.MapFrom(source => source.OrderStatus))
                 .ForMember(destination => destination.FirstName, op => op.MapFrom(source => source.Address.FirstName))
                 .ForMember(destination => destination.LastName, op => op.MapFrom(source => source.Address.LastName))
                 .ForMember(destination => destination.Email, op => op.MapFrom(source => source.Address.Email))

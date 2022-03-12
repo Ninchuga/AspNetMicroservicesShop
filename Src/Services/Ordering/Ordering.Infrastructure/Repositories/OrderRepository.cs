@@ -23,7 +23,7 @@ namespace Ordering.Infrastructure.Repositories
                .FirstOrDefaultAsync(order => order.Id == orderId);
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersBy(Guid userId)
+        public async Task<IReadOnlyList<Order>> GetOrdersBy(Guid userId)
         {
             var orderList = await _orderContext
                 .Orders

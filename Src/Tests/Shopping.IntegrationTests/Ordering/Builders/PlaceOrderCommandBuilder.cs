@@ -44,6 +44,28 @@ namespace Shopping.IntegrationTests.Ordering.Builders
             };
         }
 
+        public static PlaceOrderCommand BuildWithOrderItemForUser(OrderItemDto orderItem, Guid userId)
+        {
+            return new PlaceOrderCommand()
+            {
+                CorrelationId = CorrelationId,
+                UserId = userId,
+                UserName = UserName,
+                TotalPrice = TotalPrice,
+                FirstName = FirstName,
+                LastName = LastName,
+                Email = Email,
+                Street = Street,
+                Country = Country,
+                City = City,
+                CardName = CardName,
+                CardNumber = CardNumber,
+                CardExpiration = CardExpiration,
+                CVV = CVV,
+                OrderItems = new List<OrderItemDto> { orderItem }
+            };
+        }
+
         public static PlaceOrderCommand BuildWithOrderItemAndEmail(OrderItemDto orderItem, string email)
         {
             return new PlaceOrderCommand()

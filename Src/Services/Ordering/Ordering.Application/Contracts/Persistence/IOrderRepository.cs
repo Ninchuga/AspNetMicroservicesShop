@@ -7,7 +7,7 @@ namespace Ordering.Application.Contracts.Persistence
 {
     public interface IOrderRepository : IRepository<Order>
     {
-        Task<IEnumerable<Order>> GetOrdersBy(Guid userId);
+        Task<IReadOnlyList<Order>> GetOrdersBy(Guid userId);
         Task<Order> GetOrderBy(Guid orderId);
     }
 }

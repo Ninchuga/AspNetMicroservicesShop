@@ -30,7 +30,8 @@ namespace Ordering.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<OrderDto>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrdersFor(Guid userId)
         {
-            var query = new GetOrdersListQuery(userId);
+            Guid correlationId = new(HttpContext.Request.Headers[Headers.CorrelationIdHeader][0]);
+            var query = new GetOrdersListQuery(userId, correlationId);
             var orders = await _mediator.Send(query);
 
             return Ok(orders);
@@ -40,7 +41,8 @@ namespace Ordering.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<OrderDto>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<OrderDto>> GetOrderFor(Guid orderId)
         {
-            var query = new GetOrderQuery(orderId);
+            Guid correlationId = new(HttpContext.Request.Headers[Headers.CorrelationIdHeader][0]);
+            var query = new GetOrderQuery(orderId, correlationId);
             var order = await _mediator.Send(query);
 
             return Ok(order);
