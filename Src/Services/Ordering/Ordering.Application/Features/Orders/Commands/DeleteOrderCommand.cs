@@ -11,7 +11,14 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class DeleteOrderCommand : IRequest
     {
-        public Guid OrderId { get; set; }
+        public DeleteOrderCommand(Guid orderId, Guid correlationId)
+        {
+            OrderId = orderId;
+            CorrelationId = correlationId;
+        }
+
+        public Guid OrderId { get; }
+        public Guid CorrelationId { get; }
     }
 
     public class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderCommand>

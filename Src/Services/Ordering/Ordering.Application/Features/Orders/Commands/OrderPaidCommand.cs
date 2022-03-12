@@ -15,8 +15,14 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class OrderPaidCommand : IRequest
     {
-        public Guid OrderId { get; set; }
-        public Guid CorrelationId { get; set; }
+        public OrderPaidCommand(Guid orderId, Guid correlationId)
+        {
+            OrderId = orderId;
+            CorrelationId = correlationId;
+        }
+
+        public Guid OrderId { get; }
+        public Guid CorrelationId { get; }
     }
 
     public class OrderPaidCommandHandler : IRequestHandler<OrderPaidCommand>
@@ -39,19 +45,26 @@ namespace Ordering.Application.Features.Orders.Commands
             var order = await _orderRepository.GetOrderBy(request.OrderId);
             if (order == null)
             {
-                _logger.LogWarning("There is no order with id: {OrderId} to update.", request.OrderId);
+                _logger.LogWarning("There is no order with id {OrderId} to update.", request.OrderId);
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
-            order.SetOrderToPaid();
+            try
+            {
+                order.SetOrderToPaid();
 
-            await _orderRepository.SaveChanges();
+                await _orderRepository.SaveChanges();
 
-            _logger.LogInformation("Order id {OrderId} successfully paid and status updated to {NewOrderStatus}.", request.OrderId, OrderStatus.ORDER_PAID);
+                _logger.LogInformation("Order {OrderId} successfully paid and status updated to {OrderStatus}.", request.OrderId, OrderStatus.ORDER_PAID);
 
-            _logger.LogInformation("Notifying the clients about the status change...");
+                _logger.LogInformation("Notifying the clients about the status change...");
 
-            await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
+                await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error happened while executing the command {Command} for order {OrderId}. The reason: {ErrorMessage}.", nameof(OrderPaidCommand), request.OrderId, ex.Message);
+            }
 
             return Unit.Value;
         }

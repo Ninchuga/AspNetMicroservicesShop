@@ -21,8 +21,6 @@ namespace Shopping.IntegrationTests.Ordering.Builders
         private static string CardNumber => "123456778898";
         private static string CardExpiration => DateTime.Now.Month.ToString();
         private static int CVV => 123;
-        private static List<OrderItemDto> OrderItems => new List<OrderItemDto>();
-
 
         public static PlaceOrderCommand BuildWithOrderItem(OrderItemDto orderItem)
         {
@@ -87,6 +85,28 @@ namespace Shopping.IntegrationTests.Ordering.Builders
                 CardExpiration = CardExpiration,
                 CVV = CVV,
                 OrderItems = new List<OrderItemDto>()
+            };
+        }
+
+        public static PlaceOrderCommand BuildWithoutUserNameAndFirstName(OrderItemDto orderItem)
+        {
+            return new PlaceOrderCommand()
+            {
+                CorrelationId = CorrelationId,
+                UserId = UserId,
+                UserName = null,
+                TotalPrice = TotalPrice,
+                FirstName = null,
+                LastName = LastName,
+                Email = Email,
+                Street = Street,
+                Country = Country,
+                City = City,
+                CardName = CardName,
+                CardNumber = CardNumber,
+                CardExpiration = CardExpiration,
+                CVV = CVV,
+                OrderItems = new List<OrderItemDto> { orderItem }
             };
         }
     }

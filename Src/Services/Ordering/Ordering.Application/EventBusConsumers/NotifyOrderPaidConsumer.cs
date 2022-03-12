@@ -33,12 +33,7 @@ namespace Ordering.Application.EventBusConsumers
                 return;
             }
 
-            var command = new OrderPaidCommand
-            {
-                CorrelationId = context.Message.CorrelationId,
-                OrderId = context.Message.OrderId
-            };
-
+            var command = new OrderPaidCommand(context.Message.CorrelationId, context.Message.OrderId);
             await _mediator.Send(command);
         }
     }

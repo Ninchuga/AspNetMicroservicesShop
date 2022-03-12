@@ -17,8 +17,14 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class OrderFailedToBeBilledCommand : IRequest
     {
-        public Guid OrderId { get; set; }
-        public Guid CorrelationId { get; set; }
+        public OrderFailedToBeBilledCommand(Guid orderId, Guid correlationId)
+        {
+            OrderId = orderId;
+            CorrelationId = correlationId;
+        }
+
+        public Guid OrderId { get; }
+        public Guid CorrelationId { get; }
     }
 
     public class OrderFailedToBeBilledCommandHandler : IRequestHandler<OrderFailedToBeBilledCommand>
@@ -41,19 +47,26 @@ namespace Ordering.Application.Features.Orders.Commands
             var order = await _orderRepository.GetOrderBy(request.OrderId);
             if (order == null)
             {
-                _logger.LogWarning("There is no order with id: {OrderId} to update.", request.OrderId);
+                _logger.LogWarning("There is no order with id {OrderId} to update.", request.OrderId);
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
-            order.SetOrderStatusToPending();
+            try
+            {
+                order.SetOrderStatusToPending();
 
-            await _orderRepository.SaveChanges();
+                await _orderRepository.SaveChanges();
 
-            _logger.LogInformation("Order id {OrderId} failed to be billed. Reverting order status to {NewOrderStatus}.", request.OrderId, OrderStatus.PENDING);
+                _logger.LogInformation("Order id {OrderId} failed to be billed. Reverting order status to {OrderStatus}.", request.OrderId, OrderStatus.PENDING);
 
-            _logger.LogInformation("Notifying the clients about the status change...");
+                _logger.LogInformation("Notifying the clients about the status change...");
 
-            await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
+                await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error happened while executing command {Command} for order {OrderId}. The reason: {ErrorMessage}.", nameof(OrderFailedToBeBilledCommand), request.OrderId, ex.Message);
+            }
 
             return Unit.Value;
         }

@@ -37,12 +37,7 @@ namespace Ordering.Application.EventBusConsumers
             }
 
             // Rollback Order to previous state -> PENDING
-            var command = new OrderFailedToBeBilledCommand
-            {
-                CorrelationId = context.Message.CorrelationId,
-                OrderId = context.Message.OrderId
-            };
-
+            var command = new OrderFailedToBeBilledCommand(context.Message.CorrelationId, context.Message.OrderId);
             await _mediator.Send(command);
         }
     }

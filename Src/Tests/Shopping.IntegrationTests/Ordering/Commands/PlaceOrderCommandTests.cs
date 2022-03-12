@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentValidation;
 using Shopping.IntegrationTests.Ordering.Builders;
 using Shopping.IntegrationTests.Utility.Ordering;
 using System;
@@ -52,6 +53,17 @@ namespace Shopping.IntegrationTests.Ordering.Commands
 
             response.Success.Should().BeFalse();
             response.ErrorMessage.Should().Be("Order must have at least one order item.");
+        }
+
+        [Fact]
+        [Trait("Ordering", "Place Order Without Username and First Name")]
+        public void ShouldThrowValidationExceptionWhenTheMandatoryDataIsMissing()
+        {
+            var orderItemDto = OrderItemBuilder.BuildDto();
+            var command = PlaceOrderCommandBuilder.BuildWithoutUserNameAndFirstName(orderItemDto);
+
+            FluentActions.Invoking(() => _fixture.Send(command))
+                .Should().ThrowAsync<ValidationException>();
         }
     }
 }

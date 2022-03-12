@@ -52,7 +52,9 @@ namespace Ordering.API.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult> DeleteOrder(Guid orderId)
         {
-            var command = new DeleteOrderCommand() { OrderId = orderId };
+            Guid correlationId = new(HttpContext.Request.Headers[Headers.CorrelationIdHeader][0]);
+            var command = new DeleteOrderCommand(orderId, correlationId);
+            
             await _mediator.Send(command);
             return NoContent();
         }
@@ -79,7 +81,7 @@ namespace Ordering.API.Controllers
         public async Task<ActionResult> CancelOrder([FromBody] CancelOrderDto order)
         {
             Guid correlationId = new(HttpContext.Request.Headers[Headers.CorrelationIdHeader][0]);
-            var command = new CancelOrderCommand(order.OrderId, order.UserId, correlationId);
+            var command = new CancelOrderCommand(order.OrderId, correlationId);
 
             var response = await _mediator.Send(command);
             return response.Success ? Ok() : BadRequest();

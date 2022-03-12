@@ -111,8 +111,8 @@ namespace Ordering.Application.Features.Orders.Commands
                 }
 
                 return orderInserted 
-                    ? new OrderPlacedCommandResponse(success: orderInserted, errorMessage: string.Empty)
-                    : new OrderPlacedCommandResponse(success: orderInserted, errorMessage: "Order was not inserted in db.");
+                    ? new OrderPlacedCommandResponse(success: true, errorMessage: string.Empty, order.Id)
+                    : new OrderPlacedCommandResponse(success: false, errorMessage: "Order was not inserted in db.");
             }
             catch (Exception ex)
             {

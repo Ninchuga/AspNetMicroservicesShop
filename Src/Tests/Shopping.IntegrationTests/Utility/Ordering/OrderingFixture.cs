@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Ordering.Domain.Entities;
 
 namespace Shopping.IntegrationTests.Utility.Ordering
 {
@@ -70,6 +71,15 @@ namespace Shopping.IntegrationTests.Utility.Ordering
             var mediator = scope.ServiceProvider.GetService<IMediator>();
 
             return await mediator.Send(request);
+        }
+
+        public async Task<Order> GetOrderBy(Guid orderId)
+        {
+            using var scope = _scopeFactory.CreateScope();
+
+            var context = scope.ServiceProvider.GetService<OrderContext>();
+
+            return await context.Orders.FirstOrDefaultAsync(order => order.Id.Equals(orderId));
         }
 
         public void Dispose()

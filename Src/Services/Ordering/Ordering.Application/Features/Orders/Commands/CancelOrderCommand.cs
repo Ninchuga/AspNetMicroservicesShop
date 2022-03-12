@@ -17,15 +17,13 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class CancelOrderCommand : IRequest<CancelOrderCommandResponse>
     {
-        public CancelOrderCommand(Guid orderId, Guid userId, Guid correlationId)
+        public CancelOrderCommand(Guid orderId, Guid correlationId)
         {
             OrderId = orderId;
-            UserId = userId;
             CorrelationId = correlationId;
         }
 
         public Guid OrderId { get; }
-        public Guid UserId { get; }
         public Guid CorrelationId { get; }
     }
 
@@ -62,7 +60,13 @@ namespace Ordering.Application.Features.Orders.Commands
 
                 await _orderRepository.SaveChanges();
 
+                _logger.LogInformation("Order id {OrderId} canceled.", request.OrderId);
+
                 await PublishOrderCanceledEvent(request.CorrelationId, order);
+                
+                _logger.LogInformation("Notifying the clients about the status change...");
+
+                await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
             }
             catch (Exception ex)
             {
@@ -70,16 +74,13 @@ namespace Ordering.Application.Features.Orders.Commands
                 return new CancelOrderCommandResponse(success: false, ex.Message);
             }
 
-            _logger.LogInformation("Order id {OrderId} canceled.", request.OrderId);
-            _logger.LogInformation("Notifying the clients about the status change...");
-
-            await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
-
             return new CancelOrderCommandResponse(success: true, errorMessage: string.Empty);
         }
 
         private async Task PublishOrderCanceledEvent(Guid correlationId, Order order)
         {
+            _logger.LogInformation("Publishing {EventName} event...", nameof(OrderCanceled));
+
             var orderCanceled = new OrderCanceled
             {
                 CorrelationId = correlationId,

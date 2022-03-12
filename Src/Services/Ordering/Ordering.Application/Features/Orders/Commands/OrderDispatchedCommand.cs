@@ -17,8 +17,14 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class OrderDispatchedCommand : IRequest
     {
-        public Guid OrderId { get; set; }
-        public Guid CorrelationId { get; set; }
+        public OrderDispatchedCommand(Guid orderId, Guid correlationId)
+        {
+            OrderId = orderId;
+            CorrelationId = correlationId;
+        }
+
+        public Guid OrderId { get; }
+        public Guid CorrelationId { get; }
     }
 
     public class OrderDispatchedCommandHandler : IRequestHandler<OrderDispatchedCommand>
@@ -45,15 +51,22 @@ namespace Ordering.Application.Features.Orders.Commands
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
-            order.SetOrderStatusToDispatched();
+            try
+            {
+                order.SetOrderStatusToDispatched();
 
-            await _orderRepository.SaveChanges();
+                await _orderRepository.SaveChanges();
 
-            _logger.LogInformation("Order id {OrderId} status updated to {NewOrderStatus}.", request.OrderId, OrderStatus.ORDER_DISPATCHED);
+                _logger.LogInformation("Order id {OrderId} status updated to {OrderStatus}.", request.OrderId, OrderStatus.ORDER_DISPATCHED);
 
-            _logger.LogInformation("Notifying the clients about the status change...");
+                _logger.LogInformation("Notifying the clients about the status change...");
 
-            await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
+                await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error happened while executing the command {Command} for order {OrderId}. The reason: {ErrorMessage}.", nameof(OrderDispatchedCommand), request.OrderId, ex.Message);
+            }
 
             return Unit.Value;
         }

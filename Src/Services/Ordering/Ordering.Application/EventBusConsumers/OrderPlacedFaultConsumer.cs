@@ -22,7 +22,7 @@ namespace Ordering.Application.EventBusConsumers
             var correlationId = context.Message.Message.CorrelationId;
 
             using var loggerScope = _logger.BeginScope("{CorrelationId}", correlationId);
-            _logger.LogError("Event {EventName} failed with message: {FaultMessage} for the order with id: {OrderId}", nameof(BillOrder), faultMessage, orderId);
+            _logger.LogError("Event {EventName} failed with message: {FaultMessage} for the order with id: {OrderId}", nameof(OrderPlaced), faultMessage, orderId);
 
             await Task.CompletedTask;
         }

@@ -17,8 +17,14 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class OrderDeliveredCommand : IRequest
     {
-        public Guid OrderId { get; set; }
-        public Guid CorrelationId { get; set; }
+        public OrderDeliveredCommand(Guid orderId, Guid correlationId)
+        {
+            OrderId = orderId;
+            CorrelationId = correlationId;
+        }
+
+        public Guid OrderId { get; }
+        public Guid CorrelationId { get; }
     }
 
     public class OrderDeliveredCommandHandler : IRequestHandler<OrderDeliveredCommand>
@@ -45,15 +51,22 @@ namespace Ordering.Application.Features.Orders.Commands
                 throw new NotFoundException(nameof(Order), request.OrderId);
             }
 
-            order.SetOrderStatusToDelivered();
+            try
+            {
+                order.SetOrderStatusToDelivered();
 
-            await _orderRepository.SaveChanges();
+                await _orderRepository.SaveChanges();
 
-            _logger.LogInformation("Order id {OrderId} status updated to {NewOrderStatus}.", request.OrderId, OrderStatus.ORDER_DELIVERED);
+                _logger.LogInformation("Order id {OrderId} status updated to {OrderStatus}.", request.OrderId, OrderStatus.ORDER_DELIVERED);
 
-            _logger.LogInformation("Notifying the clients about the status change...");
+                _logger.LogInformation("Notifying the clients about the status change...");
 
-            await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
+                await _orderStatusHub.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.OrderStatus.GetDescription());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error happened while executing the command {Command} for order {OrderId}. The reason: {ErrorMessage}.", nameof(OrderDeliveredCommand), request.OrderId, ex.Message);
+            }
 
             return Unit.Value;
         }
