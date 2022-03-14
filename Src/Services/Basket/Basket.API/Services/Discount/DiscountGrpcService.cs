@@ -1,9 +1,9 @@
 ﻿using Discount.Grpc.Protos;
 using System.Threading.Tasks;
 
-namespace Basket.API.GrpcServices
+namespace Basket.API.Services.Discount
 {
-    public class DiscountGrpcService
+    public class DiscountGrpcService : IDiscountService
     {
         private readonly DiscountProtoService.DiscountProtoServiceClient _discountProtoService;
 

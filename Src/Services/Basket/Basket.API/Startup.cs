@@ -1,7 +1,7 @@
 using Basket.API.Extensions;
-using Basket.API.GrpcServices;
 using Basket.API.Repositories;
 using Basket.API.Services.Basket;
+using Basket.API.Services.Discount;
 using Basket.API.Services.Tokens;
 using Discount.Grpc.Protos;
 using IdentityServer4.AccessTokenValidation;
@@ -55,12 +55,13 @@ namespace Basket.API
             // Redis configuration
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = Configuration.GetValue<string>("CacheSettings:ConnectionString");
+                options.Configuration = Configuration.GetValue<string>("CacheSettings:RedisConnectionString");
+                options.InstanceName = Configuration.GetValue<string>("CacheSettings:RedisInstanceName");
             });
 
             services.AddScoped<IBasketRepository, BasketRepository>();
             services.AddScoped<IBasketService, BasketService>();
-            services.AddScoped<DiscountGrpcService>();
+            services.AddScoped<IDiscountService, DiscountGrpcService>();
             services.AddAutoMapper(typeof(Startup));
             services.AddTransient<AccessTokenInterceptor>();
             services.AddTransient<CorrelationIdInterceptor>();

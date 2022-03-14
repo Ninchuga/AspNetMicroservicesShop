@@ -35,7 +35,7 @@ namespace Basket.API.Controllers
 
             _logger.LogInformation("Retrieving basket for the user {UserId}", usrId);
 
-            return Ok(await _basketService.GetBasketBy(userId));
+            return Ok(await _basketService.GetUserBasketAndCheckForItemsDiscount(userId));
 
             //_numberOfRequests++;
             //if (_numberOfRequests % 4 == 0) // every forth request will be successfull
@@ -60,7 +60,7 @@ namespace Basket.API.Controllers
         [ProducesResponseType(typeof(ShoppingBasket), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ShoppingBasket>> UpdateBasket([FromBody] ShoppingBasket basket)
         {
-            return Ok(await _basketService.UpdateBasket(basket));
+            return Ok(await _basketService.UpsertBasket(basket));
         }
 
         [HttpDelete()]

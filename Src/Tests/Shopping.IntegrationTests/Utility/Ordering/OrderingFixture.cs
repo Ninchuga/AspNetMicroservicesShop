@@ -14,9 +14,9 @@ namespace Shopping.IntegrationTests.Utility.Ordering
 {
     public class OrderingFixture : IDisposable
     {
-        private static IConfigurationRoot _configuration;
-        private static IServiceScopeFactory _scopeFactory;
-        private static Checkpoint _checkpoint;
+        private IConfigurationRoot _configuration;
+        private IServiceScopeFactory _scopeFactory;
+        private Checkpoint _checkpoint;
 
         public OrderingFixture()
         {

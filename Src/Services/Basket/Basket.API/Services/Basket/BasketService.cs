@@ -1,6 +1,6 @@
 ﻿using Basket.API.Entities;
-using Basket.API.GrpcServices;
 using Basket.API.Repositories;
+using Basket.API.Services.Discount;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -10,39 +10,46 @@ namespace Basket.API.Services.Basket
 {
     public class BasketService : IBasketService
     {
-        private readonly DiscountGrpcService _discountGrpcService;
+        private readonly IDiscountService _discountService;
         private readonly IBasketRepository _basketRepository;
         private readonly ILogger<BasketService> _logger;
 
         public BasketService(
-            DiscountGrpcService discountGrpcService, 
+            IDiscountService discountGrpcService, 
             IBasketRepository basketRepository, ILogger<BasketService> logger)
         {
-            _discountGrpcService = discountGrpcService;
+            _discountService = discountGrpcService;
             _basketRepository = basketRepository;
             _logger = logger;
         }
 
-        public async Task<ShoppingBasket> GetBasketBy(Guid userId)
+        public async Task<ShoppingBasket> GetUserBasketAndCheckForItemsDiscount(Guid userId)
         {
             var basket = await _basketRepository.GetBasket(userId);
             if(basket == null)
                 return new ShoppingBasket(userId);
 
+            return await CheckForBasketItemsDiscountUpdate(basket);
+        }
+
+        private async Task<ShoppingBasket> CheckForBasketItemsDiscountUpdate(ShoppingBasket basket)
+        {
             foreach (var item in basket.Items)
             {
-                var coupon = await _discountGrpcService.GetDiscount(item.ProductName);
+                var coupon = await _discountService.GetDiscount(item.ProductName);
                 if (coupon == null)
                     continue;
 
-                item.PriceWithDiscount = item.Price - coupon.Amount;
-                item.Discount = coupon.Amount;
+                basket.UpdateItemDiscount(item, coupon.Amount);
             }
+
+            if (basket.ShouldUpdateBasket)
+                basket = await UpsertBasket(basket);
 
             return basket;
         }
 
-        public async Task<ShoppingBasket> UpdateBasket(ShoppingBasket basket)
+        public async Task<ShoppingBasket> UpsertBasket(ShoppingBasket basket)
         {
             return await _basketRepository.UpdateBasket(basket);
         }
@@ -52,11 +59,17 @@ namespace Basket.API.Services.Basket
 
         public async Task<ShoppingBasket> DeleteBasketItem(Guid userId, string itemId)
         {
-            var basket = await GetBasketBy(userId);
+            var basket = await _basketRepository.GetBasket(userId);
             var itemToDelete = basket.Items.FirstOrDefault(item => item.ProductId.Equals(itemId));
+            if (itemToDelete == null)
+            {
+                _logger.LogWarning("Item with id {ItemId} that you trying to remove doesn't exist in user {UserId} basket", itemId, userId);
+                return basket;
+            }
+
             basket.Items.Remove(itemToDelete);
 
-            return await UpdateBasket(basket);
+            return await UpsertBasket(basket);
         }
 
         public async Task AddItemToBasket(Guid userId, ShoppingBasketItem item)
@@ -65,18 +78,9 @@ namespace Basket.API.Services.Basket
             if (userBasket == null)
                 userBasket = new ShoppingBasket(userId);
 
-            ShoppingBasketItem existingItem = userBasket.Items.FirstOrDefault(existing => existing.ProductId.Equals(item.ProductId));
-            if(existingItem == null)
-            {
-                userBasket.Items.Add(item);
-            }
-            else
-            {
-                existingItem.Quantity += item.Quantity;
-                existingItem.Price += item.Price * item.Quantity;
-            }
+            userBasket.AddBasketItem(item);
 
-            await UpdateBasket(userBasket);
+            await UpsertBasket(userBasket);
         }
     }
 }
