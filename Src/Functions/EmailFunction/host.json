@@ -7,11 +7,12 @@
         "excludedTypes": "Request"
       }
     }
-  },
-  "extensions": {
-    "sendGrid": {
-      "from": "<your-email>",
-      "apiKey": "<key>"
-    }
   }
+  // you can add in here send grid data as well but it is not secure
+  //"extensions": {
+  //  "sendGrid": {
+  //    "from": "<your-email>",
+  //    "apiKey": "<key>"
+  //  }
+  //}
 }

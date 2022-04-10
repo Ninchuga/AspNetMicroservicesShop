@@ -120,7 +120,7 @@ az aks create `
 # 4a - Create an AKS Cluster with managed service principal created by Azure CLI
 # service principal is not specified
 # When you create an AKS cluster, a second resource group is automatically created to store the AKS resources.
-az aks create --resource-group shopping-portal --name shoppingPortalAKSCluster --node-count 1 --generate-ssh-keys
+az aks create --resource-group shopping-portal --name $AKS_NAME --node-count 1 --generate-ssh-keys
 
 # 5 - Configure kubectl to connect your Kubernetes cluster by using the az aks get-credentials command
 az aks get-credentials --resource-group shopping-portal --name $AKS_NAME
@@ -198,6 +198,7 @@ az ad sp delete --id edfa2c36-84ef-43c4-9d83-d93a7b138797
 
 az ad sp show --id a497d64c-6ad7-4f16-b9c5-d1f36ac27a84
 
+# ----------------------------------------
 
 # create a container in ACI (ACI resource will be created as well if doesn't exist)
 # we use created service principal to log in to ACR and pull the image that we specified and create the container from it

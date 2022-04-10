@@ -3,7 +3,9 @@
   "Values": {
     "AzureWebJobsStorage": "<your-web-storage-url>",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "AzureFunctionsJobHost__logging__applicationInsights__samplingSettings__isEnabled": "false", // override value in host.json
+    //"AzureWebJobs.SendGridEmailQueueTriggerFunction.Disabled": true, // disable function locally
+    "KeyVaultUri": "https://shoppingportal.vault.azure.net/",
+    "AzureFunctionsJobHost__logging__applicationInsights__samplingSettings__isEnabled": "false" // override value in host.json
     //"AzureFunctionsJobHost__extensions__sendGrid__from": "<your-email>", // override value in host.json
     //"AzureFunctionsJobHost__extensions__sendGrid__apiKey": "<sendgrid-api-key>" // override value in host.json
   }

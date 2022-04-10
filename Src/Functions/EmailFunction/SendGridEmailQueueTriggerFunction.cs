@@ -11,20 +11,32 @@
 using SendGrid.Helpers.Mail;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
+using EmailFunction.Services;
+using System.Threading.Tasks;
 
 namespace EmailFunction
 {
-    public static class SendGridEmailQueueTriggerFunction
+    public class SendGridEmailQueueTriggerFunction
     {
+        private readonly IKeyVaultManager _keyVaultManager;
+
+        public SendGridEmailQueueTriggerFunction(IKeyVaultManager keyVaultManager)
+        {
+            _keyVaultManager = keyVaultManager;
+        }
+
         [Function(nameof(SendGridEmailQueueTriggerFunction))]
-        [SendGridOutput()] // sends email which was built with SendGridMessage
-        public static SendGridMessage Run(
+        [SendGridOutput(ApiKey = "SendGridApiKey")] // sends email which was built with SendGridMessage
+        public async Task<SendGridMessage> Run(
             [QueueTrigger(Constants.EmailQueueName, Connection = "AzureWebJobsStorage")] Email email,
             FunctionContext context)
         {
             ILogger logger = context.GetLogger(nameof(SendGridEmailQueueTriggerFunction));
 
+            string senderEmail = await _keyVaultManager.GetSecret("SenderEmail");
+
             SendGridMessage message = new();
+            message.From = new EmailAddress(senderEmail);
             message.Subject = email.Subject;
             message.AddTo(email.CustomerEmail);
             message.AddContent("text/plain", email.Body);
