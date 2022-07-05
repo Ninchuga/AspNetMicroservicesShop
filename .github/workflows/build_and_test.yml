@@ -5,10 +5,10 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    #paths:
-    # - '!Src/Identity/Shopping.IDP/certs/**'
-    paths-ignore:
-      - 'certs/**'
+    paths:
+     - '!Src/Identity/Shopping.IDP/certs/**'
+    #paths-ignore:
+     # - 'certs/**'
 
 jobs:
   build:
