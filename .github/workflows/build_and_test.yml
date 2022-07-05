@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    paths:
+      - '!Src/Src/Identity/Shopping.IDP/certs/**'
 
 jobs:
   build:
