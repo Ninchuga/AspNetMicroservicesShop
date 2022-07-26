@@ -1,3 +1,5 @@
+[![Build and test](https://github.com/Ninchuga/AspNetMicroservicesShop/actions/workflows/build_and_test.yml/badge.svg?branch=main)](https://github.com/Ninchuga/AspNetMicroservicesShop/actions/workflows/build_and_test.yml)
+
 # Example of a web "Shopping portal" using microservice architecture
 
 ## You can run the project with HTTPS using Docker 🐳
