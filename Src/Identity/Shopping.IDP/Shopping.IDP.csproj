@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="certs\Shopping.IDP.pfx" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="5.0.3" />
     <PackageReference Include="IdentityServer4" Version="4.0.0" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.0.0" />
@@ -29,10 +25,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="certs\Shopping.IDP.pfx" />
   </ItemGroup>
 
   <ItemGroup>

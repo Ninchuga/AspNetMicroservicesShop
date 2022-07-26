@@ -28,7 +28,7 @@ $SP_NAME="$ACR_NAME-push-sp" # variable for our service principal name
   az keyvault create --resource-group $MAIN_RES_GROUP --name $AKV_NAME
 
 # create service principal and store credentials in azure key vault
-# role based access control role that allows orchestrators like ACI or Kubernetes to pull images from ACR
+# role based access control role (RBAC) that allows orchestrators like ACI or Kubernetes to pull images from ACR
 # use query to retreive password field
 # Create service principal, store its password in AKV (the registry *password*)
 # To grant both push and pull access, change the --role argument to acrpush
