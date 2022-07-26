@@ -26,4 +26,5 @@ jobs:
     - name: Build
       run: dotnet build ./Src/MicroservicesShop.sln --no-restore
     - name: Test
-      run: dotnet test ./Src/MicroservicesShop.sln --no-build --verbosity normal
+      #run: dotnet test ./Src/MicroservicesShop.sln --no-build --verbosity normal
+      run: dotnet test ./Shopping.UnitTests.csproj --no-build --verbosity normal
