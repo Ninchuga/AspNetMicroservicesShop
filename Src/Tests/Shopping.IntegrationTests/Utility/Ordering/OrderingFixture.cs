@@ -20,7 +20,7 @@ using Ordering.Application.Services;
 
 namespace Shopping.IntegrationTests.Utility.Ordering
 {
-    public class OrderingFixture : WebApplicationFactory<Program>, IAsyncLifetime
+    public class OrderingFixture : WebApplicationFactory<Startup>, IAsyncLifetime
     {
         // Used when running tests without Testcontainer
         //private IConfigurationRoot _configuration;
@@ -73,6 +73,11 @@ namespace Shopping.IntegrationTests.Utility.Ordering
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.ConfigureServices(services =>
+            {
+                services.RemoveService<IPublishEndpoint>();
+            });
+
             builder.ConfigureTestServices(services =>
             {
                 // Remove OrderContext
