@@ -4,9 +4,6 @@ using Ordering.Domain.Common;
 using Shopping.IntegrationTests.Ordering.Builders;
 using Shopping.IntegrationTests.Utility.Ordering;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -23,7 +20,7 @@ namespace Shopping.IntegrationTests.Ordering.Queries
         }
 
         [Fact]
-        public async Task ShouldReturnOrder()
+        public async Task ShouldReturnRequestedOrder()
         {
             var orderItemDto = OrderItemBuilder.BuildDto();
             var placeOrderCommand = PlaceOrderCommandBuilder.BuildWithOrderItem(orderItemDto);

@@ -16,7 +16,7 @@ namespace Shopping.IntegrationTests.Ordering.Commands
         public PlaceOrderCommandTests(OrderingFixture fixture)
         {
             _fixture = fixture;
-            _fixture.ResetDbState().GetAwaiter().GetResult();
+            //_fixture.ResetDbState().GetAwaiter().GetResult(); // when running db locally without Testcontainer
         }
 
         [Fact]

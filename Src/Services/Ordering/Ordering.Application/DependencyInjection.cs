@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.Behaviours;
 using Ordering.Application.Services;
 using Shopping.Correlation;
-using System;
 using System.Reflection;
 
 namespace Ordering.Application
