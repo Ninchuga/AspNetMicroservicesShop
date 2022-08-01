@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Ordering.Application.HubConfiguration;
@@ -15,12 +16,6 @@ namespace Shopping.IntegrationTests.Utility
             if (descriptor != null) services.Remove(descriptor);
         }
 
-        public static void RemoveService<T>(this IServiceCollection services) where T : class
-        {
-            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(T));
-            if (descriptor != null) services.Remove(descriptor);
-        }
-
         public static void EnsureDbCreated<T>(this IServiceCollection services) where T : DbContext
         {
             var serviceProvider = services.BuildServiceProvider();
@@ -31,10 +26,22 @@ namespace Shopping.IntegrationTests.Utility
             context.Database.EnsureCreated();
         }
 
+        public static void RemoveDistributedCache<T>(this IServiceCollection services) where T : IDistributedCache
+        {
+            var descriptor = services.SingleOrDefault(d => d.ImplementationType == typeof(T));
+            if (descriptor != null) services.Remove(descriptor);
+        }
+
+        public static void RemoveService<T>(this IServiceCollection services) where T : class
+        {
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(T));
+            if (descriptor != null) services.Remove(descriptor);
+        }
+
         public static void AddSignalRMockServices(this IServiceCollection services)
         {
-            Mock<IHubClients> mockClients = new Mock<IHubClients>();
-            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
+            Mock<IHubClients> mockClients = new();
+            Mock<IClientProxy> mockClientProxy = new();
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
 
             var hubContext = new Mock<IHubContext<OrderStatusHub>>();
