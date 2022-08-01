@@ -28,5 +28,5 @@ jobs:
     - name: Run unit tests
       run: dotnet test ./Src/Tests/Shopping.UnitTests/Shopping.UnitTests.csproj --no-build --verbosity normal
     - name: Run integration tests
-      run: dotnet test ./Src/Tests/Shopping.IntegrationTests/Shopping.IntegrationTests.csproj --no-build --verbosity normal
+      run: dotnet test ./Src/Tests/Shopping.IntegrationTests --no-build --verbosity normal
     
