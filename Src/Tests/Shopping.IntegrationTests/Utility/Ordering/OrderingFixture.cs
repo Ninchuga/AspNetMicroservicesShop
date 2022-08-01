@@ -20,7 +20,7 @@ using Ordering.Application.Services;
 
 namespace Shopping.IntegrationTests.Utility.Ordering
 {
-    public class OrderingFixture : WebApplicationFactory<Startup>, IAsyncLifetime
+    public class OrderingFixture : WebApplicationFactory<Program>, IAsyncLifetime
     {
         // Used when running tests without Testcontainer
         //private IConfigurationRoot _configuration;
