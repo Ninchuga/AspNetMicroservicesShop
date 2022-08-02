@@ -4,6 +4,7 @@ using Basket.API.Services.Basket;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
+using MassTransit.Testing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -51,6 +53,9 @@ namespace Shopping.IntegrationTests.Utility.Basket
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
+            builder.UseEnvironment("Testing");
+
             builder.ConfigureTestServices(services =>
             {
                 services.RemoveDistributedCache<RedisCache>();
@@ -60,6 +65,13 @@ namespace Shopping.IntegrationTests.Utility.Basket
                 {
                     options.Configuration = _dbContainer.ConnectionString;
                     options.InstanceName = "Basket.API.Instance_"; //Configuration.GetValue<string>("CacheSettings:RedisInstanceName");
+                });
+
+                services.RemoveMassTransit();
+
+                services.AddMassTransitInMemoryTestHarness(x =>
+                {
+                    //add your consumers (again)
                 });
             });
         }

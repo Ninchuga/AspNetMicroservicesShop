@@ -86,7 +86,11 @@ namespace Basket.API
                     //config.UseSerilogMessagePropertiesEnricher();
                 });
             });
-            services.AddMassTransitHostedService();
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
+            {
+                // Used to start the bus
+                services.AddMassTransitHostedService();
+            }
 
             services.AddControllers();
 
