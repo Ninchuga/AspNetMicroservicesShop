@@ -17,9 +17,7 @@ using Ordering.Application.Contracts.Infrastrucutre;
 using MassTransit;
 using Ordering.API;
 using Ordering.Application.Services;
-using System.Linq;
 using Microsoft.Extensions.Hosting;
-using MassTransit.AspNetCoreIntegration;
 using MassTransit.Testing;
 
 namespace Shopping.IntegrationTests.Utility.Ordering
@@ -75,8 +73,16 @@ namespace Shopping.IntegrationTests.Utility.Ordering
             #endregion
         }
 
+        //protected override IWebHostBuilder CreateWebHostBuilder()
+        //{
+        //    return base.CreateWebHostBuilder()
+        //        .UseEnvironment("Testing");
+        //}
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseEnvironment("Testing");
+
             builder.ConfigureTestServices(services =>
             {
                 // Remove OrderContext

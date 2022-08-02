@@ -58,7 +58,7 @@ namespace Ordering.Infrastructure.Extensions
                 });
             });
 
-            if (!Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT").Contains("localhost"))
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
             {
                 // Used to start the bus
                 services.AddMassTransitHostedService();
@@ -104,7 +104,7 @@ namespace Ordering.Infrastructure.Extensions
                 });
             });
 
-            if (!Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT").Contains("localhost"))
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
             {
                 // Used to start the bus
                 services.AddMassTransitHostedService();
