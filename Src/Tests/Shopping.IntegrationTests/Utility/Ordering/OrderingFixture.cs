@@ -73,15 +73,10 @@ namespace Shopping.IntegrationTests.Utility.Ordering
             #endregion
         }
 
-        protected override IWebHostBuilder CreateWebHostBuilder()
-        {
-            return base.CreateWebHostBuilder()
-                .UseEnvironment("Testing");
-        }
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            //builder.UseEnvironment("Testing");
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
+            builder.UseEnvironment("Testing");
 
             builder.ConfigureTestServices(services =>
             {
