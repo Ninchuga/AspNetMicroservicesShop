@@ -77,26 +77,26 @@ namespace Shopping.IntegrationTests.Utility.Ordering
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureServices(services =>
-            {
-                var massTransitHostedService = services.FirstOrDefault(d => d.ServiceType == typeof(IHostedService) &&
-                    d.ImplementationFactory != null &&
-                    d.ImplementationFactory.Method.ReturnType == typeof(MassTransitHostedService)
-                );
-                services.Remove(massTransitHostedService);
-                var descriptors = services.Where(d =>
-                       d.ServiceType.Namespace.Contains("MassTransit", StringComparison.OrdinalIgnoreCase))
-                                          .ToList();
-                foreach (var d in descriptors)
-                {
-                    services.Remove(d);
-                }
+            //builder.ConfigureServices(services =>
+            //{
+            //    var massTransitHostedService = services.FirstOrDefault(d => d.ServiceType == typeof(IHostedService) &&
+            //        d.ImplementationFactory != null &&
+            //        d.ImplementationFactory.Method.ReturnType == typeof(MassTransitHostedService)
+            //    );
+            //    services.Remove(massTransitHostedService);
+            //    var descriptors = services.Where(d =>
+            //           d.ServiceType.Namespace.Contains("MassTransit", StringComparison.OrdinalIgnoreCase))
+            //                              .ToList();
+            //    foreach (var d in descriptors)
+            //    {
+            //        services.Remove(d);
+            //    }
 
-                services.AddMassTransitInMemoryTestHarness(x =>
-                {
-                    //add your consumers (again)
-                });
-            });
+            //    services.AddMassTransitInMemoryTestHarness(x =>
+            //    {
+            //        //add your consumers (again)
+            //    });
+            //});
 
             builder.ConfigureTestServices(services =>
             {
@@ -108,7 +108,6 @@ namespace Shopping.IntegrationTests.Utility.Ordering
 
                 // Ensure schema gets created
                 services.EnsureDbCreated<OrderContext>();
-
 
                 var massTransitHostedService = services.FirstOrDefault(d => d.ServiceType == typeof(IHostedService) &&
                     d.ImplementationFactory != null &&

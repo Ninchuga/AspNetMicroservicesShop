@@ -58,8 +58,11 @@ namespace Ordering.Infrastructure.Extensions
                 });
             });
 
-            // Used to start the bus
-            services.AddMassTransitHostedService();
+            if(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
+            {
+                // Used to start the bus
+                services.AddMassTransitHostedService();
+            }
         }
 
         public static void ConfigureMassTransitWithRabbitMQ(this IServiceCollection services, IConfiguration configuration)
@@ -101,8 +104,11 @@ namespace Ordering.Infrastructure.Extensions
                 });
             });
 
-            // Used to start the bus
-            services.AddMassTransitHostedService();
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
+            {
+                // Used to start the bus
+                services.AddMassTransitHostedService();
+            }
         }
     }
 }
