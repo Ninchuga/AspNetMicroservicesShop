@@ -73,11 +73,6 @@ namespace Shopping.IntegrationTests.Utility.Ordering
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureServices(services =>
-            {
-                services.RemoveService<IPublishEndpoint>();
-            });
-
             builder.ConfigureTestServices(services =>
             {
                 // Remove OrderContext
@@ -88,13 +83,15 @@ namespace Shopping.IntegrationTests.Utility.Ordering
 
                 // Ensure schema gets created
                 services.EnsureDbCreated<OrderContext>();
-
-                services.RemoveService<IEmailService>();
+                
+                services.RemoveService<IBus>();
                 services.RemoveService<IPublishEndpoint>();
+                services.RemoveService<IEmailService>();
                 services.RemoveService<ITokenExchangeService>();
 
-                services.AddScoped(provider => Mock.Of<IEmailService>());
+                services.AddSingleton(provider => Mock.Of<IBus>());
                 services.AddTransient(provider => Mock.Of<IPublishEndpoint>());
+                services.AddScoped(provider => Mock.Of<IEmailService>());
                 services.AddTransient(provider => Mock.Of<ITokenExchangeService>());
 
                 services.AddSignalRMockServices();
