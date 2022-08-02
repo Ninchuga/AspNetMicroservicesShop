@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -58,13 +59,17 @@ namespace Shopping.IntegrationTests.Utility.Basket
 
             builder.ConfigureTestServices(services =>
             {
+                var serviceProvider = services.BuildServiceProvider();
+                using var scope = serviceProvider.CreateScope();
+                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
                 services.RemoveDistributedCache<RedisCache>();
 
                 // Add Redis configuration
                 services.AddStackExchangeRedisCache(options =>
                 {
                     options.Configuration = _dbContainer.ConnectionString;
-                    options.InstanceName = "Basket.API.Instance_"; //Configuration.GetValue<string>("CacheSettings:RedisInstanceName");
+                    options.InstanceName = configuration.GetValue<string>("CacheSettings:RedisInstanceName");
                 });
 
                 services.RemoveMassTransit();
