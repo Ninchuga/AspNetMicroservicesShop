@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using MassTransit.AspNetCoreIntegration;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using Ordering.Application.HubConfiguration;
+using System;
 using System.Linq;
 
 namespace Shopping.IntegrationTests.Utility
@@ -48,6 +51,23 @@ namespace Shopping.IntegrationTests.Utility
             hubContext.Setup(x => x.Clients).Returns(() => mockClients.Object);
 
             services.AddTransient(provider => hubContext.Object);
+        }
+
+        public static void RemoveMassTransit(this IServiceCollection services)
+        {
+            var massTransitHostedService = services.FirstOrDefault(d => d.ServiceType == typeof(IHostedService) &&
+                    d.ImplementationFactory != null &&
+                    d.ImplementationFactory.Method.ReturnType == typeof(MassTransitHostedService)
+                );
+            services.Remove(massTransitHostedService);
+
+            var descriptors = services.Where(d =>
+                   d.ServiceType.Namespace.Contains("MassTransit", StringComparison.OrdinalIgnoreCase))
+                                      .ToList();
+            foreach (var d in descriptors)
+            {
+                services.Remove(d);
+            }
         }
     }
 }
