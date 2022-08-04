@@ -51,8 +51,8 @@ namespace Shopping.IDP
 
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             services.AddIdentityServer(x => x.IssuerUri = Configuration["IdentityIssuer"])
-                .AddSigningCredential(Certificate.Get())
-                //.AddDeveloperSigningCredential()
+                //.AddSigningCredential(Certificate.Get()) // use for production and store certificate in Azure Key Vault or some other certificate storage
+                .AddDeveloperSigningCredential()
                 //.AddInMemoryApiResources(Config.ApiResources)
                 //.AddInMemoryApiScopes(Config.ApiScopes)
                 //.AddInMemoryClients(Config.Clients(Configuration))

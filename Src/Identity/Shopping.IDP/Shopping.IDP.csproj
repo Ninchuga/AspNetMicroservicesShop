@@ -27,9 +27,10 @@
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- Because .pfx files are ignored by .gitignore, GitHub Build job will fail since it can't find this file  -->
+  <!--<ItemGroup>
     <EmbeddedResource Include="certs\Shopping.IDP.pfx" />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\Host\Shopping.HostCustomization\Shopping.HostCustomization.csproj" />
