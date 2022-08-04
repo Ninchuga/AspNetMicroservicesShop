@@ -7,7 +7,9 @@ on:
     - '**.cs'               # run if there is any change to .cs file
     - '**.csproj'
     - '**.yml'
-    #- '!github-actions/DotNet.GitHubAction/CODE_METRICS.md' # ignore this file (example)
+    #- '!**.pfx' # ignore this file (example)
+    paths-ignore:
+      - '**.pfx'
   pull_request:
     branches: [ "main" ]
 
