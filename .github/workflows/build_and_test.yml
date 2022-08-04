@@ -7,9 +7,7 @@ on:
     - '**.cs'               # run if there is any change to .cs file
     - '**.csproj'
     - '**.yml'
-    #- '!**.pfx' # ignore this file (example)
-    paths-ignore:
-      - '**.pfx'
+    - '!**.pfx' # ignore this file (example)
   pull_request:
     branches: [ "main" ]
 
