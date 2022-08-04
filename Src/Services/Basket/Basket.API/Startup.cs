@@ -1,3 +1,4 @@
+using Basket.API.Constants;
 using Basket.API.Extensions;
 using Basket.API.Repositories;
 using Basket.API.Services.Basket;
@@ -86,7 +87,7 @@ namespace Basket.API
                     //config.UseSerilogMessagePropertiesEnricher();
                 });
             });
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
+            if (Environment.GetEnvironmentVariable(BasketApiEnvironments.AspNetCoreEnvironmentVariable) != BasketApiEnvironments.TestingEnvironment)
             {
                 // Used to start the bus
                 services.AddMassTransitHostedService();

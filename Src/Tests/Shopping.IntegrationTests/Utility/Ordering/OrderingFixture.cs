@@ -29,6 +29,7 @@ namespace Shopping.IntegrationTests.Utility.Ordering
         //private IServiceScopeFactory _scopeFactory;
         //private Checkpoint _checkpoint;
 
+        private const string OrderingTestingEnvironment = "Testing";
         private readonly TestcontainerDatabase _dbContainer;
 
         public OrderingFixture()
@@ -75,8 +76,8 @@ namespace Shopping.IntegrationTests.Utility.Ordering
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
-            builder.UseEnvironment("Testing");
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", OrderingTestingEnvironment);
+            builder.UseEnvironment(OrderingTestingEnvironment);
 
             builder.ConfigureTestServices(services =>
             {

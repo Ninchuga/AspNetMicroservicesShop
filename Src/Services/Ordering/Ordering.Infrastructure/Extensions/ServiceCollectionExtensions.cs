@@ -5,6 +5,7 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.EventBusConsumers;
+using Ordering.Infrastructure.Constants;
 using System;
 
 namespace Ordering.Infrastructure.Extensions
@@ -58,11 +59,7 @@ namespace Ordering.Infrastructure.Extensions
                 });
             });
 
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
-            {
-                // Used to start the bus
-                services.AddMassTransitHostedService();
-            }
+            StartTheBus(services);
         }
 
         public static void ConfigureMassTransitWithRabbitMQ(this IServiceCollection services, IConfiguration configuration)
@@ -104,7 +101,12 @@ namespace Ordering.Infrastructure.Extensions
                 });
             });
 
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
+            StartTheBus(services);
+        }
+
+        private static void StartTheBus(IServiceCollection services)
+        {
+            if (Environment.GetEnvironmentVariable(OrderingApiEnvironments.AspNetCoreEnvironmentVariable) != OrderingApiEnvironments.TestingEnvironment)
             {
                 // Used to start the bus
                 services.AddMassTransitHostedService();

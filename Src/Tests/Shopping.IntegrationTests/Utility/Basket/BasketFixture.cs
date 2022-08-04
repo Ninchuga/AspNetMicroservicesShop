@@ -25,6 +25,7 @@ namespace Shopping.IntegrationTests.Utility.Basket
         //private IConfigurationRoot _configuration;
         //private IServiceScopeFactory _scopeFactory;
 
+        private const string BasketTestingEnvironment = "Testing";
         private readonly TestcontainerDatabase _dbContainer;
 
         public BasketFixture()
@@ -54,8 +55,8 @@ namespace Shopping.IntegrationTests.Utility.Basket
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
-            builder.UseEnvironment("Testing");
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", BasketTestingEnvironment);
+            builder.UseEnvironment(BasketTestingEnvironment);
 
             builder.ConfigureTestServices(services =>
             {
