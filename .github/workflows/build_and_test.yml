@@ -3,6 +3,11 @@ name: build and test
 on:
   push:
     branches: [ "main" ]
+    paths:
+    - '**.cs'               # run if there is any change to .cs file
+    - '**.csproj'
+    - '**.yml'
+    #- '!github-actions/DotNet.GitHubAction/CODE_METRICS.md' # ignore this file (example)
   pull_request:
     branches: [ "main" ]
 
@@ -28,5 +33,5 @@ jobs:
     - name: Run unit tests
       run: dotnet test ./Src/Tests/Shopping.UnitTests --no-build --verbosity normal
     - name: Run integration tests
-      run: dotnet test ./Src/Tests/Shopping.IntegrationTests
+      run: dotnet test ./Src/Tests/Shopping.IntegrationTests --no-build --verbosity normal
     
