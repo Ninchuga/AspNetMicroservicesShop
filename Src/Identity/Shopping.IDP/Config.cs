@@ -17,7 +17,7 @@ namespace Shopping.IDP
         // They give access to user identity data
         public static IEnumerable<IdentityResource> IdentityResources =>
             new IdentityResource[]
-            { 
+            {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(), // givenName, familyName claims will be returned
                 new IdentityResources.Address(),
@@ -72,7 +72,7 @@ namespace Shopping.IDP
         // They give access to API's
         public static IEnumerable<ApiScope> ApiScopes =>
             new ApiScope[]
-            { 
+            {
                 new ApiScope("catalogapi.fullaccess", "Catalog API Full Access"),
                 new ApiScope("catalogapi.read", "Catalog API Read Operations"),
                 new ApiScope("basketapi.read", "Basket API Read Operations"),
@@ -88,7 +88,7 @@ namespace Shopping.IDP
 
         // This is defined in Client applications (e.g. MVC client app)
         public static IEnumerable<Client> Clients(IConfiguration configuration) =>
-            new Client[] 
+            new Client[]
             { 
                 // machine to machine client credentials flow without UI interaction
                 // no username and password provided by User
@@ -124,11 +124,10 @@ namespace Shopping.IDP
                 {
                     ClientName = "Shopping Web App Client",
                     ClientId = "shopping_web_client",
-                    ClientUri = configuration["WebClientUrls:ClientUrl"],
+                    ClientUri = configuration["WebClientUrls:Razor"],
                     AllowedGrantTypes = GrantTypes.CodeAndClientCredentials, // GrantTypes.Hybrid, 
                     //AllowedCorsOrigins = new[] { "https://localhost:8999", "https://shopping.web:8999" },
                     AllowAccessTokensViaBrowser = false,
-                    RequireConsent = false,
                     AllowOfflineAccess = true, // we are allowing the client to use refresh token
                     AlwaysIncludeUserClaimsInIdToken = true,
                     //AccessTokenLifetime = 60, // never use it less than 5 minutes in production, these 60 seconds are just for the dev purpose
@@ -203,6 +202,40 @@ namespace Shopping.IDP
                         "orderapi.fullaccess",
                         "paymentapi.fullaccess",
                         "deliveryapi.fullaccess"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "angularspacodeflowclient",
+                    ClientName = "Shopping Angular Client",
+                    ClientUri = configuration["WebClientUrls:Angular"],
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RequireClientSecret = false,
+                    AllowOfflineAccess = true, // we are allowing the client to use refresh token
+                    AlwaysIncludeUserClaimsInIdToken = true,
+                    RequirePkce = true,
+                    AllowAccessTokensViaBrowser = true,
+                    AllowedCorsOrigins = { $"{configuration["WebClientUrls:Angular"]}" },
+                    AccessTokenLifetime = 600,
+                    RedirectUris = new List<string>()
+                    {
+                        $"{configuration["WebClientUrls:Angular"]}/signin-callback",
+                        $"{configuration["WebClientUrls:Angular"]}/assets/silent-callback.html"
+                    },
+                    PostLogoutRedirectUris = new List<string>()
+                    {
+                        $"{configuration["WebClientUrls:Angular"]}/signout-callback"
+                    },
+                    ClientSecrets = { new Secret("angularspacodeflowclient".Sha256()) },
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Address,
+                        IdentityServerConstants.StandardScopes.OfflineAccess,
+                        "roles",
+                        "shoppinggateway.fullaccess",
+                        "shoppingaggregator.fullaccess"
                     }
                 }
             };

@@ -28,6 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="certs\Shopping.IDP.pfx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\Host\Shopping.HostCustomization\Shopping.HostCustomization.csproj" />
     <ProjectReference Include="..\..\Common\Shopping.HealthChecks\Shopping.HealthChecks.csproj" />
     <ProjectReference Include="..\..\Common\Shopping.Logging\Shopping.Logging.csproj" />

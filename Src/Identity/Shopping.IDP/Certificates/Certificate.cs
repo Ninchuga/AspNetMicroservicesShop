@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 
 namespace Shopping.IDP.Certificates
 {
@@ -20,9 +16,12 @@ namespace Shopping.IDP.Certificates
              *  real environment the certificate should be created and stored in a secure way, which is out
              *  of the scope of this project.
              **********************************************************************************************/
+            //var bytes = File.ReadAllBytes("./certs/Shopping.IDP.pfx");
+            //var cert = new X509Certificate2(bytes, "password", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+
             using (var stream = assembly.GetManifestResourceStream("Shopping.IDP.certs.Shopping.IDP.pfx"))
             {
-                return new X509Certificate2(ReadStream(stream), "password");
+                return new X509Certificate2(ReadStream(stream), "password", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
             }
         }
 
