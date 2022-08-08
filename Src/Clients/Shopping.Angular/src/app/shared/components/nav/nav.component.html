@@ -1,0 +1,15 @@
+<mat-toolbar color="primary">
+    <span class="align-content">Shopping Portal</span>
+    <a mat-button routerLink="/home" routerLinkActive="active">Home</a>
+    <a mat-button routerLink="/catalog" routerLinkActive="active">Catalog</a>
+    <a mat-button routerLink="/basket" routerLinkActive="active">Basket</a>
+    <a mat-button routerLink="/orders" routerLinkActive="active">Orders</a>
+    <a mat-button *ngIf="!token" (click)="login()">Login</a>
+    <span *ngIf="token">
+        <a class="txt">Welcome! {{claims.name}}</a>
+        <a class="link" (click)="logout()">Logout</a>
+    </span>
+
+    <!-- <button mat-button (click)="login()">Login</button>
+    <button *ngIf="isLoggedIn()" mat-button (click)="logoff()">Logout</button> -->
+</mat-toolbar>

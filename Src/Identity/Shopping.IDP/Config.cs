@@ -206,37 +206,69 @@ namespace Shopping.IDP
                 },
                 new Client
                 {
-                    ClientId = "angularspacodeflowclient",
-                    ClientName = "Shopping Angular Client",
-                    ClientUri = configuration["WebClientUrls:Angular"],
+                    ClientName = "Angular-Client",
+                    ClientId = "angular-client",
                     AllowedGrantTypes = GrantTypes.Code,
-                    RequireClientSecret = false,
-                    AllowOfflineAccess = true, // we are allowing the client to use refresh token
-                    AlwaysIncludeUserClaimsInIdToken = true,
+                    RedirectUris = new List<string>
+                    { 
+                        $"{configuration["WebClientUrls:Angular"] }/signin-callback", 
+                        $"{configuration["WebClientUrls:Angular"]}/silent-refresh.html" 
+                    },
                     RequirePkce = true,
                     AllowAccessTokensViaBrowser = true,
-                    AllowedCorsOrigins = { $"{configuration["WebClientUrls:Angular"]}" },
-                    AccessTokenLifetime = 600,
-                    RedirectUris = new List<string>()
-                    {
-                        $"{configuration["WebClientUrls:Angular"]}/signin-callback",
-                        $"{configuration["WebClientUrls:Angular"]}/assets/silent-callback.html"
-                    },
-                    PostLogoutRedirectUris = new List<string>()
-                    {
-                        $"{configuration["WebClientUrls:Angular"]}/signout-callback"
-                    },
-                    ClientSecrets = { new Secret("angularspacodeflowclient".Sha256()) },
+                    AllowOfflineAccess = true, // we are allowing the client to use refresh token
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Address,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "roles",
-                        "shoppinggateway.fullaccess",
-                        "shoppingaggregator.fullaccess"
-                    }
+                        "roles"
+                    },
+                    AllowedCorsOrigins = { $"{configuration["WebClientUrls:Angular"]}" },
+                    RequireClientSecret = false,
+                    PostLogoutRedirectUris = new List<string> { $"{configuration["WebClientUrls:Angular"]}/signout-callback" },
+                    RequireConsent = false,
+                    AccessTokenLifetime = 600
+
+
+                    //ClientId = "angularspacodeflowclient",
+                    //ClientName = "Shopping Angular Client",
+                    //ClientUri = configuration["WebClientUrls:Angular"],
+                    ////AccessTokenType = AccessTokenType.Jwt,
+                    //AllowedGrantTypes = GrantTypes.Code,
+                    //RequireClientSecret = false,
+                    //AllowOfflineAccess = true, // we are allowing the client to use refresh token
+                    //AlwaysIncludeUserClaimsInIdToken = true,
+                    //RequirePkce = true,
+                    //AllowAccessTokensViaBrowser = true,
+                    //AllowedCorsOrigins = { $"{configuration["WebClientUrls:Angular"]}" },
+                    //AccessTokenLifetime = 600,
+                    //RequireConsent = false,
+                    //RedirectUris = new List<string>()
+                    //{
+                    //    $"{configuration["WebClientUrls:Angular"]}/signin-callback",
+                    //    $"{configuration["WebClientUrls:Angular"]}/silent-callback.html",
+                    //    $"{configuration["WebClientUrls:Angular"]}/index.html",
+                    //    $"{configuration["WebClientUrls:Angular"]}/",
+                    //    $"{configuration["WebClientUrls:Angular"]}/assets/silent-callback.html"
+                    //    //$"{configuration["WebClientUrls:Angular"]}/silent-refresh.html"
+                    //},
+                    //PostLogoutRedirectUris = new List<string>()
+                    //{
+                    //    $"{configuration["WebClientUrls:Angular"]}/signout-callback"
+                    //},
+                    //ClientSecrets = { new Secret("angularspacodeflowclient".Sha256()) },
+                    //AllowedScopes =
+                    //{
+                    //    IdentityServerConstants.StandardScopes.OpenId,
+                    //    IdentityServerConstants.StandardScopes.Profile,
+                    //    IdentityServerConstants.StandardScopes.Address,
+                    //    IdentityServerConstants.StandardScopes.OfflineAccess,
+                    //    "roles",
+                    //    "shoppinggateway.fullaccess",
+                    //    "shoppingaggregator.fullaccess"
+                    //}
                 }
             };
     }

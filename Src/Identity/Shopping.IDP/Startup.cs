@@ -41,7 +41,18 @@ namespace Shopping.IDP
 
             // uncomment, if you want to add an MVC-based UI
             services.AddControllersWithViews();
-            
+
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy("default", policy =>
+            //    {
+            //        policy.WithOrigins(Configuration["WebClientUrls:Angular"])
+            //            .AllowAnyHeader()
+            //            .AllowAnyMethod()
+            //            .AllowCredentials();
+            //    });
+            //});
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
@@ -52,7 +63,7 @@ namespace Shopping.IDP
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             services.AddIdentityServer(x => x.IssuerUri = Configuration["IdentityIssuer"])
                 //.AddSigningCredential(Certificate.Get()) // use for production and store certificate in Azure Key Vault or some other certificate storage
-                .AddDeveloperSigningCredential()
+                .AddDeveloperSigningCredential() // use just for test purposes
                 //.AddInMemoryApiResources(Config.ApiResources)
                 //.AddInMemoryApiScopes(Config.ApiScopes)
                 //.AddInMemoryClients(Config.Clients(Configuration))
@@ -94,7 +105,30 @@ namespace Shopping.IDP
                 app.UseDeveloperExceptionPage();
             }
 
+            //app.UseCors("default");
             //app.UseCors(builder => builder.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+
+            //app.UseCsp(opts => opts
+            //    .BlockAllMixedContent()
+            //    .ScriptSources(s => s.Self()).ScriptSources(s => s.UnsafeEval())
+            //    .StyleSources(s => s.UnsafeInline())
+            //);
+
+            // enable to test w/ CSP
+            //app.Use(async (ctx, next) =>
+            //{
+            //    ctx.Response.OnStarting(() =>
+            //    {
+            //        if (ctx.Response.ContentType?.StartsWith("text/html") == true)
+            //        {
+            //            ctx.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; connect-src http://localhost:5000 http://localhost:3721; frame-src 'self' http://localhost:5000");
+            //        }
+            //        return Task.CompletedTask;
+            //    });
+
+            //    await next();
+            //});
+
 
             app.UseStaticFiles();
 

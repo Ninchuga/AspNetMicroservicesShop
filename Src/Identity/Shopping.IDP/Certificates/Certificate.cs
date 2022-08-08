@@ -16,13 +16,14 @@ namespace Shopping.IDP.Certificates
              *  real environment the certificate should be created and stored in a secure way, which is out
              *  of the scope of this project.
              **********************************************************************************************/
-            //var bytes = File.ReadAllBytes("./certs/Shopping.IDP.pfx");
-            //var cert = new X509Certificate2(bytes, "password", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+            var bytes = File.ReadAllBytes("./certs/Shopping.IDP.pfx");
+            var cert = new X509Certificate2(bytes, "password", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+            return cert;
 
-            using (var stream = assembly.GetManifestResourceStream("Shopping.IDP.certs.Shopping.IDP.pfx"))
-            {
-                return new X509Certificate2(ReadStream(stream), "password", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
-            }
+            //using (var stream = assembly.GetManifestResourceStream("Shopping.IDP.certs.Shopping.IDP.pfx"))
+            //{
+            //    return new X509Certificate2(ReadStream(stream), "password", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+            //}
         }
 
         private static byte[] ReadStream(Stream input)
