@@ -211,12 +211,13 @@ namespace Shopping.IDP
                     AllowedGrantTypes = GrantTypes.Code,
                     RedirectUris = new List<string>
                     { 
-                        $"{configuration["WebClientUrls:Angular"] }/signin-callback", 
+                        $"{configuration["WebClientUrls:Angular"] }/home",
                         $"{configuration["WebClientUrls:Angular"]}/silent-refresh.html" 
                     },
                     RequirePkce = true,
                     AllowAccessTokensViaBrowser = true,
                     AllowOfflineAccess = true, // we are allowing the client to use refresh token
+                    AlwaysIncludeUserClaimsInIdToken = true,
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
@@ -227,7 +228,8 @@ namespace Shopping.IDP
                     },
                     AllowedCorsOrigins = { $"{configuration["WebClientUrls:Angular"]}" },
                     RequireClientSecret = false,
-                    PostLogoutRedirectUris = new List<string> { $"{configuration["WebClientUrls:Angular"]}/signout-callback" },
+                    //PostLogoutRedirectUris = new List<string> { $"{configuration["WebClientUrls:Angular"]}/signout-callback" },
+                    PostLogoutRedirectUris = new List<string> { $"{configuration["WebClientUrls:Angular"]}/home" },
                     RequireConsent = false,
                     AccessTokenLifetime = 600
 

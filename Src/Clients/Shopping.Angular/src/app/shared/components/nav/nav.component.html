@@ -4,12 +4,9 @@
     <a mat-button routerLink="/catalog" routerLinkActive="active">Catalog</a>
     <a mat-button routerLink="/basket" routerLinkActive="active">Basket</a>
     <a mat-button routerLink="/orders" routerLinkActive="active">Orders</a>
+    <!-- This fills the remaining space of the current row -->
+    <span class="fill-remaining-space"></span>
     <a mat-button *ngIf="!token" (click)="login()">Login</a>
-    <span *ngIf="token">
-        <a class="txt">Welcome! {{claims.name}}</a>
-        <a class="link" (click)="logout()">Logout</a>
-    </span>
-
-    <!-- <button mat-button (click)="login()">Login</button>
-    <button *ngIf="isLoggedIn()" mat-button (click)="logoff()">Logout</button> -->
+    <label *ngIf="token">Welcome! {{claims.preferred_username}}</label>
+    <a mat-button *ngIf="token" (click)="logout()">Logout</a>
 </mat-toolbar>

@@ -9,6 +9,8 @@
       ];
 
       function isResponse(str) {
+        console.log("checking response in silent refreash html");
+
         if (!str) return false;
         for (var i = 0; i < checks.length; i++) {
           if (str.match(checks[i])) return true;

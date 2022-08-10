@@ -23,14 +23,16 @@ export class NavComponent implements OnInit {
   }
 
   public login() {
-    console.log("Login...");
-    this.oauthService.initLoginFlow();
-    //this.oauthService.initCodeFlow();
+    console.log("Loging in...");
+    //this.oauthService.initLoginFlow();
+    this.oauthService.initCodeFlow();
+    //this.oauthService.initLoginFlow('/some-state;p1=1;p2=2?p3=3&p4=4');
   }
 
   public logout() {
-    console.log("Logout...");
+    console.log("Loging out...");
     this.oauthService.logOut();
+    //this.oauthService.revokeTokenAndLogout();
   }
 
   get token(){
@@ -40,5 +42,37 @@ export class NavComponent implements OnInit {
     }
 
     return this.claims ? this.claims : null;
+  }
+
+  get useHashLocationStrategy() {
+    return localStorage.getItem('useHashLocationStrategy') === 'true';
+  }
+
+  get id_token() {
+    return this.oauthService.getIdToken();
+  }
+
+  get access_token() {
+    return this.oauthService.getAccessToken();
+  }
+
+  get id_token_expiration() {
+    return this.oauthService.getIdTokenExpiration();
+  }
+
+  get access_token_expiration() {
+    return this.oauthService.getAccessTokenExpiration();
+  }
+
+  loadUserProfile(): void {
+    //this.oauthService.loadUserProfile().then((up) => (this.userProfile = up));
+  }
+
+  startAutomaticRefresh(): void {
+    this.oauthService.setupAutomaticSilentRefresh();
+  }
+
+  stopAutomaticRefresh(): void {
+    this.oauthService.stopAutomaticRefresh();
   }
 }

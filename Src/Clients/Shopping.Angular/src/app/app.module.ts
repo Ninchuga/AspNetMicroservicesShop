@@ -17,7 +17,9 @@ import { NavComponent } from './shared/components/nav/nav.component';
 import { CatalogComponent } from './shared/components/catalog/catalog.component';
 import { BasketComponent } from './shared/components/basket/basket.component';
 import { OrdersComponent } from './shared/components/orders/orders.component';
-import { AuthComponent } from './shared/components/auth/auth.component'
+import { SigninRedirectCallbackComponent } from './shared/components/auth/signin-redirect-callback.component';
+import { SignoutRedirectComponent } from './shared/components/auth/signout-redirect.component'
+import { NotFoundComponent } from './shared/components/auth/not-found.component';
 
 @NgModule({
   declarations: [
@@ -27,13 +29,19 @@ import { AuthComponent } from './shared/components/auth/auth.component'
     CatalogComponent,
     BasketComponent,
     OrdersComponent,
-    AuthComponent
+    SigninRedirectCallbackComponent,
+    SignoutRedirectComponent,
+    NotFoundComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    OAuthModule.forRoot(),
+    OAuthModule.forRoot({
+      resourceServer: {
+          allowedUrls: ['http://localhost:4200'],
+          sendAccessToken: true
+      }}),
     BrowserAnimationsModule,
     MatToolbarModule,
     MatSidenavModule,
