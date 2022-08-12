@@ -20,6 +20,10 @@ namespace OcelotApiGateway
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            // clear Microsoft changed claim names from dictionary and preserve original ones
+            // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -31,9 +35,16 @@ namespace OcelotApiGateway
 
             services.AddHealthChecks();
 
-            // clear Microsoft changed claim names from dictionary and preserve original ones
-            // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins(Configuration["WebClientUrls:Angular"])
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
 
             // authentication scheme key that Ocelot takes when firing a request to a route. 
             // If there is no key associated Ocelot will not start up
@@ -63,6 +74,8 @@ namespace OcelotApiGateway
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors("default");
 
             app.UseRouting();
 

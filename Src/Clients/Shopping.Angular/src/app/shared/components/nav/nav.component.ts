@@ -26,7 +26,6 @@ export class NavComponent implements OnInit {
     console.log("Loging in...");
     //this.oauthService.initLoginFlow();
     this.oauthService.initCodeFlow();
-    //this.oauthService.initLoginFlow('/some-state;p1=1;p2=2?p3=3&p4=4');
   }
 
   public logout() {
@@ -35,7 +34,13 @@ export class NavComponent implements OnInit {
     //this.oauthService.revokeTokenAndLogout();
   }
 
-  get token(){
+  get isUserLoggedIn(){
+    let loggedIn = this.oauthService.hasValidAccessToken();
+    console.log(`User logged in: ${loggedIn}`);
+    return loggedIn;
+  }
+
+  get userClaims(){
     this.claims = this.oauthService.getIdentityClaims();
     if(this.claims){
       console.log("Login claims: ", this.claims);
@@ -49,30 +54,14 @@ export class NavComponent implements OnInit {
   }
 
   get id_token() {
-    return this.oauthService.getIdToken();
+    let idToken = this.oauthService.getIdToken();
+    console.log(`Id token: ${idToken}`);
+    return idToken;
   }
 
   get access_token() {
-    return this.oauthService.getAccessToken();
-  }
-
-  get id_token_expiration() {
-    return this.oauthService.getIdTokenExpiration();
-  }
-
-  get access_token_expiration() {
-    return this.oauthService.getAccessTokenExpiration();
-  }
-
-  loadUserProfile(): void {
-    //this.oauthService.loadUserProfile().then((up) => (this.userProfile = up));
-  }
-
-  startAutomaticRefresh(): void {
-    this.oauthService.setupAutomaticSilentRefresh();
-  }
-
-  stopAutomaticRefresh(): void {
-    this.oauthService.stopAutomaticRefresh();
+    let accessToken = this.oauthService.getAccessToken();
+    console.log(`Access token: ${accessToken}`);
+    return accessToken;
   }
 }

@@ -306,5 +306,8 @@
     "BasketApi": "openid profile basketapi.fullaccess",
     "CatalogApi": "openid profile catalogapi.fullaccess",
     "OrderApi": "openid profile orderapi.fullaccess"
+  },
+  "WebClientUrls": {
+    "Angular": "http://localhost:4200" // change later to docker container name
   }
 }

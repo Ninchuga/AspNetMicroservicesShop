@@ -268,7 +268,7 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5010"
+    "BaseUrl": "http://localhost:5006"
   },
   "IdentityProviderSettings": {
     "IdentityServiceUrl": "https://localhost:44318"
@@ -282,5 +282,8 @@
     "BasketApi": "basketapi.fullaccess",
     "CatalogApi": "catalogapi.fullaccess",
     "OrderApi": "orderapi.fullaccess"
+  },
+  "WebClientUrls": {
+    "Angular": "http://localhost:4200"
   }
 }

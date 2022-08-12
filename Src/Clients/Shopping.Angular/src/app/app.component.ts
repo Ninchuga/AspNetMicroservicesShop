@@ -30,9 +30,10 @@ export class AppComponent {
     console.log("Configuring auth code flow...")
     this.oauthService.configure(authCodeFlowConfig);
     this.oauthService.loadDiscoveryDocumentAndTryLogin().then(
-      (isLoggedIn) => {
-        if (isLoggedIn) {
-          this.oauthService.setupAutomaticSilentRefresh();
+      (success) => {
+        if (success) {
+          // do something
+          //this.oauthService.setupAutomaticSilentRefresh();
         }
       },
       (error) => {
@@ -41,8 +42,9 @@ export class AppComponent {
           location.reload();
         }
       });
-      sessionStorage.setItem('flow', 'code');
-      
+
+    this.oauthService.setupAutomaticSilentRefresh();
+    //sessionStorage.setItem('flow', 'code'); // not needed. used as an example
   }
 
   

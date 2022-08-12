@@ -211,8 +211,8 @@ namespace Shopping.IDP
                     AllowedGrantTypes = GrantTypes.Code,
                     RedirectUris = new List<string>
                     { 
-                        $"{configuration["WebClientUrls:Angular"] }/home",
-                        $"{configuration["WebClientUrls:Angular"]}/silent-refresh.html" 
+                        $"{configuration["WebClientUrls:Angular"] }/home"
+                        //$"{configuration["WebClientUrls:Angular"]}/silent-refresh.html"
                     },
                     RequirePkce = true,
                     AllowAccessTokensViaBrowser = true,
@@ -224,53 +224,16 @@ namespace Shopping.IDP
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Address,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "roles"
+                        "roles",
+                        "shoppinggateway.fullaccess",
+                        "shoppingaggregator.fullaccess"
                     },
                     AllowedCorsOrigins = { $"{configuration["WebClientUrls:Angular"]}" },
                     RequireClientSecret = false,
                     //PostLogoutRedirectUris = new List<string> { $"{configuration["WebClientUrls:Angular"]}/signout-callback" },
                     PostLogoutRedirectUris = new List<string> { $"{configuration["WebClientUrls:Angular"]}/home" },
                     RequireConsent = false,
-                    AccessTokenLifetime = 600
-
-
-                    //ClientId = "angularspacodeflowclient",
-                    //ClientName = "Shopping Angular Client",
-                    //ClientUri = configuration["WebClientUrls:Angular"],
-                    ////AccessTokenType = AccessTokenType.Jwt,
-                    //AllowedGrantTypes = GrantTypes.Code,
-                    //RequireClientSecret = false,
-                    //AllowOfflineAccess = true, // we are allowing the client to use refresh token
-                    //AlwaysIncludeUserClaimsInIdToken = true,
-                    //RequirePkce = true,
-                    //AllowAccessTokensViaBrowser = true,
-                    //AllowedCorsOrigins = { $"{configuration["WebClientUrls:Angular"]}" },
-                    //AccessTokenLifetime = 600,
-                    //RequireConsent = false,
-                    //RedirectUris = new List<string>()
-                    //{
-                    //    $"{configuration["WebClientUrls:Angular"]}/signin-callback",
-                    //    $"{configuration["WebClientUrls:Angular"]}/silent-callback.html",
-                    //    $"{configuration["WebClientUrls:Angular"]}/index.html",
-                    //    $"{configuration["WebClientUrls:Angular"]}/",
-                    //    $"{configuration["WebClientUrls:Angular"]}/assets/silent-callback.html"
-                    //    //$"{configuration["WebClientUrls:Angular"]}/silent-refresh.html"
-                    //},
-                    //PostLogoutRedirectUris = new List<string>()
-                    //{
-                    //    $"{configuration["WebClientUrls:Angular"]}/signout-callback"
-                    //},
-                    //ClientSecrets = { new Secret("angularspacodeflowclient".Sha256()) },
-                    //AllowedScopes =
-                    //{
-                    //    IdentityServerConstants.StandardScopes.OpenId,
-                    //    IdentityServerConstants.StandardScopes.Profile,
-                    //    IdentityServerConstants.StandardScopes.Address,
-                    //    IdentityServerConstants.StandardScopes.OfflineAccess,
-                    //    "roles",
-                    //    "shoppinggateway.fullaccess",
-                    //    "shoppingaggregator.fullaccess"
-                    //}
+                    AccessTokenLifetime = 60
                 }
             };
     }
