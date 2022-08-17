@@ -1,1 +1,41 @@
-<p>basket works!</p>
+<div class="center padding-30">
+    <h1>Basket</h1>
+</div>
+
+<table mat-table [dataSource]="userBasketItems" class="mat-elevation-z8 demo-table">
+    
+      <ng-container matColumnDef="productName">
+        <th class="w-150" mat-header-cell *matHeaderCellDef> Product Name </th>
+        <td mat-cell *matCellDef="let item"> {{item.productName}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="quantity">
+        <th class="w-75" mat-header-cell *matHeaderCellDef> Quantity </th>
+        <td mat-cell *matCellDef="let item"> {{item.quantity}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="price">
+        <th class="w-75" mat-header-cell *matHeaderCellDef> Price </th>
+        <td mat-cell *matCellDef="let item"> {{item.price}} </td>
+      </ng-container>
+    
+      <ng-container matColumnDef="discount">
+        <th class="w-150" mat-header-cell *matHeaderCellDef> Discount </th>
+        <td mat-cell *matCellDef="let item"> {{item.discount}} </td>
+      </ng-container>
+    
+      <ng-container matColumnDef="priceWithDiscount">
+        <th class="w-500" mat-header-cell *matHeaderCellDef> Price with discount </th>
+        <td class="padding-right-30" mat-cell *matCellDef="let item"> {{item.priceWithDiscount}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th class="w-75" mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let item">
+            <a mat-flat-button color="primary" (click)="deleteBasketItem(item.productId)">DELETE ITEM</a>
+        </td>
+      </ng-container>
+  
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>

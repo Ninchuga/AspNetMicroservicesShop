@@ -21,6 +21,7 @@ import { OrdersComponent } from './shared/components/orders/orders.component';
 import { SigninRedirectCallbackComponent } from './shared/components/auth/signin-redirect-callback.component';
 import { SignoutRedirectComponent } from './shared/components/auth/signout-redirect.component'
 import { NotFoundComponent } from './shared/components/auth/not-found.component';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -40,8 +41,9 @@ import { NotFoundComponent } from './shared/components/auth/not-found.component'
     HttpClientModule,
     OAuthModule.forRoot({
       resourceServer: {
-          allowedUrls: ['http://localhost:5006'],
-          sendAccessToken: true
+          allowedUrls: ['http://localhost:5006/Catalog/api', 'http://localhost:5006/Basket/api', 'http://localhost:5005'],
+          //allowedUrls: ['http://localhost:4200'],
+          sendAccessToken: true // this will enable setting access token in request header for the specified resource url prefixes. This is http interceptor out of the box and http error handling
       }}),
     BrowserAnimationsModule,
     MatToolbarModule,
@@ -49,7 +51,8 @@ import { NotFoundComponent } from './shared/components/auth/not-found.component'
     MatListModule,
     MatButtonModule,
     MatIconModule,
-    MatTableModule
+    MatTableModule,
+    MatSelectModule
   ],
   providers: [],
   bootstrap: [AppComponent]
