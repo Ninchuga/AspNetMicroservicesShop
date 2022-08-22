@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { ShoppingBasketItem } from '../../models/ShoppingBasketItem';
+import { ShoppingBasket } from '../../models/ShoppingBasket';
 import { BasketService } from '../../services/basket/basket.service';
 
 @Component({
@@ -10,7 +10,7 @@ import { BasketService } from '../../services/basket/basket.service';
 })
 export class BasketComponent implements OnInit {
 
-  public userBasketItems: Array<ShoppingBasketItem> = [];
+  public userBasket: ShoppingBasket = { items: [], totalPrice: 0 };
 
   constructor(private oauthService: OAuthService,
               private basketService: BasketService) { }
@@ -20,25 +20,47 @@ export class BasketComponent implements OnInit {
   }
 
   getUserBasket() {
-    let claims = this.oauthService.getIdentityClaims();
+    const claims = this.oauthService.getIdentityClaims();
     if(!claims){
-      console.log("Couldn't find user claims.");
+      console.warn("Couldn't find user claims.");
       return;
     }
 
-    let userId = claims['sub'];
+    const userId = claims['sub'];
+    if(!userId)
+    {
+      console.warn("User id must be provided.")
+      return;
+    }
+
     this.basketService.getUserBasket(userId)
     .subscribe(response => {
       console.log(response);
-      //const keys = response.headers.keys();
-      //let headers = keys.map(key =>
-      //  `${key}: ${response.headers.get(key)}`);
-        this.userBasketItems = response.body ?? [];
+      this.userBasket = response.body ?? this.userBasket;
     });
   }
 
   deleteBasketItem(productId: string) {
-    console.log(`Delete product id ${productId} from basket`);
+    console.log(`Delete product id ${productId} from user basket`);
+
+    const claims = this.oauthService.getIdentityClaims();
+    if(!claims){
+      console.warn("Couldn't find user claims.");
+      return;
+    }
+    
+    const userId = claims['sub'];
+    if(!userId)
+    {
+      console.warn("User id must be provided.")
+      return;
+    }
+
+    this.basketService.deleteBasketItem(productId)
+      .subscribe(response => {
+        console.log(response);
+        this.userBasket = response.body ?? this.userBasket;
+      });
   }
 
   displayedColumns = [ 'productName', 'quantity', 'price',  'discount', 'priceWithDiscount', 'action' ];

@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { Constants } from '../../constants';
 import { catchError, retry } from 'rxjs/operators';
 import { CatalogItem } from '../../models/CatalogItem';
@@ -11,15 +10,13 @@ import { ShoppingErrorHandler } from 'src/app/errorHandler';
 })
 export class CatalogService {
 
-  constructor(private oauthService: OAuthService,
-              private http: HttpClient,
+  constructor(private http: HttpClient,
               private shoppingErrorHandler: ShoppingErrorHandler) { }
 
   getCatalog() {
     let url = `${Constants.apiGatewayBaseUrl}/Catalog/api`;
     let headers = new HttpHeaders()
-                        .set('Accept', 'application/json')
-                        .set('Authorization', `Bearer ${this.oauthService.getAccessToken()}`); // we don't need to specify access token, it will be added by oAuth interceptor in NgModule
+                        .set('Accept', 'application/json');
 
     const requestOptions = { headers: headers };
     

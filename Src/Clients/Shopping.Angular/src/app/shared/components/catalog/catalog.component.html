@@ -2,7 +2,7 @@
     <h1>Catalog</h1>
 </div>
 
-<table mat-table [dataSource]="catalogItems" class="mat-elevation-z8 demo-table">
+<table mat-table [dataSource]="catalogItems" class="mat-elevation-z8 catalog-table">
     
       <ng-container matColumnDef="name">
         <th class="w-150" mat-header-cell *matHeaderCellDef> Name </th>
@@ -26,12 +26,19 @@
 
       <ng-container matColumnDef="quantity">
         <th class="w-75" mat-header-cell *matHeaderCellDef> Quantity </th>
-        <td mat-cell *matCellDef="let item">
-            <mat-select [(value)]="item.quantity">
+        <td mat-cell *matCellDef="let item" class="padding-right-30">
+          <form [formGroup]="itemQuantityForm">
+            <mat-form-field class="w-75 align-text-center">
+              <mat-select formControlName="itemQuantity">
                 <mat-option *ngFor="let quantity of itemQuantities" [value]="quantity">
                     {{quantity}}
                 </mat-option>
-            </mat-select>
+              </mat-select>
+              <mat-error *ngIf="itemQuantityForm.get('itemQuantity')?.hasError('required')">
+                Please select quantity
+              </mat-error>
+            </mat-form-field>
+          </form>
         </td>
       </ng-container>
 

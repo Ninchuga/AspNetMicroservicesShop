@@ -2,3 +2,48 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.center {
+    display: flex;
+    justify-content: center;
+  }
+
+.w-75{
+    width: 75px;
+}
+
+.w-100{
+    width: 100px;
+}
+
+.w-150{
+    width: 150px;
+}
+
+.w-500{
+    width: 500px;
+}
+
+.padding-right-30{
+    padding-right: 30px;
+}
+
+.padding-left-30{
+    padding-left: 30px;
+}
+
+.padding-left-50{
+    padding-left: 50px;
+}
+
+.padding-30{
+    padding: 30px;
+}
+
+.align-text-center {
+    text-align: center;
+}
+
+.margin-left-30 {
+    margin-left: 30px;
+}

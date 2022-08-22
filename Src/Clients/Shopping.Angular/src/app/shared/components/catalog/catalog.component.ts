@@ -1,5 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { CatalogItem } from '../../models/CatalogItem';
 import { BasketService } from '../../services/basket/basket.service';
@@ -13,12 +14,24 @@ import { CatalogService } from '../../services/catalog/catalog.service';
 export class CatalogComponent implements OnInit {
 
   public catalogItems: Array<CatalogItem> = [];
+  itemQuantityForm: FormGroup = new FormGroup({});
 
   constructor(private catalogService: CatalogService,
-              private basketService: BasketService) { }
+              private basketService: BasketService,
+              private fb: FormBuilder) { }
 
   ngOnInit(): void {
-     this.getCatalog();
+    this.configureItemQuantityForm();
+    this.getCatalog();
+  }
+
+  private configureItemQuantityForm() {
+    this.itemQuantityForm = this.fb.group({
+			itemQuantity: [null, Validators.required]
+		});
+
+    const deafultQuantity = 1;
+    this.itemQuantityForm?.get('itemQuantity')?.setValue(deafultQuantity);
   }
 
   getCatalog() {
@@ -29,14 +42,18 @@ export class CatalogComponent implements OnInit {
   }
 
   addItemToBasket(item: CatalogItem) {
-    console.log(`adding item to the basket. Item: ${item}`);
+    const selectedItemQuantity = this.itemQuantityForm?.get('itemQuantity')?.value;
+    if(!selectedItemQuantity)
+    {
+      console.error('item quantity is missing');
+      return;
+    }
+
+    item.quantity = selectedItemQuantity;
     this.basketService.addItemToBasket(item)
     .subscribe(response => {
       console.log(response);
-      //const keys = response.headers.keys();
-      //this.headers = keys.map(key =>
-      //  `${key}: ${response.headers.get(key)}`);
-      });
+    });
   }
 
   displayedColumns = [ 'name', 'category', 'description', 'price', 'quantity', 'summary', 'action' ];

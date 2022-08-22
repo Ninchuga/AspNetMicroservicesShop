@@ -1,4 +1,6 @@
-﻿using Basket.API.Entities;
+﻿using Basket.API.DTOs;
+using Basket.API.Entities;
+using Basket.API.Extensions;
 using Basket.API.Services.Basket;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -25,7 +27,7 @@ namespace Basket.API.Controllers
 
         [HttpGet("{userId}", Name = "GetBasket")]
         [ProducesResponseType(typeof(ShoppingBasket), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ShoppingBasket>> GetBasket(Guid userId)
+        public async Task<ActionResult<ShoppingBasketDto>> GetBasket(Guid userId)
         {
             // UserId passed from the API Gateway through request headers
             // There token was taken from sub claim of the authenticated user
@@ -35,7 +37,7 @@ namespace Basket.API.Controllers
 
             _logger.LogInformation("Retrieving basket for the user {UserId}", usrId);
 
-            return Ok(await _basketService.GetUserBasketAndCheckForItemsDiscount(userId));
+            return Ok((await _basketService.GetUserBasketAndCheckForItemsDiscount(userId)).ToDto());
 
             //_numberOfRequests++;
             //if (_numberOfRequests % 4 == 0) // every forth request will be successfull
@@ -58,15 +60,15 @@ namespace Basket.API.Controllers
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(ShoppingBasket), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ShoppingBasket>> UpdateBasket([FromBody] ShoppingBasket basket)
+        public async Task<ActionResult<ShoppingBasketDto>> UpdateBasket([FromBody] ShoppingBasket basket)
         {
-            return Ok(await _basketService.UpsertBasket(basket));
+            return Ok((await _basketService.UpsertBasket(basket)).ToDto());
         }
 
         [HttpDelete()]
         [Route("[action]/{itemId}")]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ShoppingBasket>> DeleteBasketItem(string itemId)
+        public async Task<ActionResult<ShoppingBasketDto>> DeleteBasketItem(string itemId)
         {
             Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid userId);
 
@@ -74,7 +76,7 @@ namespace Basket.API.Controllers
 
             _logger.LogInformation("Basket item with id: {ItemId} deleted.", itemId);
 
-            return Ok(response);
+            return Ok(response.ToDto());
         }
 
         [HttpDelete()]
@@ -92,11 +94,11 @@ namespace Basket.API.Controllers
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddBasketItem([FromBody] ShoppingBasketItem item)
+        public async Task<IActionResult> AddBasketItem([FromBody] ShoppingBasketItemDto item)
         {
             Guid.TryParse(User.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value, out Guid userId);
 
-            await _basketService.AddItemToBasket(userId, item);
+            await _basketService.AddItemToBasket(userId, item.ToDomain());
 
             _logger.LogInformation("Item {ItemName} added to basket.", item.ProductName);
 

@@ -23,29 +23,21 @@ export class NavComponent implements OnInit {
   }
 
   public login() {
-    console.log("Loging in...");
-    //this.oauthService.initLoginFlow();
     this.oauthService.initCodeFlow();
   }
 
   public logout() {
-    console.log("Loging out...");
     this.oauthService.logOut();
-    //this.oauthService.revokeTokenAndLogout();
   }
 
   get isUserLoggedIn(){
     let loggedIn = this.oauthService.hasValidAccessToken();
-    console.log(`User logged in: ${loggedIn}`);
     return loggedIn;
   }
 
   get userClaims(){
     this.claims = this.oauthService.getIdentityClaims();
-    if(this.claims){
-      console.log("Login claims: ", this.claims);
-    }
-
+    
     return this.claims ? this.claims : null;
   }
 

@@ -22,6 +22,10 @@ import { SigninRedirectCallbackComponent } from './shared/components/auth/signin
 import { SignoutRedirectComponent } from './shared/components/auth/signout-redirect.component'
 import { NotFoundComponent } from './shared/components/auth/not-found.component';
 import { MatSelectModule } from '@angular/material/select';
+import { CheckoutComponent } from './shared/components/checkout/checkout/checkout.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
   declarations: [
@@ -33,7 +37,8 @@ import { MatSelectModule } from '@angular/material/select';
     OrdersComponent,
     SigninRedirectCallbackComponent,
     SignoutRedirectComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    CheckoutComponent
   ],
   imports: [
     BrowserModule,
@@ -41,8 +46,7 @@ import { MatSelectModule } from '@angular/material/select';
     HttpClientModule,
     OAuthModule.forRoot({
       resourceServer: {
-          allowedUrls: ['http://localhost:5006/Catalog/api', 'http://localhost:5006/Basket/api', 'http://localhost:5005'],
-          //allowedUrls: ['http://localhost:4200'],
+          allowedUrls: ['http://localhost:5006', 'http://localhost:5005'],
           sendAccessToken: true // this will enable setting access token in request header for the specified resource url prefixes. This is http interceptor out of the box and http error handling
       }}),
     BrowserAnimationsModule,
@@ -52,7 +56,10 @@ import { MatSelectModule } from '@angular/material/select';
     MatButtonModule,
     MatIconModule,
     MatTableModule,
-    MatSelectModule
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]

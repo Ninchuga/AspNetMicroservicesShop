@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace Basket.API.Entities
 {
     public class ShoppingBasket
     {
-        public Guid UserId { get; private set; }
-        public List<ShoppingBasketItem> Items { get; private set; } = new List<ShoppingBasketItem>();
-        [IgnoreDataMember]
-        public bool ShouldUpdateBasket { get; private set; }
-
         public ShoppingBasket(Guid userId)
         {
             UserId = userId;
         }
+
+        public Guid UserId { get; private set; }
+        public List<ShoppingBasketItem> Items { get; private set; } = new List<ShoppingBasketItem>();
+        public bool ShouldUpdateBasket { get; private set; }
 
         public decimal TotalPrice
         {
@@ -24,7 +22,7 @@ namespace Basket.API.Entities
                 decimal totalPrice = 0;
                 foreach (var item in Items)
                 {
-                    totalPrice += item.Price * item.Quantity;
+                    totalPrice += item.PriceWithDiscount * item.Quantity;
                 }
 
                 return totalPrice;

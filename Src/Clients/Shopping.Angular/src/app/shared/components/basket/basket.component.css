@@ -1,32 +1,4 @@
-.demo-table {
-    width: 100%;
-}
-
-.center {
-    display: flex;
-    justify-content: center;
-  }
-
-.w-75{
-    width: 75px;
-}
-
-.w-100{
-    width: 100px;
-}
-
-.w-150{
-    width: 150px;
-}
-
-.w-500{
-    width: 500px;
-}
-
-.padding-right-30{
-    padding-right: 30px;
-}
-
-.padding-30{
-    padding: 30px;
+.basket-table {
+    width: 80%;
+    margin-left: 50px;
 }

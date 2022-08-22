@@ -26,7 +26,7 @@ namespace Basket.API.Services.Basket
         public async Task<ShoppingBasket> GetUserBasketAndCheckForItemsDiscount(Guid userId)
         {
             var basket = await _basketRepository.GetBasket(userId);
-            if(basket == null)
+            if(basket is null)
                 return new ShoppingBasket(userId);
 
             return await CheckForBasketItemsDiscountUpdate(basket);
@@ -36,8 +36,9 @@ namespace Basket.API.Services.Basket
         {
             foreach (var item in basket.Items)
             {
+                // TODO: Maybe we can store discounts in local cache to reduce the number of calls for each individual item
                 var coupon = await _discountService.GetDiscount(item.ProductName);
-                if (coupon == null)
+                if (coupon is null)
                     continue;
 
                 basket.UpdateItemDiscount(item, coupon.Amount);
