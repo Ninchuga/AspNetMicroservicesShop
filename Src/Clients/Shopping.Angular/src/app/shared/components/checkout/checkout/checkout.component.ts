@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { CheckoutData } from 'src/app/shared/models/CheckoutData';
 import { OrderItem } from 'src/app/shared/models/OrderItem';
 import { ShoppingBasket } from 'src/app/shared/models/ShoppingBasket';
 import { ShoppingBasketItem } from 'src/app/shared/models/ShoppingBasketItem';
-import { UserOrder } from 'src/app/shared/models/UserOrder';
-import { BasketService } from 'src/app/shared/services/basket/basket.service';
+import { OrderService } from 'src/app/shared/services/order/order.service';
 
 @Component({
   selector: 'app-checkout',
@@ -15,11 +15,10 @@ import { BasketService } from 'src/app/shared/services/basket/basket.service';
 export class CheckoutComponent implements OnInit {
 
   checkoutForm: FormGroup = new FormGroup({});
-  private userBasket: ShoppingBasket = { items: [], totalPrice: 0 };
 
   constructor(private fb: FormBuilder,
               private oauthService: OAuthService,
-              private basketService: BasketService) { }
+              private orderService: OrderService) { }
 
   ngOnInit(): void {
     this.configureCheckoutForm();
@@ -45,36 +44,16 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    this.basketService.getUserBasket(userId)
+    const userName = claims['preferred_username'];
+    const checkoutData = this.buildCheckoutData(data, userId, userName);
+
+    this.orderService.placeOrder(checkoutData)
       .subscribe(response => {
         console.log(response);
-        this.userBasket = response.body ?? this.userBasket;
-        if(!this.userBasket || !this.userBasket.items)
-        {
-          console.error('User basket is not valid');
-          return;
-        }
-
-        const orderItems: OrderItem[] = this.mapToOrderItems(this.userBasket.items);
-        const userOrder: UserOrder = this.buildUserOrder(data, userId, claims['preferred_username'], orderItems);
-        // TODO: send userOrder request to order service
       });
   }
 
-  private mapToOrderItems(basketItems: ShoppingBasketItem[]): OrderItem[] {
-    return basketItems.map(item => 
-      (
-        {
-          productId: item.productId,
-          productName: item.productName,
-          price: item.price,
-          discount: item.discount,
-          quantity: item.quantity
-        }
-      )) as OrderItem[];
-  }
-
-  private buildUserOrder(data: any, userId: string, userName: string, orderItems: OrderItem[]): UserOrder {
+  private buildCheckoutData(data: any, userId: string, userName: string): CheckoutData {
     return {
       userId: userId,
       userName: userName,
@@ -88,9 +67,7 @@ export class CheckoutComponent implements OnInit {
       cardNumber: data.cardNumber,
       cardExpiration: data.cardExpiration,
       cvv: data.cvv,
-      totalPrice: this.userBasket.totalPrice,
-      orderItems: orderItems
-    } as UserOrder;
+    } as CheckoutData;
   }
 
   private configureCheckoutForm() {

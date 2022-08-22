@@ -1,7 +1,6 @@
-export interface BasketCheckout {
+export interface CheckoutData {
     userId: string;
     userName: string;
-    totalPrice: number;
     firstName: string;
     lastName: string;
     email:string;
@@ -10,5 +9,6 @@ export interface BasketCheckout {
     city: string;
     cardName: string;
     cardNumber: string;
+    cardExpiration: string;
     cvv: number;
 }

@@ -102,9 +102,9 @@ namespace Ordering.Application.Features.Orders.Commands
                 {
                     _logger.LogInformation("Order {OrderId} successfully created.", order.Id);
 
-                    await _emailService.SendMailFor(request.Email, request.UserName, order.Id);
+                    //await _emailService.SendMailFor(request.Email, request.UserName, order.Id); disabled for local testing purpose
 
-                    await PublishOrderPlacedEvent(order, request.CorrelationId);
+                    //await PublishOrderPlacedEvent(order, request.CorrelationId); disabled for local testing purpose
 
                     // TODO: publish message to basket service queue to delete the basket items or
                     // trigger Azure Function when order placed to delete the user basket
