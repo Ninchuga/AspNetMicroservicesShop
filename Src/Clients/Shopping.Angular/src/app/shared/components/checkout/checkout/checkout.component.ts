@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { CheckoutData } from 'src/app/shared/models/CheckoutData';
 import { OrderService } from 'src/app/shared/services/order/order.service';
@@ -15,7 +16,8 @@ export class CheckoutComponent implements OnInit {
 
   constructor(private fb: FormBuilder,
               private oauthService: OAuthService,
-              private orderService: OrderService) { }
+              private orderService: OrderService,
+              private router: Router) { }
 
   ngOnInit(): void {
     this.configureCheckoutForm();
@@ -47,6 +49,7 @@ export class CheckoutComponent implements OnInit {
     this.orderService.placeOrder(checkoutData)
       .subscribe(response => {
         console.log(response);
+        this.router.navigate(['/catalog'])
       });
   }
 
