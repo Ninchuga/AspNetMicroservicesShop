@@ -2,9 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { CheckoutData } from 'src/app/shared/models/CheckoutData';
-import { OrderItem } from 'src/app/shared/models/OrderItem';
-import { ShoppingBasket } from 'src/app/shared/models/ShoppingBasket';
-import { ShoppingBasketItem } from 'src/app/shared/models/ShoppingBasketItem';
 import { OrderService } from 'src/app/shared/services/order/order.service';
 
 @Component({

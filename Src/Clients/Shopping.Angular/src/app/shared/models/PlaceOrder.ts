@@ -1,14 +1,9 @@
 import { OrderItem } from "./OrderItem";
 
-export interface UserOrder {
-    orderId: string;
+export interface PlaceOrder {
     userId: string;
     userName: string;
     totalPrice: number;
-    orderStatus: string;
-    orderPaid: string;
-    orderDate: string;
-    orderCancelationDate: string;
     firstName: string;
     lastName: string;
     email:string;

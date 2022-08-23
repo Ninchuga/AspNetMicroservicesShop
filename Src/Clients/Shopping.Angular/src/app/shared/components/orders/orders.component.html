@@ -2,6 +2,40 @@
     <h1>Orders</h1>
 </div>
 
-<div>
-  {{userOrders}}
-</div>
+<table mat-table [dataSource]="userOrders" class="mat-elevation-z8 orders-table">
+    
+    <ng-container matColumnDef="orderNumber">
+      <th class="w-150" mat-header-cell *matHeaderCellDef> Order number </th>
+      <td mat-cell *matCellDef="let order"> {{order.orderId}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="address">
+      <th class="w-150" mat-header-cell *matHeaderCellDef> Street address </th>
+      <td mat-cell *matCellDef="let order"> {{order.street + ', ' + order.city}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="orderDate">
+      <th class="w-75" mat-header-cell *matHeaderCellDef> Order date </th>
+      <td mat-cell *matCellDef="let order"> {{order.orderDate}} </td>
+    </ng-container>
+  
+    <ng-container matColumnDef="price">
+      <th class="w-75" mat-header-cell *matHeaderCellDef> Total price </th>
+      <td mat-cell *matCellDef="let order"> {{order.totalPrice}} </td>
+    </ng-container>
+  
+    <ng-container matColumnDef="status">
+      <th class="w-75" mat-header-cell *matHeaderCellDef> Order status </th>
+      <td class="padding-right-30" mat-cell *matCellDef="let order"> {{order.orderStatus}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <th class="w-75" mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let order">
+          <a mat-flat-button color="primary" (click)="orderDetails(order)">Order details</a>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

@@ -1,3 +1,11 @@
 .catalog-table {
     width: 100%;
 }
+
+.align-text-center {
+    text-align: center;
+}
+
+.padding-right-30{
+    padding-right: 30px;
+}

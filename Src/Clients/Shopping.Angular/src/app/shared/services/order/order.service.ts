@@ -9,6 +9,7 @@ import { ShoppingBasketItem } from '../../models/ShoppingBasketItem';
 import { OrderItem } from '../../models/OrderItem';
 import { CheckoutData } from '../../models/CheckoutData';
 import { v4 as uuid } from 'uuid';
+import { PlaceOrder } from '../../models/PlaceOrder';
 
 @Injectable({
   providedIn: 'root'
@@ -65,11 +66,11 @@ export class OrderService {
                         .set('Content-Type', 'application/json')
                         .set('X-Correlation-ID', correlationId);  // TODO: remove this to interceptor
 
-    return this.http.put<UserOrder>(orderApiUrl, this.buildUserOrder(checkoutData, basket.totalPrice, this.mapToOrderItems(basket.items)), 
+    return this.http.put<UserOrder>(orderApiUrl, this.buildPlaceOrder(checkoutData, basket.totalPrice, this.mapToOrderItems(basket.items)), 
                         { observe: 'response', headers: orderApiHeaders });
   }
 
-  private buildUserOrder(data: CheckoutData, totalPrice: number, orderItems: OrderItem[]): UserOrder {
+  private buildPlaceOrder(data: CheckoutData, totalPrice: number, orderItems: OrderItem[]): PlaceOrder {
     return {
       userId: data.userId,
       userName: data.userName,
@@ -85,7 +86,7 @@ export class OrderService {
       cvv: data.cvv,
       totalPrice: totalPrice,
       orderItems: orderItems
-    } as UserOrder;
+    } as PlaceOrder;
   }
 
   private mapToOrderItems(basketItems: ShoppingBasketItem[]): OrderItem[] {
