@@ -8,7 +8,6 @@ import { UserOrder } from '../../models/UserOrder';
 import { ShoppingBasketItem } from '../../models/ShoppingBasketItem';
 import { OrderItem } from '../../models/OrderItem';
 import { CheckoutData } from '../../models/CheckoutData';
-import { v4 as uuid } from 'uuid';
 import { PlaceOrder } from '../../models/PlaceOrder';
 
 @Injectable({
@@ -20,11 +19,9 @@ export class OrderService {
               private shoppingErrorHandler: ShoppingErrorHandler) { }
 
   getUserOrders(userId: string) {
-    const correlationId = uuid();
     const url = `${Constants.apiGatewayBaseUrl}/Order/api/GetOrders/${userId}`;
     let headers = new HttpHeaders()
-                        .set('Accept', 'application/json')
-                        .set('X-Correlation-ID', correlationId); // TODO: remove this to interceptor
+                        .set('Accept', 'application/json');
 
     return this.http.get<UserOrder[]>(url, { observe: 'response', headers })
       .pipe(
@@ -58,13 +55,9 @@ export class OrderService {
   }
 
   private placeUserOrder(checkoutData: CheckoutData, basket: ShoppingBasket){
-    const correlationId = uuid();
-    console.log(`correlation ${correlationId}`);
-
     const orderApiUrl = `${Constants.apiGatewayBaseUrl}/Order/api/PlaceOrder`;
     let orderApiHeaders = new HttpHeaders()
-                        .set('Content-Type', 'application/json')
-                        .set('X-Correlation-ID', correlationId);  // TODO: remove this to interceptor
+                        .set('Content-Type', 'application/json');
 
     return this.http.put<UserOrder>(orderApiUrl, this.buildPlaceOrder(checkoutData, basket.totalPrice, this.mapToOrderItems(basket.items)), 
                         { observe: 'response', headers: orderApiHeaders });
