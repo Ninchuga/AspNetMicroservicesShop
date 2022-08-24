@@ -46,12 +46,6 @@ services:
       context: .
       dockerfile: Services/Basket/Basket.API/Dockerfile
 
-  discount.api:
-    image: ${DOCKER_REGISTRY-}discountapi
-    build:
-      context: .
-      dockerfile: Services/Discount/Discount.API/Dockerfile
-
   discount.grpc:
     image: ${DOCKER_REGISTRY-}discountgrpc
     build:
