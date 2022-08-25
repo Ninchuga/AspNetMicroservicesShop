@@ -25,6 +25,7 @@ import { CheckoutComponent } from './shared/components/checkout/checkout/checkou
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CorrelationInterceptor } from './shared/interceptors/correlation-interceptor';
 
 @NgModule({
@@ -58,7 +59,8 @@ import { CorrelationInterceptor } from './shared/interceptors/correlation-interc
     MatSelectModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatProgressBarModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: CorrelationInterceptor, multi: true },

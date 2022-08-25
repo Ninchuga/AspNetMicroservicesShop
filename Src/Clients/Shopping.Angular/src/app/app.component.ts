@@ -13,7 +13,10 @@ export class AppComponent {
 
   constructor(private oauthService: OAuthService) {
     this.configureAuth();
-    
+    this.loadUserProfile();
+  }
+
+  private loadUserProfile(){
     // Automatically load user profile
     this.oauthService.events
       .pipe(filter((e) => e.type === 'token_received'))

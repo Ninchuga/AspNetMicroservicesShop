@@ -10,3 +10,6 @@
     <label *ngIf="isUserLoggedIn">Welcome! {{userClaims.preferred_username}}</label>
     <a mat-button *ngIf="isUserLoggedIn" (click)="logout()">Logout</a>
 </mat-toolbar>
+<mat-progress-bar
+  *ngIf="loading" color="warn" mode="indeterminate">
+</mat-progress-bar>

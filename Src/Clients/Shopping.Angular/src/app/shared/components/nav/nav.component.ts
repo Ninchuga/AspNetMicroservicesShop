@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { OAuthErrorEvent, OAuthService } from 'angular-oauth2-oidc';
+import { Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 
 @Component({
   selector: 'app-nav',
@@ -8,7 +9,39 @@ import { OAuthErrorEvent, OAuthService } from 'angular-oauth2-oidc';
 })
 export class NavComponent implements OnInit {
   claims:any;
-  constructor(private oauthService: OAuthService) { 
+  loading: boolean = false;
+
+  constructor(private oauthService: OAuthService,
+              private router: Router) { 
+    this.subscribeToAuthEvents();
+    this.subscribeToRoutingEvents();
+  }
+
+  ngOnInit(): void {
+  }
+
+  private subscribeToRoutingEvents(){
+    this.router.events.subscribe((event: Event) => {
+      switch (true) {
+        case event instanceof NavigationStart: {
+          this.loading = true;
+          break;
+        }
+
+        case event instanceof NavigationEnd:
+        case event instanceof NavigationCancel:
+        case event instanceof NavigationError: {
+          this.loading = false;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+    });
+  }
+
+  private subscribeToAuthEvents(){
     // Useful for debugging:
     this.oauthService.events.subscribe(event => {
       if (event instanceof OAuthErrorEvent) {
@@ -17,9 +50,6 @@ export class NavComponent implements OnInit {
         console.warn('OAuthEvent Object:', event);
       }
     });
-  }
-
-  ngOnInit(): void {
   }
 
   public login() {
