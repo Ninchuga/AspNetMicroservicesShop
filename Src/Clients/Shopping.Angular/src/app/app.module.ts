@@ -17,7 +17,6 @@ import { MatTableModule } from '@angular/material/table';
 import { NavComponent } from './shared/components/nav/nav.component';
 import { CatalogComponent } from './shared/components/catalog/catalog.component';
 import { BasketComponent } from './shared/components/basket/basket.component';
-import { OrdersComponent } from './shared/components/orders/orders.component';
 import { SigninRedirectCallbackComponent } from './shared/components/auth/signin-redirect-callback.component';
 import { SignoutRedirectComponent } from './shared/components/auth/signout-redirect.component'
 import { NotFoundComponent } from './shared/components/auth/not-found.component';
@@ -35,7 +34,6 @@ import { CorrelationInterceptor } from './shared/interceptors/correlation-interc
     NavComponent,
     CatalogComponent,
     BasketComponent,
-    OrdersComponent,
     SigninRedirectCallbackComponent,
     SignoutRedirectComponent,
     NotFoundComponent,
