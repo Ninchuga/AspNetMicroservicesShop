@@ -3,18 +3,18 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Observable } from 'rxjs';
-import { UserOrder } from '../../models/UserOrder';
-import { OrderService } from './order.service';
+import { ShoppingBasket } from '../../models/ShoppingBasket';
+import { BasketService } from './basket.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class OrdersResolverService implements Resolve<HttpResponse<UserOrder[]>> {
+export class BasketResolverService implements Resolve<HttpResponse<ShoppingBasket>>  {
 
-  constructor(private orderService: OrderService,
+  constructor(private basketService: BasketService,
               private oauthService: OAuthService) { }
-              
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): HttpResponse<UserOrder[]> | Observable<HttpResponse<UserOrder[]>> | Promise<HttpResponse<UserOrder[]>> {
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): HttpResponse<ShoppingBasket> | Observable<HttpResponse<ShoppingBasket>> | Promise<HttpResponse<ShoppingBasket>> {
     const claims = this.oauthService.getIdentityClaims();
     if(!claims){
       console.warn("Couldn't find user claims.");
@@ -28,6 +28,6 @@ export class OrdersResolverService implements Resolve<HttpResponse<UserOrder[]>>
       return new HttpResponse();
     }
 
-     return this.orderService.getUserOrders(userId);
+    return this.basketService.getUserBasket(userId);
   }
 }

@@ -1,10 +1,8 @@
-import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { CatalogItem } from '../../models/CatalogItem';
 import { BasketService } from '../../services/basket/basket.service';
-import { CatalogService } from '../../services/catalog/catalog.service';
 
 @Component({
   selector: 'app-catalog',
@@ -13,12 +11,12 @@ import { CatalogService } from '../../services/catalog/catalog.service';
 })
 export class CatalogComponent implements OnInit {
 
-  public catalogItems: Array<CatalogItem> = [];
+  catalogItems: Array<CatalogItem> = [];
   itemQuantityForm: FormGroup = new FormGroup({});
 
-  constructor(private catalogService: CatalogService,
-              private basketService: BasketService,
-              private fb: FormBuilder) { }
+  constructor(private basketService: BasketService,
+              private fb: FormBuilder,
+              private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.configureItemQuantityForm();
@@ -35,9 +33,9 @@ export class CatalogComponent implements OnInit {
   }
 
   getCatalog() {
-    this.catalogService.getCatalog()
-    .subscribe(response => {
-      this.catalogItems = response;
+    this.route.data
+    .subscribe(data => {
+      this.catalogItems = data['catalogItems'];
     });
   }
 

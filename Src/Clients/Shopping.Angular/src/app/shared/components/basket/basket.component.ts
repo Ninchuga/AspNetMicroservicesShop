@@ -1,4 +1,6 @@
+import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { ShoppingBasket } from '../../models/ShoppingBasket';
 import { BasketService } from '../../services/basket/basket.service';
@@ -13,30 +15,21 @@ export class BasketComponent implements OnInit {
   public userBasket: ShoppingBasket = { items: [], totalPrice: 0 };
 
   constructor(private oauthService: OAuthService,
-              private basketService: BasketService) { }
+              private basketService: BasketService,
+              private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.getUserBasket();
   }
 
   getUserBasket() {
-    const claims = this.oauthService.getIdentityClaims();
-    if(!claims){
-      console.warn("Couldn't find user claims.");
-      return;
-    }
-
-    const userId = claims['sub'];
-    if(!userId)
-    {
-      console.warn("User id must be provided.")
-      return;
-    }
-
-    this.basketService.getUserBasket(userId)
-    .subscribe(response => {
-      console.log(response);
-      this.userBasket = response.body ?? this.userBasket;
+    this.route.data
+    .subscribe(data => {
+      console.log(data);
+      const response: HttpResponse<ShoppingBasket> = data['basketResponse'];
+      if(response.body !== null) {
+        this.userBasket = response.body;
+      }
     });
   }
 
