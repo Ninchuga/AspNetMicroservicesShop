@@ -3,6 +3,8 @@ import { OAuthService } from 'angular-oauth2-oidc';
 import { UserOrder } from '../../models/UserOrder';
 import { OrderService } from '../../services/order/order.service';
 import {formatDate} from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-orders',
@@ -15,34 +17,22 @@ export class OrdersComponent implements OnInit {
 
   constructor(private oauthService: OAuthService,
               private orderService: OrderService,
-              @Inject(LOCALE_ID) private locale: string) { }
+              @Inject(LOCALE_ID) private locale: string,
+              private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.getUserOrders();
   }
 
   getUserOrders() {
-    const claims = this.oauthService.getIdentityClaims();
-    if(!claims){
-      console.warn("Couldn't find user claims.");
-      return;
-    }
-
-    const userId = claims['sub'];
-    if(!userId)
-    {
-      console.warn("User id must be provided.")
-      return;
-    }
-
-    this.orderService.getUserOrders(userId)
-    .subscribe(response => {
-      console.log(response);
-      this.userOrders = response.body ?? this.userOrders;
-      for(let order of this.userOrders) {
-        order.orderDate = formatDate(order.orderDate, 'mediumDate', this.locale);
-      }
-    });
+    this.route.data
+        .subscribe(data => {
+          const response: HttpResponse<UserOrder[]> = data['ordersResponse'];
+          this.userOrders = response.body ?? [];
+          for(let order of this.userOrders) {
+            order.orderDate = formatDate(order.orderDate, 'mediumDate', this.locale);
+          }
+        });
   }
 
   orderDetails(order: UserOrder){
