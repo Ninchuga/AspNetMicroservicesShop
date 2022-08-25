@@ -8,13 +8,14 @@ import { SigninRedirectCallbackComponent } from './shared/components/auth/signin
 import { NotFoundComponent } from './shared/components/auth/not-found.component'
 import { SignoutRedirectComponent as SignoutRedirectCallbackComponent } from './shared/components/auth/signout-redirect.component'
 import { CheckoutComponent } from './shared/components/checkout/checkout/checkout.component';
+import { AuthGuard } from './shared/services/auth/auth.guard';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'catalog', component: CatalogComponent },
-  { path: 'basket', component: BasketComponent },
-  { path: 'orders', component: OrdersComponent },
-  { path: 'checkout', component: CheckoutComponent },
+  { path: 'basket', component: BasketComponent, canActivate: [AuthGuard] },
+  { path: 'orders', component: OrdersComponent, canActivate: [AuthGuard] },
+  { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard] },
   { path: 'signin-callback', component: SigninRedirectCallbackComponent }, // TODO: Remove this
   { path: 'signout-callback', component: SignoutRedirectCallbackComponent }, // TODO: Remove this
   { path: 'silent-refresh', redirectTo: "/silent-refresh.html" }, // TODO: Remove this
