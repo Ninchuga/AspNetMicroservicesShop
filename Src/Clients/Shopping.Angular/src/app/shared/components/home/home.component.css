@@ -1,0 +1,13 @@
+.shopping-main-image-section {
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+}
+
+#shopping-main-image {
+    position: relative;
+    top: 20%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
