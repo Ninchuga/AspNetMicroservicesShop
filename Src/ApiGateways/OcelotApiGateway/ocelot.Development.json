@@ -308,6 +308,6 @@
     "OrderApi": "openid profile orderapi.fullaccess"
   },
   "WebClientUrls": {
-    "Angular": "http://localhost:4200" // change later to docker container name
+    "Angular": "https://host.docker.internal:8200"
   }
 }

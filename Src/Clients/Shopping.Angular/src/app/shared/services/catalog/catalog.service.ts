@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Constants } from '../../constants';
 import { catchError, retry } from 'rxjs/operators';
 import { CatalogItem } from '../../models/CatalogItem';
 import { ShoppingErrorHandler } from 'src/app/errorHandler';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +11,12 @@ import { ShoppingErrorHandler } from 'src/app/errorHandler';
 export class CatalogService {
 
   constructor(private http: HttpClient,
-              private shoppingErrorHandler: ShoppingErrorHandler) { }
+              private shoppingErrorHandler: ShoppingErrorHandler,
+              private settingsService: SettingsService) { }
 
   getCatalog() {
-    let url = `${Constants.apiGatewayBaseUrl}/Catalog/api`;
+    let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Catalog/api`;
+    //let url = '/Catalog/api';
     let headers = new HttpHeaders()
                         .set('Accept', 'application/json');
 

@@ -106,6 +106,12 @@ services:
       context: .
       dockerfile: Services/Delivery/Delivery.API/Dockerfile
 
+  shopping.angular:
+    image: ${DOCKER_REGISTRY-}shoppingangular
+    build:
+      context: .
+      dockerfile: Clients/Shopping.Angular/Dockerfile
+
 volumes:
   mongo_data:
   portainer_data:
@@ -114,6 +120,7 @@ volumes:
   order_data:
   order_saga_data:
   identity_data:
+  node_modules:
   logging_data:
     driver: local
 

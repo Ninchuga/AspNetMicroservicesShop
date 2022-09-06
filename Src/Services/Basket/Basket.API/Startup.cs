@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Shopping.HealthChecks;
 using Shopping.Policies.Grpc;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -56,8 +57,14 @@ namespace Basket.API
             // Redis configuration
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = Configuration.GetValue<string>("CacheSettings:RedisConnectionString");
                 options.InstanceName = Configuration.GetValue<string>("CacheSettings:RedisInstanceName");
+                options.ConfigurationOptions = new ConfigurationOptions()
+                {
+                    EndPoints = { Configuration.GetValue<string>("CacheSettings:RedisConnectionString") },
+                    ConnectRetry = 10,
+                    ReconnectRetryPolicy = new LinearRetry(1500),
+                    ConnectTimeout = 5000
+                };
             });
 
             services.AddScoped<IBasketRepository, BasketRepository>();

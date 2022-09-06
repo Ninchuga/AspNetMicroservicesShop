@@ -13,6 +13,7 @@ using Shopping.Aggregator.Extensions;
 using Shopping.Aggregator.Services;
 using Shopping.Correlation;
 using Shopping.HealthChecks;
+using Shopping.Logging;
 using Shopping.Policies;
 using Shopping.Policies.Extensions;
 using System;
@@ -55,6 +56,7 @@ namespace Shopping.Aggregator
 
             services.AddTransient<TokenExchangeDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
+            services.AddTransient<LoggingDelegatingHandler>();
 
             IPolicyRegistry<string> registry = services.AddPolicyRegistry()
                 .RegisterPolicies(services,
@@ -68,6 +70,7 @@ namespace Shopping.Aggregator
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Catalog:CatalogUrl"]))
                 .AddHttpMessageHandler<TokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+                .AddHttpMessageHandler<LoggingDelegatingHandler>()
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.CircuitBreakerPolicy.ToString())
@@ -77,6 +80,7 @@ namespace Shopping.Aggregator
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Basket:BasketUrl"]))
                 .AddHttpMessageHandler<TokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+                .AddHttpMessageHandler<LoggingDelegatingHandler>()
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.CircuitBreakerPolicy.ToString())
@@ -86,6 +90,7 @@ namespace Shopping.Aggregator
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(Configuration["ApiSettings:Ordering:OrderingUrl"]))
                 .AddHttpMessageHandler<TokenExchangeDelegatingHandler>()
                 .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+                .AddHttpMessageHandler<LoggingDelegatingHandler>()
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.FallbackPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.RetryPolicy.ToString())
                 .AddPolicyHandlerFromRegistry(AvailablePolicies.CircuitBreakerPolicy.ToString())
@@ -137,6 +142,7 @@ namespace Shopping.Aggregator
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shopping.Aggregator v1"));
             }
 
+            app.AddCorrelationIdMiddleware();
             app.AddCorrelationLoggingMiddleware();
 
             app.UseHttpsRedirection();

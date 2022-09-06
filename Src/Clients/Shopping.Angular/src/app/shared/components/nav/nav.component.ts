@@ -70,20 +70,4 @@ export class NavComponent implements OnInit {
     
     return this.claims ? this.claims : null;
   }
-
-  get useHashLocationStrategy() {
-    return localStorage.getItem('useHashLocationStrategy') === 'true';
-  }
-
-  get id_token() {
-    let idToken = this.oauthService.getIdToken();
-    console.log(`Id token: ${idToken}`);
-    return idToken;
-  }
-
-  get access_token() {
-    let accessToken = this.oauthService.getAccessToken();
-    console.log(`Access token: ${accessToken}`);
-    return accessToken;
-  }
 }

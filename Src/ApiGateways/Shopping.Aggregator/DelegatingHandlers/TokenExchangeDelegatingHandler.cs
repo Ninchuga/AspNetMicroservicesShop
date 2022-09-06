@@ -1,10 +1,11 @@
 ﻿using IdentityModel.AspNetCore.AccessTokenManagement;
 using IdentityModel.Client;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -17,21 +18,23 @@ namespace Shopping.Aggregator.DelegatingHandlers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IClientAccessTokenCache _clientAccessTokenCache;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<TokenExchangeDelegatingHandler> _logger;
 
         public TokenExchangeDelegatingHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration,
-            IClientAccessTokenCache clientAccessTokenCache, ILogger<TokenExchangeDelegatingHandler> logger)
+            IClientAccessTokenCache clientAccessTokenCache, ILogger<TokenExchangeDelegatingHandler> logger, IHttpContextAccessor httpContextAccessor)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _clientAccessTokenCache = clientAccessTokenCache;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // extract the current token
-            string incomingToken = request.Headers.Authorization.Parameter;
+            var incomingToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
             var (tokenExchangeCacheKey, downstreamServiceScopes) = ResolveDownstreamServicesTokenExchangeCacheKeyAndScopes(request.RequestUri.AbsoluteUri, _configuration);
 

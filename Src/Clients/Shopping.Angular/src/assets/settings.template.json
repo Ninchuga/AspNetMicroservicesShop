@@ -1,0 +1,5 @@
+{
+    "apiGatewayBaseUrl": "${API_GATEWAY_URL}",
+    "idpAuthority": "${IDP_AUTHORITY}",
+    "clientId": "${CLIENT_ID}"
+}

@@ -1,11 +1,11 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, retry, Observable } from 'rxjs';
-import { Constants } from '../../constants';
 import { ShoppingBasketItem } from '../../models/ShoppingBasketItem';
 import { ShoppingErrorHandler } from 'src/app/errorHandler';
 import { CatalogItem } from '../../models/CatalogItem';
 import { ShoppingBasket } from '../../models/ShoppingBasket';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +13,11 @@ import { ShoppingBasket } from '../../models/ShoppingBasket';
 export class BasketService {
 
   constructor(private http: HttpClient,
-              private shoppingErrorHandler: ShoppingErrorHandler) { }
+              private shoppingErrorHandler: ShoppingErrorHandler,
+              private settingsService: SettingsService) { }
 
   getUserBasket(userId: string): Observable<HttpResponse<ShoppingBasket>> {
-    let url = `${Constants.apiGatewayBaseUrl}/Basket/api/${userId}`;
+    let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Basket/api/${userId}`;
     let headers = new HttpHeaders()
                         .set('Accept', 'application/json');
 
@@ -29,7 +30,7 @@ export class BasketService {
   }
 
   addItemToBasket(item: CatalogItem): Observable<HttpResponse<ShoppingBasketItem>> {
-    let url = `${Constants.apiGatewayBaseUrl}/Basket/api/AddBasketItem`;
+    let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Basket/api/AddBasketItem`;
 
     let headers = new HttpHeaders()
                         .set('Content-Type', 'application/json');
@@ -51,7 +52,7 @@ export class BasketService {
   }
 
   deleteBasketItem(productId: string): Observable<HttpResponse<any>> {
-    let url = `${Constants.apiGatewayBaseUrl}/Basket/api/DeleteBasketItem/${productId}`;
+    let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Basket/api/DeleteBasketItem/${productId}`;
 
     let headers = new HttpHeaders()
                         .set('Content-Type', 'application/json');

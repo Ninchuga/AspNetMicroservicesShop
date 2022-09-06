@@ -8,9 +8,8 @@
 $ErrorActionPreference = "Stop"
 
 $rootCN = "IdentityServerDockerRootCert"
-#$hostDockerCNs = 'host.docker.internal'
 $identityServerCNs = "shopping.identity", "localhost"
-$shoppingRazorWebClientCNs = "shopping.razor" , "localhost"
+$razorWebClientCNs = "shopping.razor" , "localhost"
 $catalogApiCNs = "catalog.api", "localhost"
 $basketApiCNs = "basket.api", "localhost"
 $discountGrpcCNs = "discount.grpc", "localhost"
@@ -21,10 +20,11 @@ $shoppingWebStatusCNs = "shopping.webstatus", "localhost"
 $shoppingOrderSagaCNs = "shopping.ordersagaorchestrator", "localhost"
 $paymentApiCNs = "payment.api", "localhost"
 $deliveryApiCNs = "delivery.api", "localhost"
+$angularWebClientCNs = "shopping.angular", "localhost"
 
 $alreadyExistingCertsRoot = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq "CN=$rootCN"}
 $alreadyExistingCertsIdentityServer = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $identityServerCNs[0])}
-$alreadyExistingCertsShoppingWebClient = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingRazorWebClientCNs[0])}
+$alreadyExistingCertsRazorWebClient = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $razorWebClientCNs[0])}
 $alreadyExistingCertsCatalogApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $catalogApiCNs[0])}
 $alreadyExistingCertsBasketApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $basketApiCNs[0])}
 $alreadyExistingCertsDiscountGrpc = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $discountGrpcCNs[0])}
@@ -35,6 +35,7 @@ $alreadyExistingCertsShoppingWebStatus = Get-ChildItem -Path Cert:\LocalMachine\
 $alreadyExistingCertsShoppingOrderSaga = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $shoppingOrderSagaCNs[0])}
 $alreadyExistingCertsPaymentApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $paymentApiCNs[0])}
 $alreadyExistingCertsDeliveryApi = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $deliveryApiCNs[0])}
+$alreadyExistingCertsAngularWebClient = Get-ChildItem -Path Cert:\LocalMachine\My -Recurse | Where-Object {$_.Subject -eq ("CN={0}" -f $angularWebClientCNs[0])}
 
 # Root cert
 if ($alreadyExistingCertsRoot.Count -eq 1) {
@@ -54,12 +55,12 @@ if ($alreadyExistingCertsIdentityServer.Count -eq 1) {
 }
 
 # Razor Web Client
-if ($alreadyExistingCertsShoppingWebClient.Count -eq 1) {
-    Write-Output "Skipping creating Web client certificate as it already exists."
-    $shoppingWebClientCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsShoppingWebClient[0]
+if ($alreadyExistingCertsRazorWebClient.Count -eq 1) {
+    Write-Output "Skipping creating Razor Web client certificate as it already exists."
+    $razorWebClientCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsRazorWebClient[0]
 } else {
     # Create a SAN cert for both web-api and localhost.
-    $shoppingWebClientCert = New-SelfSignedCertificate -DnsName $shoppingRazorWebClientCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+    $razorWebClientCert = New-SelfSignedCertificate -DnsName $razorWebClientCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
 # Catalog API
@@ -152,12 +153,21 @@ if ($alreadyExistingCertsDeliveryApi.Count -eq 1) {
     $deliveryApiCert = New-SelfSignedCertificate -DnsName $deliveryApiCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
 }
 
+# Angular Web Client
+if ($alreadyExistingCertsAngularWebClient.Count -eq 1) {
+    Write-Output "Skipping creating Angular Web client certificate as it already exists."
+    $angularWebClientCert = [Microsoft.CertificateServices.Commands.Certificate] $alreadyExistingCertsAngularWebClient[0]
+} else {
+    # Create a SAN cert for both client url and localhost.
+    $angularWebClientCert = New-SelfSignedCertificate -DnsName $angularWebClientCNs -Signer $shoppingRootCA -CertStoreLocation Cert:\LocalMachine\My
+}
+
 # Export it for docker container to pick up later.
 $password = ConvertTo-SecureString -String "password" -Force -AsPlainText
 
 $rootCertPathPfx = "D:/Practice/AspNetMicroservicesShop/Src/certs"
 $identityServerCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Identity/Shopping.IDP/certs"
-$shoppingRazorWebClientCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Clients/Shopping.Razor/certs"
+$razorWebClientCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Clients/Shopping.Razor/certs"
 $catalogApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Catalog/Catalog.API/certs"
 $basketApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Basket/Basket.API/certs"
 $discountGrpcCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Discount/Discount.Grpc/certs"
@@ -168,10 +178,11 @@ $shoppingWebStatusCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Common/Sho
 $orderSagaOrchestratorCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Orchestrators/Shopping.OrderSagaOrchestrator/certs"
 $paymentApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Payment/Payment.API/certs"
 $deliveryApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Delivery/Delivery.API/certs"
+$angularWebClientCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Clients/Shopping.Angular/certs"
 
 [System.IO.Directory]::CreateDirectory($rootCertPathPfx) | Out-Null
 [System.IO.Directory]::CreateDirectory($identityServerCertPath) | Out-Null
-[System.IO.Directory]::CreateDirectory($shoppingRazorWebClientCertPath) | Out-Null
+[System.IO.Directory]::CreateDirectory($razorWebClientCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($catalogApiCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($basketApiCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($discountGrpcCertPath) | Out-Null
@@ -182,10 +193,11 @@ $deliveryApiCertPath = "D:/Practice/AspNetMicroservicesShop/Src/Services/Deliver
 [System.IO.Directory]::CreateDirectory($orderSagaOrchestratorCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($paymentApiCertPath) | Out-Null
 [System.IO.Directory]::CreateDirectory($deliveryApiCertPath) | Out-Null
+[System.IO.Directory]::CreateDirectory($angularWebClientCertPath) | Out-Null
 
 Export-PfxCertificate -Cert $shoppingRootCA -FilePath "$rootCertPathPfx/shopping-root-cert.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $identityServerCert -FilePath "$identityServerCertPath/Shopping.IDP.pfx" -Password $password | Out-Null
-Export-PfxCertificate -Cert $shoppingWebClientCert -FilePath "$shoppingRazorWebClientCertPath/Shopping.Razor.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $razorWebClientCert -FilePath "$razorWebClientCertPath/Shopping.Razor.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $catalogApiCert -FilePath "$catalogApiCertPath/Catalog.API.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $basketApiCert -FilePath "$basketApiCertPath/Basket.API.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $discountGrpcCert -FilePath "$discountGrpcCertPath/Discount.Grpc.pfx" -Password $password | Out-Null
@@ -196,6 +208,7 @@ Export-PfxCertificate -Cert $shoppingWebStatusCert -FilePath "$shoppingWebStatus
 Export-PfxCertificate -Cert $shoppingOrderSagaOrchestratorCert -FilePath "$orderSagaOrchestratorCertPath/Shopping.OrderSagaOrchestrator.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $paymentApiCert -FilePath "$paymentApiCertPath/Payment.API.pfx" -Password $password | Out-Null
 Export-PfxCertificate -Cert $deliveryApiCert -FilePath "$deliveryApiCertPath/Delivery.API.pfx" -Password $password | Out-Null
+Export-PfxCertificate -Cert $angularWebClientCert -FilePath "$angularWebClientCertPath/Shopping.Angular.pfx" -Password $password | Out-Null
 
 # Export .cer to be converted to .crt to be trusted within the Docker container.
 $rootCertPathCer = "$rootCertPathPfx/shopping-root-cert.cer"
@@ -222,8 +235,11 @@ $store.Close()
 # Path where my local trusted certificates are stored
 # Cert:\LocalMachine\My
 
+# List all certificates
+# Get-ChildItem -Path Cert:\LocalMachine\My
+
 #Delete by thumbprint
 #Get-ChildItem Cert:\LocalMachine\My\D20159B7772E33A6A33E436C938C6FE764367396 | Remove-Item
 
 #Delete by subject/serialnumber/issuer/whatever
-#Get-ChildItem Cert:\LocalMachine\My | Where-Object { $_.Subject -match 'CN=shopping.identity' } | Remove-Item
+#Get-ChildItem Cert:\LocalMachine\My | Where-Object { $_.Subject -match 'CN=shopping.angular' } | Remove-Item

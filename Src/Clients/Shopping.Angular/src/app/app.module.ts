@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -27,6 +27,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CorrelationInterceptor } from './shared/interceptors/correlation-interceptor';
+import { SettingsHttpService } from './shared/services/settings/settings-http.service';
+
+export function app_Init(settingsHttpService: SettingsHttpService) {
+  return () => settingsHttpService.initializeApp();
+}
 
 @NgModule({
   declarations: [
@@ -64,6 +69,7 @@ import { CorrelationInterceptor } from './shared/interceptors/correlation-interc
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: CorrelationInterceptor, multi: true },
+    { provide: APP_INITIALIZER, useFactory: app_Init, deps: [SettingsHttpService], multi: true } // application should load the settings provided in the settings.json file on startup
   ],
   bootstrap: [AppComponent]
 })

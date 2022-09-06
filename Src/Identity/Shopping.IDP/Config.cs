@@ -4,10 +4,8 @@
 
 using IdentityServer4;
 using IdentityServer4.Models;
-using IdentityServer4.Test;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Security.Claims;
 
 namespace Shopping.IDP
 {
@@ -122,7 +120,7 @@ namespace Shopping.IDP
                 // This client combines first and second Client into one client
                 new Client
                 {
-                    ClientName = "Shopping Web App Client",
+                    ClientName = "Shopping Razor Client",
                     ClientId = "shopping_web_client",
                     ClientUri = configuration["WebClientUrls:Razor"],
                     AllowedGrantTypes = GrantTypes.CodeAndClientCredentials, // GrantTypes.Hybrid, 
@@ -134,12 +132,10 @@ namespace Shopping.IDP
                     RedirectUris = new List<string>()
                     {
                         // host address of our web application (MVC client)
-                        //"https://localhost:4999/signin-oidc"
                         $"{configuration["WebClientUrls:Razor"]}/signin-oidc"
                     },
                     PostLogoutRedirectUris = new List<string>()
                     {
-                        //"https://localhost:4999/signout-callback-oidc"
                         $"{configuration["WebClientUrls:Razor"]}/signout-callback-oidc"
                     },
                     AllowedScopes =
@@ -206,7 +202,7 @@ namespace Shopping.IDP
                 },
                 new Client
                 {
-                    ClientName = "Angular-Client",
+                    ClientName = "Shopping Angular Client",
                     ClientId = "angular-client",
                     AllowedGrantTypes = GrantTypes.Code,
                     RedirectUris = new List<string>
