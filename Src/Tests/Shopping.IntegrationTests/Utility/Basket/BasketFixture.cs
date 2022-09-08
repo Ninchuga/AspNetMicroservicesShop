@@ -13,6 +13,7 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -69,8 +70,14 @@ namespace Shopping.IntegrationTests.Utility.Basket
                 // Add Redis configuration
                 services.AddStackExchangeRedisCache(options =>
                 {
-                    options.Configuration = _dbContainer.ConnectionString;
                     options.InstanceName = configuration.GetValue<string>("CacheSettings:RedisInstanceName");
+                    options.ConfigurationOptions = new ConfigurationOptions()
+                    {
+                        EndPoints = { _dbContainer.ConnectionString },
+                        ConnectRetry = 10,
+                        ReconnectRetryPolicy = new LinearRetry(1500),
+                        ConnectTimeout = 5000
+                    };
                 });
 
                 services.RemoveMassTransit();
