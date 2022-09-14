@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { OAuthModule } from 'angular-oauth2-oidc';
+import { OAuthModule, OAuthModuleConfig } from 'angular-oauth2-oidc';
 import { HomeComponent } from './shared/components/home/home.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button'
@@ -28,6 +28,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CorrelationInterceptor } from './shared/interceptors/correlation-interceptor';
 import { SettingsHttpService } from './shared/services/settings/settings-http.service';
+import { authConfigFactory } from './shared/services/auth/auth-config-factory';
+import { SettingsService } from './shared/services/settings/settings.service';
 
 export function app_Init(settingsHttpService: SettingsHttpService) {
   return () => settingsHttpService.initializeApp();
@@ -49,11 +51,12 @@ export function app_Init(settingsHttpService: SettingsHttpService) {
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    OAuthModule.forRoot({
-      resourceServer: {
-          allowedUrls: ['http://localhost:5006', 'http://localhost:5005'],
-          sendAccessToken: true // this will enable setting access token in request header for the specified resource url prefixes. This is http interceptor out of the box and http error handling
-      }}),
+    OAuthModule.forRoot(),
+    // OAuthModule.forRoot({
+    //   resourceServer: {
+    //       allowedUrls: [settingsHttpService., 'http://localhost:5005'],
+    //       sendAccessToken: true // this will enable setting access token in request header for the specified resource url prefixes. This is http interceptor out of the box and http error handling
+    //   }}),
     BrowserAnimationsModule,
     MatToolbarModule,
     MatSidenavModule,
@@ -69,7 +72,8 @@ export function app_Init(settingsHttpService: SettingsHttpService) {
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: CorrelationInterceptor, multi: true },
-    { provide: APP_INITIALIZER, useFactory: app_Init, deps: [SettingsHttpService], multi: true } // application should load the settings provided in the settings.json file on startup
+    { provide: APP_INITIALIZER, useFactory: app_Init, deps: [SettingsHttpService], multi: true }, // application should load the settings provided in the settings.json file on startup
+    { provide: OAuthModuleConfig , useFactory: authConfigFactory, deps: [SettingsService] }
   ],
   bootstrap: [AppComponent]
 })

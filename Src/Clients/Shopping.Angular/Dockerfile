@@ -39,31 +39,28 @@ RUN npm run build --  --output-path=dist/shopping.angular
 # BASE IMAGE
 FROM nginx:alpine as runtime
 
-#USER root:root
-#WORKDIR /root
-
-# Copy certificates
-#COPY ./Clients/Shopping.Angular/certs/* /etc/ssl/private
-
-# Copy nginx config file (if you have it)
-#COPY ./Clients/Shopping.Angular/nginx/nginx.conf /etc/nginx/nginx.conf
-
 # Remove default nginx website
 RUN rm -rf /usr/share/nginx/html/*
+
+# Remove default nignx configuration
+RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy dist folder from build stage to nginx public folder
 # onto the specified path in the current container
 # According to the nginx documentation, in order for a file to be hosted in the nginx webserver we would need to paste the contents under “/usr/share/nginx/html” path
 COPY --from=build /app/dist/shopping.angular /usr/share/nginx/html
 
+# Use this if you don't use docker compose to run container
+# -------------------------------------
 #COPY app/certs /etc/ssl/private
 #COPY ./Clients/Shopping.Angular/certs/* /etc/ssl/private
 #COPY ./Clients/Shopping.Angular/certs/angularclient.crt /etc/ssl/private/angularclient.crt
 #ADD /Clients/Shopping.Angular/certs /etc/ssl/private
 
-# Copy nginx config file (if you have it)
+# Copy nginx config file (if you don't use default one)
 #COPY ./Clients/Shopping.Angular/nginx/nginx.conf /etc/nginx/nginx.conf
 #COPY /Clients/Shopping.Angular/nginx/nginx.conf /etc/nginx/conf.d/default.conf # replace the default configuration if we don't delete it previously
+# ------------------------------------
 
 EXPOSE 80
 EXPOSE 443

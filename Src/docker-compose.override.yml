@@ -128,7 +128,7 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.IDP.pfx
       - WebClientUrls:Razor=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8999
-      - WebClientUrls:Angular=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200
+      - WebClientUrls:Angular=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200
       - Logging:ElasticUrl=http://elastics:9200
     depends_on:
       - identitydb
@@ -445,15 +445,14 @@ services:
   shopping.angular:
     container_name: shopping.angular
     environment:
-      - API_GATEWAY_URL=https://ocelotapigateway:8006
+      #- API_GATEWAY_URL=https://ocelotapigateway:8006
       #- API_GATEWAY_URL=https://localhost:8006
       #- API_GATEWAY_URL=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8006
+      - API_GATEWAY_URL=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200 # angular url
       - IDP_AUTHORITY=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
-      #- IDP_AUTHORITY=https://shopping.identity:8021
-      #- IDP_AUTHORITY=https://localhost:8021
       - CLIENT_ID=angular-client
     ports:
-      - "8200:80"
+      - "8200:443"
     volumes:
       - ./Clients/Shopping.Angular/node_modules:/app/node_modules # this way we can make the changes inside app but without restarting the container
       - ./Clients/Shopping.Angular:/app # chnages should be visible immediately
@@ -463,4 +462,3 @@ services:
       - ./Clients/Shopping.Angular/nginx/ssl_passwords.txt:/etc/nginx/ssl_passwords.txt
       - ./Clients/Shopping.Angular/certs/angularclient.key:/etc/ssl/private/angularclient.key
       - ./Clients/Shopping.Angular/certs/angularclient.crt:/etc/ssl/certs/angularclient.crt
-      #- ./Clients/Shopping.Angular/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
