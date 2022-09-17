@@ -17,6 +17,7 @@ export class BasketService {
               private settingsService: SettingsService) { }
 
   getUserBasket(userId: string): Observable<HttpResponse<ShoppingBasket>> {
+    console.log('get basket...');
     let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Basket/api/${userId}`;
     let headers = new HttpHeaders()
                         .set('Accept', 'application/json');

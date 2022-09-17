@@ -17,6 +17,7 @@ export class SettingsHttpService {
             this.http.get('assets/settings.json')
                 .subscribe({
                   next: (response: any) => {
+                    console.log('loading settings...')
                     console.log(response)
                     this.settingsService.settings = <Settings>response;
                     resolve(response);

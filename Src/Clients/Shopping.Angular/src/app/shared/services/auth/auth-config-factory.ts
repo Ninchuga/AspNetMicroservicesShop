@@ -5,7 +5,7 @@ export function authConfigFactory(service: SettingsService): OAuthModuleConfig {
     return {
       resourceServer: {
         allowedUrls: [service.settings.apiGatewayBaseUrl],
-        sendAccessToken: true,
+        sendAccessToken: true
       }
     };
   }

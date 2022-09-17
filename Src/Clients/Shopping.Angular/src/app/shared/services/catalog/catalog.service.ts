@@ -15,8 +15,8 @@ export class CatalogService {
               private settingsService: SettingsService) { }
 
   getCatalog() {
+    console.log('get catalog ...');
     let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Catalog/api`;
-    //let url = '/Catalog/api';
     let headers = new HttpHeaders()
                         .set('Accept', 'application/json');
 

@@ -447,9 +447,10 @@ services:
     environment:
       #- API_GATEWAY_URL=https://ocelotapigateway:8006
       #- API_GATEWAY_URL=https://localhost:8006
-      #- API_GATEWAY_URL=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8006
-      - API_GATEWAY_URL=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200 # angular url
+      - API_GATEWAY_URL=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8006
+      #- API_GATEWAY_URL=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200 # angular url
       - IDP_AUTHORITY=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
+      #- IDP_AUTHORITY=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200
       - CLIENT_ID=angular-client
     ports:
       - "8200:443"

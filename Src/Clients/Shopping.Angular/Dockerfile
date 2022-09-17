@@ -43,7 +43,7 @@ FROM nginx:alpine as runtime
 RUN rm -rf /usr/share/nginx/html/*
 
 # Remove default nignx configuration
-RUN rm /etc/nginx/conf.d/default.conf
+#RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy dist folder from build stage to nginx public folder
 # onto the specified path in the current container

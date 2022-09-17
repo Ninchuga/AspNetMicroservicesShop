@@ -31,6 +31,7 @@ export class AppComponent {
   }
 
   configureAuth(){
+    console.log('test log auth component')
     console.log("Configuring auth code flow...")
 
     const authCodeFlowConfig: AuthConfig = {
