@@ -1,24 +1,28 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { catchError, retry, Observable } from 'rxjs';
 import { ShoppingBasketItem } from '../../models/ShoppingBasketItem';
 import { ShoppingErrorHandler } from 'src/app/errorHandler';
 import { CatalogItem } from '../../models/CatalogItem';
 import { ShoppingBasket } from '../../models/ShoppingBasket';
-import { SettingsService } from '../settings/settings.service';
+import { APP_CONFIG, Settings } from 'src/app/settings';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BasketService {
+  globalSettings: Settings;
 
   constructor(private http: HttpClient,
               private shoppingErrorHandler: ShoppingErrorHandler,
-              private settingsService: SettingsService) { }
+              @Inject(APP_CONFIG)settings: Settings) 
+              { 
+                this.globalSettings = settings;
+              }
 
   getUserBasket(userId: string): Observable<HttpResponse<ShoppingBasket>> {
     console.log('get basket...');
-    let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Basket/api/${userId}`;
+    let url = `${this.globalSettings.apiGatewayBaseUrl}/Basket/api/${userId}`;
     let headers = new HttpHeaders()
                         .set('Accept', 'application/json');
 
@@ -31,7 +35,7 @@ export class BasketService {
   }
 
   addItemToBasket(item: CatalogItem): Observable<HttpResponse<ShoppingBasketItem>> {
-    let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Basket/api/AddBasketItem`;
+    let url = `${this.globalSettings.apiGatewayBaseUrl}/Basket/api/AddBasketItem`;
 
     let headers = new HttpHeaders()
                         .set('Content-Type', 'application/json');
@@ -53,7 +57,7 @@ export class BasketService {
   }
 
   deleteBasketItem(productId: string): Observable<HttpResponse<any>> {
-    let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Basket/api/DeleteBasketItem/${productId}`;
+    let url = `${this.globalSettings.apiGatewayBaseUrl}/Basket/api/DeleteBasketItem/${productId}`;
 
     let headers = new HttpHeaders()
                         .set('Content-Type', 'application/json');

@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ShoppingErrorHandler } from 'src/app/errorHandler';
 import { ShoppingBasket } from '../../models/ShoppingBasket';
 import { catchError, mergeMap, retry } from 'rxjs/operators';
@@ -8,19 +8,23 @@ import { ShoppingBasketItem } from '../../models/ShoppingBasketItem';
 import { OrderItem } from '../../models/OrderItem';
 import { CheckoutData } from '../../models/CheckoutData';
 import { PlaceOrder } from '../../models/PlaceOrder';
-import { SettingsService } from '../settings/settings.service';
+import { APP_CONFIG, Settings } from 'src/app/settings';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
+  globalSettings: Settings;
 
   constructor(private http: HttpClient,
               private shoppingErrorHandler: ShoppingErrorHandler,
-              private settingsService: SettingsService) { }
+              @Inject(APP_CONFIG)settings: Settings) 
+              { 
+                this.globalSettings = settings;
+              }
 
   getUserOrders(userId: string) {
-    const url = `${this.settingsService.settings.apiGatewayBaseUrl}/Order/api/GetOrders/${userId}`;
+    const url = `${this.globalSettings.apiGatewayBaseUrl}/Order/api/GetOrders/${userId}`;
     let headers = new HttpHeaders()
                         .set('Accept', 'application/json');
 
@@ -48,7 +52,7 @@ export class OrderService {
   }
 
   private getUserShoppingBasket(userId: string){
-    const basketApiUrl = `${this.settingsService.settings.apiGatewayBaseUrl}/Basket/api/${userId}`;
+    const basketApiUrl = `${this.globalSettings.apiGatewayBaseUrl}/Basket/api/${userId}`;
     let basketApiHeaders = new HttpHeaders()
                         .set('Accept', 'application/json');
 
@@ -56,7 +60,7 @@ export class OrderService {
   }
 
   private placeUserOrder(checkoutData: CheckoutData, basket: ShoppingBasket){
-    const orderApiUrl = `${this.settingsService.settings.apiGatewayBaseUrl}/Order/api/PlaceOrder`;
+    const orderApiUrl = `${this.globalSettings.apiGatewayBaseUrl}/Order/api/PlaceOrder`;
     let orderApiHeaders = new HttpHeaders()
                         .set('Content-Type', 'application/json');
 

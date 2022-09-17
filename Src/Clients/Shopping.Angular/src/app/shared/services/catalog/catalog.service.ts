@@ -1,22 +1,28 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { catchError, retry } from 'rxjs/operators';
 import { CatalogItem } from '../../models/CatalogItem';
 import { ShoppingErrorHandler } from 'src/app/errorHandler';
 import { SettingsService } from '../settings/settings.service';
+import { APP_CONFIG, Settings } from 'src/app/settings';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CatalogService {
+  globalSettings: Settings;
 
   constructor(private http: HttpClient,
               private shoppingErrorHandler: ShoppingErrorHandler,
-              private settingsService: SettingsService) { }
+              private settingsService: SettingsService,
+              @Inject(APP_CONFIG)settings: Settings) 
+              { 
+                this.globalSettings = settings;
+              }
 
   getCatalog() {
     console.log('get catalog ...');
-    let url = `${this.settingsService.settings.apiGatewayBaseUrl}/Catalog/api`;
+    let url = `${this.globalSettings.apiGatewayBaseUrl}/Catalog/api`;
     let headers = new HttpHeaders()
                         .set('Accept', 'application/json');
 

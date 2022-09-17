@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -25,14 +25,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CorrelationInterceptor } from './shared/interceptors/correlation-interceptor';
-import { SettingsHttpService } from './shared/services/settings/settings-http.service';
 import { authConfigFactory } from './shared/services/auth/auth-config-factory';
-import { SettingsService } from './shared/services/settings/settings.service';
-import { AuthInterceptor } from './shared/interceptors/auth-token-interceptor';
+import { APP_CONFIG, Settings } from './settings';
 
-export function app_Init(settingsHttpService: SettingsHttpService) {
-  return () => settingsHttpService.initializeApp();
-}
+// initialize configuration
+// export function app_Init(settingsHttpService: SettingsHttpService) {
+//   return () => settingsHttpService.initializeApp();
+// }
 
 @NgModule({
   declarations: [
@@ -48,12 +47,7 @@ export function app_Init(settingsHttpService: SettingsHttpService) {
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    //OAuthModule.forRoot(),
-    OAuthModule.forRoot({
-      resourceServer: {
-          allowedUrls: ["http://localhost:5006", "https://host.docker.internal:8006"],
-          sendAccessToken: true // this will enable setting access token in request header for the specified resource url prefixes. This is http interceptor out of the box and http error handling
-      }}),
+    OAuthModule.forRoot(),
     BrowserAnimationsModule,
     MatToolbarModule,
     MatSidenavModule,
@@ -69,9 +63,13 @@ export function app_Init(settingsHttpService: SettingsHttpService) {
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: CorrelationInterceptor, multi: true },
-    //{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: APP_INITIALIZER, useFactory: app_Init, deps: [SettingsHttpService], multi: true }, // application should load the settings provided in the settings.json file on startup
-    //{ provide: OAuthModuleConfig , useFactory: authConfigFactory, deps: [SettingsService] }
+    //{ provide: APP_INITIALIZER, useFactory: app_Init, deps: [SettingsHttpService], multi: true }, // application should load the settings provided in the settings.json file on startup
+    Settings,
+    {
+      provide: OAuthModuleConfig,
+      useFactory: authConfigFactory,
+      deps: [APP_CONFIG],
+    }
   ],
   bootstrap: [AppComponent]
 })

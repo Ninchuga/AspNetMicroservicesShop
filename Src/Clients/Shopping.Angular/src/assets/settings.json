@@ -1,5 +1,5 @@
 {
-    "apiGatewayBaseUrl": "https://localhost:5006",
+    "apiGatewayBaseUrl": "http://localhost:5006",
     "idpAuthority": "https://localhost:44318",
     "clientId": "angular-client"
 }

@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { filter } from 'rxjs';
-import { SettingsService } from './shared/services/settings/settings.service';
+import { APP_CONFIG, Settings } from './settings';
 
 @Component({
   selector: 'app-root',
@@ -10,9 +10,12 @@ import { SettingsService } from './shared/services/settings/settings.service';
 })
 export class AppComponent {
   title = 'Shopping.Angular';
+  globalSettings: Settings;
 
   constructor(private oauthService: OAuthService,
-              private settingsService: SettingsService) {
+              @Inject(APP_CONFIG)settings: Settings) 
+  {
+    this.globalSettings = settings;
     this.configureAuth();
     this.loadUserProfile();
   }
@@ -36,13 +39,13 @@ export class AppComponent {
 
     const authCodeFlowConfig: AuthConfig = {
       // Url of the Identity Provider
-      issuer: this.settingsService.settings.idpAuthority,
+      issuer: this.globalSettings.idpAuthority,
     
       // URL of the SPA to redirect the user to after login
       redirectUri: `${window.location.origin}/home`,
     
       // The SPA's id. The SPA is registerd with this id at the auth-server
-      clientId: this.settingsService.settings.clientId,
+      clientId: this.globalSettings.clientId,
   
       //postLogoutRedirectUri: `${window.location.origin}/signout-callback`,
       postLogoutRedirectUri: `${window.location.origin}/home`,
@@ -51,19 +54,10 @@ export class AppComponent {
     
       // set the scope for the permissions the client should request
       scope: 'openid profile roles address offline_access shoppinggateway.fullaccess shoppingaggregator.fullaccess',
-      
       //scope: 'openid profile email offline_access api', // for azure
     
-      // This is needed for silent refresh (refreshing tokens w/o a refresh_token)
-      // **AND** for logging in with a popup
-      //silentRefreshRedirectUri: `${window.location.origin}/silent-refresh.html`,
-    
-      //useSilentRefresh: true,
-    
       sessionChecksEnabled: false,
-    
       clearHashAfterLogin: true,
-    
       showDebugInformation: true
     };
 
