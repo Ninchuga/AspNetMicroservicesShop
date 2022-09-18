@@ -52,19 +52,20 @@ COPY --from=build /app/dist/shopping.angular /usr/share/nginx/html
 
 # Use this if you don't use docker compose to run container
 # -------------------------------------
-#COPY app/certs /etc/ssl/private
-#COPY ./Clients/Shopping.Angular/certs/* /etc/ssl/private
-#COPY ./Clients/Shopping.Angular/certs/angularclient.crt /etc/ssl/private/angularclient.crt
-#ADD /Clients/Shopping.Angular/certs /etc/ssl/private
+#COPY ./Clients/Shopping.Angular/node_modules:/app/node_modules # this way we can make the changes inside app but without restarting the container
+#COPY ./Clients/Shopping.Angular:/app # changes should be visible immediately
+
+#COPY ./Clients/Shopping.Angular/certs/angularclient.crt /etc/ssl/certs/angularclient.crt
+#COPY ./Clients/Shopping.Angular/certs/angularclient.key /etc/ssl/private/angularclient.key
+#COPY ./Clients/Shopping.Angular/nginx/ssl_passwords.txt /etc/nginx/ssl_passwords.txt
 
 # Copy nginx config file (if you don't use default one)
 #COPY ./Clients/Shopping.Angular/nginx/nginx.conf /etc/nginx/nginx.conf
-#COPY /Clients/Shopping.Angular/nginx/nginx.conf /etc/nginx/conf.d/default.conf # replace the default configuration if we don't delete it previously
+#COPY ./Clients/Shopping.Angular/nginx/nginx.conf /etc/nginx/conf.d/default.conf # replace the default configuration if we don't delete it previously
 # ------------------------------------
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 8200
 
 # when the container starts up, it replaces the environment variable names in the template file, 
 # with the values of those variables, and overwrites the settings.json file with the result, before starting the webserver

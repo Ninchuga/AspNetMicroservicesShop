@@ -67,7 +67,7 @@ import { APP_CONFIG, Settings } from './settings';
     Settings,
     {
       provide: OAuthModuleConfig,
-      useFactory: authConfigFactory,
+      useFactory: authConfigFactory, // load allowed urls from settings to OAuthModule and enable default auth interceptor
       deps: [APP_CONFIG],
     }
   ],

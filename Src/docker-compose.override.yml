@@ -162,7 +162,6 @@ services:
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
     ports:
-      #- "8000:80"
       - "8000:443"
 
   basket.api:
@@ -189,7 +188,6 @@ services:
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
     ports:
-      #- "8001:80"
       - "8001:443"
 
   discount.grpc:
@@ -213,7 +211,6 @@ services:
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
     ports:
-      #- "8003:80"
       - "8003:443"
 
   ordering.api:
@@ -239,7 +236,6 @@ services:
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
     ports:
-      #- "8004:80"
       - "8004:443"
 
   ocelotapigateway:
@@ -265,7 +261,6 @@ services:
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
     ports:
-      #- "8006:80"
       - "8006:443"
 
   shopping.aggregator:
@@ -294,7 +289,6 @@ services:
         source: ./certs/shopping-root-cert.cer
         target: /https-root/shopping-root-cert.cer
     ports:
-      #- "8005:80"
       - "8005:443"
 
   shopping.razor:
@@ -322,7 +316,6 @@ services:
       - shopping.aggregator
       - ocelotapigateway
     ports:
-      #- "8999:80"
       - "8999:443"
 
   shopping.webstatus:
@@ -445,21 +438,15 @@ services:
   shopping.angular:
     container_name: shopping.angular
     environment:
-      #- API_GATEWAY_URL=https://ocelotapigateway:8006
-      #- API_GATEWAY_URL=https://localhost:8006
       - API_GATEWAY_URL=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8006
-      #- API_GATEWAY_URL=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200 # angular url
       - IDP_AUTHORITY=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8021
-      #- IDP_AUTHORITY=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200
       - CLIENT_ID=angular-client
     ports:
       - "8200:443"
     volumes:
       - ./Clients/Shopping.Angular/node_modules:/app/node_modules # this way we can make the changes inside app but without restarting the container
-      - ./Clients/Shopping.Angular:/app # chnages should be visible immediately
-      #- ./Clients/Shopping.Angular/nginx:/etc/nginx # in here don't copy whole folder, just neccessary files
+      - ./Clients/Shopping.Angular:/app # changes should be visible immediately
       - ./Clients/Shopping.Angular/nginx/nginx.conf:/etc/nginx/nginx.conf
-      #- ./Clients/Shopping.Angular/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
       - ./Clients/Shopping.Angular/nginx/ssl_passwords.txt:/etc/nginx/ssl_passwords.txt
       - ./Clients/Shopping.Angular/certs/angularclient.key:/etc/ssl/private/angularclient.key
       - ./Clients/Shopping.Angular/certs/angularclient.crt:/etc/ssl/certs/angularclient.crt
