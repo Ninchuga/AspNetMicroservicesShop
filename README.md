@@ -12,7 +12,7 @@ run the app using this URL *https://host.docker.internal:8200*
 
 ## UI - Web Clients
 - Razor Pages
-- Angular -> when running from docker compose it will use **nginx** as a reverse proxy
+- Angular (14.2.1) -> when running from docker compose it will use **nginx** as a reverse proxy
 
 ## Authentication & Authorization
 - Identity Server 4 for authentication and authorization of services using refresh tokens
