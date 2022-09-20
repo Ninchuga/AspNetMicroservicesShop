@@ -4,9 +4,16 @@
 
 ## You can run the project with HTTPS using Docker 🐳
 
-When running from docker compose, start the Razor web project with this URL  
-*https://host.docker.internal:8999*  
-in order to work properly with the **Identity Server 4**.
+When running from docker compose: 
+- **Using Razor Web Client**  
+run the app using this URL
+*https://host.docker.internal:8999* in order to work properly with the **Identity Server 4**
+- **Using Angular Web Client**  
+run the app using this URL *https://host.docker.internal:8200*
+
+## UI
+- Razor Pages
+- Angular -> when running from docker compose it will use **nginx** as a reverse proxy
 
 ## Authentication & Authorization
 - Identity Server 4 for authentication and authorization of services using refresh tokens
@@ -39,4 +46,5 @@ in order to work properly with the **Identity Server 4**.
 - DDD modeling in Order API using aggregates and value objects
 - Services resilience using Polly
 - Structured logging using Serilog, Elastic Search and Kibana
+- Nginx as reverse proxy
 
