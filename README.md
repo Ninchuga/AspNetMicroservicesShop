@@ -2,16 +2,15 @@
 
 # Example of a web "Shopping portal" using microservice architecture
 
-## You can run the project with HTTPS using Docker 🐳
+## Run the app with HTTPS using Docker or Docker Compose 🐳
 
-When running from docker compose: 
 - **Using Razor Web Client**  
 run the app using this URL
 *https://host.docker.internal:8999* in order to work properly with the **Identity Server 4**
 - **Using Angular Web Client**  
 run the app using this URL *https://host.docker.internal:8200*
 
-## UI
+## UI - Web Clients
 - Razor Pages
 - Angular -> when running from docker compose it will use **nginx** as a reverse proxy
 
