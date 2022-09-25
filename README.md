@@ -12,7 +12,9 @@ run the app using this URL *https://host.docker.internal:8200*
 
 ## UI - Web Clients
 - Razor Pages
-- Angular (14.2.1) -> when running from docker compose it will use **nginx** as a reverse proxy
+- Angular (14.2.1) -> when running from docker compose it will use **nginx** as a reverse proxy  
+  
+**NOTE:** It could happen that when running Angular app with docker compose you can't hit the Identity Server on initial loading, and that's because self signed certificate is not trusted, so the browser returns error. To fix this open new tab in a browser and paste Identity Server url https://host.docker.internal:8021, click on Advanced button so the browser continues to untrusted content, and then refresh the Angular home page and everything should work. Do the same for Ocelot Gateway as with Identity Server by pasting its url https://host.docker.internal:8006 in a different tab in browser.
 
 ## Authentication & Authorization
 - Identity Server 4 for authentication and authorization of services using refresh tokens
