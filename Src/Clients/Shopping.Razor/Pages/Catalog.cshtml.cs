@@ -15,7 +15,7 @@ namespace Shopping.Razor.Pages
         private readonly CatalogService _catalogService;
         private readonly BasketService _basketService;
 
-        public IReadOnlyList<CatalogItem> CatalogItems { get; set; } = new List<CatalogItem>();
+        public IReadOnlyList<CatalogItem> CatalogItems { get; private set; } = new List<CatalogItem>();
 
         public CatalogModel(CatalogService catalogService, BasketService basketService)
         {

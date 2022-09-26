@@ -1,7 +1,7 @@
 <mat-toolbar color="primary">
     <span class="align-content">Shopping Portal</span>
     <a mat-button routerLink="/home" routerLinkActive="active">Home</a>
-    <a mat-button routerLink="/catalog" routerLinkActive="active">Catalog</a>
+    <a mat-button *ngIf="isUserLoggedIn" routerLink="/catalog" routerLinkActive="active">Catalog</a>
     <a mat-button *ngIf="isUserLoggedIn" routerLink="/basket" routerLinkActive="active">Basket</a>
     <a mat-button *ngIf="isUserLoggedIn" routerLink="/orders" routerLinkActive="active">Orders</a>
     <!-- This fills the remaining space of the current row -->
