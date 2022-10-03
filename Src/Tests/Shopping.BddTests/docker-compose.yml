@@ -1,0 +1,76 @@
+﻿version: '3.4'
+
+services:
+  catalogdb:
+    image: mongo
+    container_name: catalogdb
+    restart: always
+    ports:
+      - "27017:27017"
+
+  identitydb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    container_name: identitydb
+    environment:
+      SA_PASSWORD: "September24#"
+      ACCEPT_EULA: "Y"
+    restart: always
+    ports:
+      - 1444:1433
+
+  shopping.idp:
+    image: ${DOCKER_REGISTRY-}shoppingidp
+    container_name: shopping.identity
+    build:
+      context: ../../
+      dockerfile: ./Identity/Shopping.IDP/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://0.0.0.0:443;http://0.0.0.0:80
+      - ASPNETCORE_HTTPS_PORT=8021
+      - IdentityIssuer=https://shopping.identity:8021
+      - "ConnectionStrings:IdentityDb=Server=identitydb;Database=IdentityDb;User Id=sa;Password=September24#;"
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.IDP.pfx
+    ports:
+      #- "8021:80"
+      - "8021:443"
+    depends_on:
+      - identitydb
+    volumes:
+      - ./Identity/Shopping.IDP:/root/Identity
+      - ./Identity/Shopping.IDP/certs:/https/
+      - type: bind
+        source: ./certs/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
+
+  catalog.api:
+    image: ${DOCKER_REGISTRY-}catalogapi
+    container_name: catalog.api
+    build:
+      context: ../../
+      dockerfile: ./Services/Catalog/Catalog.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DatabaseSettings:ConnectionString=mongodb://catalogdb:27017
+      - IdentityProviderSettings:IdentityServiceUrl=https://shopping.identity:8021
+      #- Logging:ElasticUrl=http://elastics:9200
+      - ASPNETCORE_URLS=https://0.0.0.0:443;http://0.0.0.0:80
+      - ASPNETCORE_HTTPS_PORT=8000
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Catalog-API.pfx # it will not copy .pfx file with this name Catalog.API.pfx
+    ports:
+      #- "8000:80"
+      - "8000:443"
+    depends_on:
+      - catalogdb
+      #- shopping.idp
+    volumes:
+      - ./Services/Catalog/Catalog.API:/root/Catalog
+      - ./Services/Catalog/Catalog.API/certs:/https/
+      #- ./Services/Catalog/Catalog.API/certs/Catalog-API.pfx:/https/Catalog-API.pfx
+      - type: bind # Using a bind volume as only this single file from `certs` directory should end up in the container.
+        source: ./certs/shopping-root-cert.cer
+        target: /https-root/shopping-root-cert.cer
+
+  

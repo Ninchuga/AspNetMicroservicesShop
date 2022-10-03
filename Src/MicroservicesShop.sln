@@ -90,7 +90,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.UnitTests", "Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shopping.IntegrationTests", "Tests\Shopping.IntegrationTests\Shopping.IntegrationTests.csproj", "{A970E27B-72B1-4D6E-A218-F47ECA2B718F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.BddTests", "..\Shopping.BddTests\Shopping.BddTests.csproj", "{6AFE2C52-99D6-45DA-B686-70D3E6079847}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopping.BddTests", "Tests\Shopping.BddTests\Shopping.BddTests.csproj", "{6AFE2C52-99D6-45DA-B686-70D3E6079847}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
