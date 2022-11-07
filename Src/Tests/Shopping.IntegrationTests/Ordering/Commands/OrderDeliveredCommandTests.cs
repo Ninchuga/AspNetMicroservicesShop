@@ -5,16 +5,13 @@ using Ordering.Domain.Common;
 using Shopping.IntegrationTests.Ordering.Builders;
 using Shopping.IntegrationTests.Utility.Ordering;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Shopping.IntegrationTests.Ordering.Commands
 {
     [Collection("Ordering collection")]
-    public class OrderDeliveredCommandTests : IClassFixture<OrderingFixture>
+    public class OrderDeliveredCommandTests : IAsyncLifetime
     {
         private readonly OrderingFixture _fixture;
 
@@ -47,5 +44,9 @@ namespace Shopping.IntegrationTests.Ordering.Commands
             FluentActions.Invoking(() => _fixture.Send(orderDeliveredCommand))
                 .Should().ThrowAsync<NotFoundException>();
         }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public Task DisposeAsync() => _fixture.ResetDbState();
     }
 }

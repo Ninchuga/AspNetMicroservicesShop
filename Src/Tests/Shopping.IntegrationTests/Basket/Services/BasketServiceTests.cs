@@ -48,7 +48,7 @@ namespace Shopping.IntegrationTests.Basket.Services
             insertedBasket.Items.Should().NotBeNullOrEmpty();
             insertedBasket.UserId.Should().Be(basket.UserId);
 
-            RemoveKey(basket.UserId);
+            _fixture.RemoveCacheKey(userId);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace Shopping.IntegrationTests.Basket.Services
             item.Price.Should().Be(basketItem.Price);
             item.PriceWithDiscount.Should().Be(basketItem.Price - discountAmount);
 
-            RemoveKey(basket.UserId);
+            _fixture.RemoveCacheKey(userId);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace Shopping.IntegrationTests.Basket.Services
             item.Price.Should().Be(basketItem.Price);
             item.PriceWithDiscount.Should().Be(basketItem.PriceWithDiscount);
 
-            RemoveKey(basket.UserId);
+            _fixture.RemoveCacheKey(userId);
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace Shopping.IntegrationTests.Basket.Services
             userBasket.UserId.Should().NotBeEmpty().And.Be(userId);
             userBasket.Items.Should().BeEmpty();
 
-            RemoveKey(userId);
+            _fixture.RemoveCacheKey(userId);
         }
 
         [Fact]
@@ -132,7 +132,7 @@ namespace Shopping.IntegrationTests.Basket.Services
             userBasketItem.ProductId.Should().Be(basketItem.ProductId);
             userBasketItem.PriceWithDiscount.Should().Be(basketItem.Price - basketItem.Discount);
 
-            RemoveKey(userId);
+            _fixture.RemoveCacheKey(userId);
         }
 
         [Theory]
@@ -161,7 +161,7 @@ namespace Shopping.IntegrationTests.Basket.Services
             userBasketItem.ProductId.Should().Be(exisitngBasketItem.ProductId);
             userBasketItem.PriceWithDiscount.Should().Be(900 - discount);
 
-            RemoveKey(userId);
+            _fixture.RemoveCacheKey(userId);
         }
 
         [Theory]
@@ -189,7 +189,7 @@ namespace Shopping.IntegrationTests.Basket.Services
             userBasketItem.ProductId.Should().Be(product2Id);
             userBasketItem.PriceWithDiscount.Should().Be(product2Price - product2Discount);
 
-            RemoveKey(userId);
+            _fixture.RemoveCacheKey(userId);
         }
 
         [Theory]
@@ -216,7 +216,7 @@ namespace Shopping.IntegrationTests.Basket.Services
             userBasketItem.ProductId.Should().Be(basketItem.ProductId);
             userBasketItem.PriceWithDiscount.Should().Be(basketItem.Price - basketItem.Discount);
 
-            RemoveKey(userId);
+            _fixture.RemoveCacheKey(userId);
         }
 
         [Fact]
@@ -246,13 +246,6 @@ namespace Shopping.IntegrationTests.Basket.Services
             var repository = _fixture.GetBasketRepository();
             var userBasket = await repository.GetBasket(userId);
             userBasket.Should().BeNull();
-        }
-
-
-        private void RemoveKey(Guid userId)
-        {
-            var cache = _fixture.GetDistributedCache();
-            cache.Remove(userId.ToString());
         }
 
         private void SetupDiscountService(string productNameToFind, string couponProductName, string productId, int discountAmount)

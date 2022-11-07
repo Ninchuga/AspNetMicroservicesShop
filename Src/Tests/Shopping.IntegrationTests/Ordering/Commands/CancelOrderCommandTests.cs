@@ -11,7 +11,7 @@ using Xunit;
 namespace Shopping.IntegrationTests.Ordering.Commands
 {
     [Collection("Ordering collection")]
-    public class CancelOrderCommandTests : IClassFixture<OrderingFixture>
+    public class CancelOrderCommandTests : IAsyncLifetime
     {
         private readonly OrderingFixture _fixture;
 
@@ -46,5 +46,9 @@ namespace Shopping.IntegrationTests.Ordering.Commands
             FluentActions.Invoking(() => _fixture.Send(cancelOrderCommand))
                 .Should().ThrowAsync<NotFoundException>();
         }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public Task DisposeAsync() => _fixture.ResetDbState();
     }
 }

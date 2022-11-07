@@ -19,6 +19,7 @@ using Ordering.API;
 using Ordering.Application.Services;
 using Microsoft.Extensions.Hosting;
 using MassTransit.Testing;
+using Respawn;
 
 namespace Shopping.IntegrationTests.Utility.Ordering
 {
@@ -27,7 +28,7 @@ namespace Shopping.IntegrationTests.Utility.Ordering
         // Used when running tests without Testcontainer
         //private IConfigurationRoot _configuration;
         //private IServiceScopeFactory _scopeFactory;
-        //private Checkpoint _checkpoint;
+        private Respawner _respawner;
 
         private const string OrderingTestingEnvironment = "Testing";
         private readonly TestcontainerDatabase _dbContainer;
@@ -40,7 +41,6 @@ namespace Shopping.IntegrationTests.Utility.Ordering
                 Password = "SwN12345678"
             })
             .Build();
-
 
             #region Used when running tests without Testcontainer
             // place the startup code in here
@@ -132,6 +132,8 @@ namespace Shopping.IntegrationTests.Utility.Ordering
         public async Task InitializeAsync()
         {
             await _dbContainer.StartAsync();
+            _respawner = await Respawner.CreateAsync($"{_dbContainer.ConnectionString}TrustServerCertificate=True;",
+                new RespawnerOptions { TablesToIgnore = new Respawn.Graph.Table[] { "__EFMigrationsHistory" } });
         }
 
         public async Task DisposeAsync()
@@ -150,10 +152,10 @@ namespace Shopping.IntegrationTests.Utility.Ordering
         //    context.Database.Migrate();
         //}
 
-        //public async Task ResetDbState()
-        //{
-        //    await _checkpoint.Reset(_configuration.GetConnectionString("OrderingConnectionString"));
-        //}
+        public async Task ResetDbState()
+        {
+            await _respawner.ResetAsync($"{_dbContainer.ConnectionString}TrustServerCertificate=True;");
+        }
 
         //public void Dispose()
         //{

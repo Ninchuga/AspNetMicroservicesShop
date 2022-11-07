@@ -10,7 +10,7 @@ using Xunit;
 namespace Shopping.IntegrationTests.Ordering.Queries
 {
     [Collection("Ordering collection")]
-    public class GetOrderQueryTests : IClassFixture<OrderingFixture>
+    public class GetOrderQueryTests : IAsyncLifetime
     {
         private readonly OrderingFixture _fixture;
 
@@ -44,5 +44,9 @@ namespace Shopping.IntegrationTests.Ordering.Queries
 
             order.Should().BeNull();
         }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public Task DisposeAsync() => _fixture.ResetDbState();
     }
 }
