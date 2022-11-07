@@ -48,4 +48,5 @@ run the app using this URL *https://host.docker.internal:8200*
 - Services resilience using Polly
 - Structured logging using Serilog, Elastic Search and Kibana
 - Nginx as reverse proxy
+- TestContainers for integration tests using docker
 
