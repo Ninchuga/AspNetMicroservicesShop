@@ -10,6 +10,7 @@ using Polly.Registry;
 using Shopping.Aggregator.Contracts;
 using Shopping.Aggregator.DelegatingHandlers;
 using Shopping.Aggregator.Extensions;
+using Shopping.Aggregator.Filters;
 using Shopping.Aggregator.Services;
 using Shopping.Correlation;
 using Shopping.HealthChecks;
@@ -100,35 +101,25 @@ namespace Shopping.Aggregator
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Shopping.Aggregator", Version = "v1" });
-                c.CustomSchemaIds(x => x.FullName);
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"bearer {token}\""
-                });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows()
                     {
-                        new OpenApiSecurityScheme
+                        Implicit = new OpenApiOAuthFlow()
                         {
-                            Reference = new OpenApiReference
+                            AuthorizationUrl = new Uri($"{Configuration.GetValue<string>("IdentityProviderSettings:IdentityServiceUrl")}/connect/authorize"),
+                            TokenUrl = new Uri($"{Configuration.GetValue<string>("IdentityProviderSettings:IdentityServiceUrl")}/connect/token"),
+                            Scopes = new Dictionary<string, string>()
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            },
-                            Scheme = "oauth2",
-                            Name = "Bearer",
-                            In = ParameterLocation.Header,
-
-                        },
-                        new List<string>()
+                                { "shoppingaggregator.fullaccess", "Shopping Aggregator API" }
+                            }
+                        }
                     }
                 });
+
+                c.OperationFilter<AuthorizeCheckOperationFilter>();
             });
         }
 
@@ -139,7 +130,12 @@ namespace Shopping.Aggregator
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shopping.Aggregator v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shopping.Aggregator v1");
+                    c.OAuthClientId("shoppingaggregatorswaggerui");
+                    c.OAuthAppName("Shopping Aggregator Swagger UI");
+                });
             }
 
             app.AddCorrelationIdMiddleware();

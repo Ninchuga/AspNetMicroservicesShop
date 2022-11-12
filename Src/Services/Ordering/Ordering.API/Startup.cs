@@ -6,10 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Ordering.API.Extensions;
+using Ordering.API.Filters;
 using Ordering.Application;
 using Ordering.Application.HubConfiguration;
 using Ordering.Infrastructure;
 using Shopping.HealthChecks;
+using System;
 using System.Collections.Generic;
 
 namespace Ordering.API
@@ -56,34 +58,25 @@ namespace Ordering.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ordering.API", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"bearer {token}\""
-                });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows()
                     {
-                        new OpenApiSecurityScheme
+                        Implicit = new OpenApiOAuthFlow()
                         {
-                            Reference = new OpenApiReference
+                            AuthorizationUrl = new Uri($"{Configuration.GetValue<string>("IdentityProviderSettings:IdentityServiceUrl")}/connect/authorize"),
+                            TokenUrl = new Uri($"{Configuration.GetValue<string>("IdentityProviderSettings:IdentityServiceUrl")}/connect/token"),
+                            Scopes = new Dictionary<string, string>()
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            },
-                            Scheme = "oauth2",
-                            Name = "Bearer",
-                            In = ParameterLocation.Header,
-
-                        },
-                        new List<string>()
+                                { "orderapi.fullaccess", "Ordering API" }
+                            }
+                        }
                     }
                 });
+
+                c.OperationFilter<AuthorizeCheckOperationFilter>();
             });
         }
 
@@ -94,7 +87,12 @@ namespace Ordering.API
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ordering.API v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ordering.API v1");
+                    c.OAuthClientId("orderingswaggerui");
+                    c.OAuthAppName("Order Swagger UI");
+                });
             }
 
             app.AddCorrelationIdMiddleware();
