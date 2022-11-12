@@ -9,7 +9,7 @@ using Xunit;
 namespace Shopping.IntegrationTests.Ordering.Commands
 {
     [Collection("Ordering collection")]
-    public class PlaceOrderCommandTests : IClassFixture<OrderingFixture>
+    public class PlaceOrderCommandTests : IAsyncLifetime
     {
         private readonly OrderingFixture _fixture;
 
@@ -65,5 +65,9 @@ namespace Shopping.IntegrationTests.Ordering.Commands
             FluentActions.Invoking(() => _fixture.Send(command))
                 .Should().ThrowAsync<ValidationException>();
         }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public Task DisposeAsync() => _fixture.ResetDbState();
     }
 }

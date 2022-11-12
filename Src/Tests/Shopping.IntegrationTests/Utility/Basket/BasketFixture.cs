@@ -111,7 +111,13 @@ namespace Shopping.IntegrationTests.Utility.Basket
             return loggerFactory.CreateLogger<BasketService>();
         }
 
-        public IDistributedCache GetDistributedCache()
+        public void RemoveCacheKey(Guid userId)
+        {
+            var cache = GetDistributedCache();
+            cache.Remove(userId.ToString());
+        }
+
+        private IDistributedCache GetDistributedCache()
         {
             //using var scope = _scopeFactory.CreateScope();
             var scopeFactory = Services.GetRequiredService<IServiceScopeFactory>();

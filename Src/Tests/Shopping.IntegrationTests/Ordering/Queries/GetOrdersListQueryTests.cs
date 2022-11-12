@@ -1,20 +1,17 @@
 ﻿using FluentAssertions;
 using Ordering.Application.Features.Orders.Queries;
 using Ordering.Application.Models;
-using Ordering.Domain.Common;
 using Shopping.IntegrationTests.Ordering.Builders;
 using Shopping.IntegrationTests.Utility.Ordering;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Shopping.IntegrationTests.Ordering.Queries
 {
     [Collection("Ordering collection")]
-    public class GetOrdersListQueryTests : IClassFixture<OrderingFixture>
+    public class GetOrdersListQueryTests : IAsyncLifetime
     {
         private readonly OrderingFixture _fixture;
 
@@ -67,5 +64,9 @@ namespace Shopping.IntegrationTests.Ordering.Queries
 
             return placeOrderResponse.OrderId;
         }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public Task DisposeAsync() => _fixture.ResetDbState();
     }
 }
