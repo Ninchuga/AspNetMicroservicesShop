@@ -129,6 +129,12 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/Shopping.IDP.pfx
       - WebClientUrls:Razor=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8999
       - WebClientUrls:Angular=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8200
+      - WebClientUrls:CatalogApi=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8000
+      - WebClientUrls:BasketApi=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8001
+      - WebClientUrls:OrderApi=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8004
+      - WebClientUrls:PaymentApi=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8009
+      - WebClientUrls:DeliveryApi=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8010
+      - WebClientUrls:ShoppingAggregatorApi=https://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:8005
       - Logging:ElasticUrl=http://elastics:9200
     depends_on:
       - identitydb
