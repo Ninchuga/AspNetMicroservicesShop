@@ -230,7 +230,85 @@ namespace Shopping.IDP
                     PostLogoutRedirectUris = new List<string> { $"{configuration["WebClientUrls:Angular"]}/home" },
                     RequireConsent = false,
                     AccessTokenLifetime = 60
-                }
+                },
+                new Client
+                {
+                    ClientId = "catalogswaggerui",
+                    ClientName = "Catalog Swagger UI",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = { $"{configuration["WebClientUrls:CatalogApi"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = { $"{configuration["WebClientUrls:CatalogApi"]}/swagger/" },
+                    AllowedScopes =
+                    {
+                        "catalogapi.fullaccess"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "basketswaggerui",
+                    ClientName = "Basket Swagger UI",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = { $"{configuration["WebClientUrls:BasketApi"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = { $"{configuration["WebClientUrls:BasketApi"]}/swagger/" },
+                    AllowedScopes =
+                    {
+                        "basketapi.fullaccess"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "orderingswaggerui",
+                    ClientName = "Order Swagger UI",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = { $"{configuration["WebClientUrls:OrderApi"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = { $"{configuration["WebClientUrls:OrderApi"]}/swagger/" },
+                    AllowedScopes =
+                    {
+                        "orderapi.fullaccess"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "paymentswaggerui",
+                    ClientName = "Payment Swagger UI",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = { $"{configuration["WebClientUrls:PaymentApi"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = { $"{configuration["WebClientUrls:PaymentApi"]}/swagger/" },
+                    AllowedScopes =
+                    {
+                        "paymentapi.fullaccess"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "deliveryswaggerui",
+                    ClientName = "Delivery Swagger UI",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = { $"{configuration["WebClientUrls:DeliveryApi"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = { $"{configuration["WebClientUrls:DeliveryApi"]}/swagger/" },
+                    AllowedScopes =
+                    {
+                        "deliveryapi.fullaccess"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "shoppingaggregatorswaggerui",
+                    ClientName = "Shopping Aggregator Swagger UI",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RedirectUris = { $"{configuration["WebClientUrls:ShoppingAggregatorApi"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = { $"{configuration["WebClientUrls:ShoppingAggregatorApi"]}/swagger/" },
+                    AllowedScopes =
+                    {
+                        "shoppingaggregator.fullaccess"
+                    }
+                },
             };
     }
 }
