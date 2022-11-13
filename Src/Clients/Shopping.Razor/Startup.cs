@@ -1,13 +1,9 @@
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,21 +14,19 @@ using Shopping.Correlation;
 using Shopping.HealthChecks;
 using Shopping.Logging;
 using Shopping.Razor.Extensions;
-using Shopping.Razor.HttpHandlers;
 using Shopping.Razor.Services;
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Shopping.Razor
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostEnvironment)
         {
             Configuration = configuration;
+            HostEnvironment = hostEnvironment;
 
             // clear Microsoft changed claim names from dictionary and preserve original ones
             // e.g. Microsoft stack renames the 'sub' claim name to http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
@@ -40,6 +34,7 @@ namespace Shopping.Razor
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment HostEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -105,6 +100,24 @@ namespace Shopping.Razor
                 };
             });
 
+            // Use only in production
+            if (HostEnvironment.IsDevelopment() || HostEnvironment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase))
+            {
+                services.AddHttpsRedirection(options =>
+                {
+                    options.RedirectStatusCode = (int)HttpStatusCode.PermanentRedirect;
+                    options.HttpsPort = 443;
+                });
+
+                services.AddHsts(options =>
+                {
+                    options.Preload = true;
+                    options.IncludeSubDomains = true;
+                    options.MaxAge = TimeSpan.FromDays(60);
+                    options.ExcludedHosts.Add("example.com");
+                    options.ExcludedHosts.Add("www.example.com");
+                });
+            }
 
             services.AddHttpContextAccessor();
             services.AddTransient<LoggingDelegatingHandler>();
@@ -176,6 +189,10 @@ namespace Shopping.Razor
             else
             {
                 app.UseExceptionHandler("/Error");
+                // Send HTTP Strict Transport Security Protocol(HSTS) headers to clients.
+                // Use only in production.
+                // The client must support HSTS.
+                app.UseHsts();
             }
 
             app.UseMiddleware<ErrorHandlerMiddleware>();
