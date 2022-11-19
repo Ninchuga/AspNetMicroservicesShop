@@ -49,8 +49,8 @@ namespace Catalog.API
                 options.AddPolicy("HasFullAccess", policy => policy.RequireClaim("scope", "catalogapi.fullaccess"));
             });
 
-            services.AddScoped<ICatalogContext, CatalogContext>();
-            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddSingleton<ICatalogContext, CatalogContext>();
+            services.AddTransient<IProductRepository, ProductRepository>();
 
             services.AddControllers();
 

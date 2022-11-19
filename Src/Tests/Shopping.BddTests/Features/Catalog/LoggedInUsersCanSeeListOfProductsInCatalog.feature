@@ -4,10 +4,10 @@
 
 Scenario: Guest users should not see catalog
 	Given a user that is not logged in
-	When tries to see catalog
+	When tries to get catalog
 	Then unathorized response is returned
 
 Scenario: Logged in users should see catalog
 	Given a logged in user
-	When tries to get catalog
-	Then catalog with products is displayed
+	When tries to get products from catalog
+	Then catalog with products is returned

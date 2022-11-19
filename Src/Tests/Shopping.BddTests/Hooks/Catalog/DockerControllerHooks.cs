@@ -1,24 +1,31 @@
-﻿using Ductus.FluentDocker.Services;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
-using Ductus.FluentDocker.Builders;
-using System.Net;
 using BoDi;
 using System.Net.Http;
+using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
+using DotNet.Testcontainers.Networks;
+using Shopping.BddTests.Models.Catalog;
 
 namespace Shopping.BddTests.Hooks.Catalog
 {
     [Binding]
     public class DockerControllerHooks
     {
-        private static ICompositeService _compositeService;
+        //private static readonly X509Certificate Certificate = new X509Certificate2(CatalogApiImage.CertificateFilePath, CatalogApiImage.CertificatePassword);
+        private static readonly CatalogApiImage _catalogApiImage = new();
+        private static readonly IdentityProviderImage _identityProviderImage = new();
+        private static TestcontainerDatabase _catalogDbContainer;
+        private static TestcontainerDatabase _identityDbContainer;
+        private static IDockerNetwork _dockerNetwork;
+        private static IDockerContainer _catalogApiContainer;
+        private static IDockerContainer _identityProviderContainer;
         private IObjectContainer _objectCotainer; // DI container in SpecFlow. With it we can add dependencies in the Steps
+        private static IConfiguration _configuration;
 
         public DockerControllerHooks(IObjectContainer objectCotainer)
         {
@@ -26,42 +33,159 @@ namespace Shopping.BddTests.Hooks.Catalog
         }
 
         [BeforeTestRun]
-        public static void DockerComposeUp()
+        public static async Task CreateAndStartDockerContainers()
         {
-            var config = LoadConfiguration();
+            _configuration = LoadConfiguration();
 
-            var dockerComposeFileName = config["DockerComposeFileName"];
-            var dockerComposePath = GetDockerComposeLocation(dockerComposeFileName);
+            _dockerNetwork = new TestcontainersNetworkBuilder()
+                .WithName(Guid.NewGuid().ToString("D"))  // Use random names to prevent name clashes.
+                .Build();
 
-            var confirmationUrl = config["CatalogApiUrl"];
-            _compositeService = new Builder()
-                .UseContainer()
-                .UseCompose()
-                .FromFile(dockerComposePath)
-                .RemoveOrphans()
-                .ForceRecreate()
-                //.WaitForHttp("catalog.api", $"{confirmationUrl}/api/v1/Catalog",
-                //    continuation: (response, _) => response.Code != HttpStatusCode.OK ? 2000 : 0)
-                .Build()
-                .Start();
+            await _dockerNetwork.CreateAsync()
+              .ConfigureAwait(false);
+
+            string identityDbContainerName = "identitydbtest";
+            _identityDbContainer = new TestcontainersBuilder<MsSqlTestcontainer>()
+            .WithDatabase(new MsSqlTestcontainerConfiguration
+            {
+                Password = "September24#",
+                Database = "IdentityDb"
+            })
+            .WithNetwork(_dockerNetwork)
+            .WithName(identityDbContainerName)
+            .Build();
+
+            await _identityDbContainer.StartAsync()
+                .ConfigureAwait(false);
+
+            _catalogDbContainer = new TestcontainersBuilder<MongoDbTestcontainer>()
+                .WithDatabase(new MongoDbTestcontainerConfiguration
+                {
+                    Database = "CatalogDb",
+                    Username = null,
+                    Password = null
+                })
+                .WithImage("mongo")
+                .WithNetwork(_dockerNetwork)
+                .WithName("catalogdb")
+                .WithPortBinding(27017, 27017)
+                .Build();
+
+            await _catalogDbContainer.StartAsync()
+              .ConfigureAwait(false);
+
+            await _catalogApiImage.InitializeAsync()
+                .ConfigureAwait(false);
+
+            _catalogApiContainer = BuildCatalogApiContainer();
+
+            _identityProviderContainer = BuildIdentityContainer(identityDbContainerName);
+
+            await _catalogApiContainer.StartAsync()
+              .ConfigureAwait(false);
+
+            await _identityProviderContainer.StartAsync()
+                .ConfigureAwait(false);
+        }
+
+        private static IDockerContainer BuildIdentityContainer(string identityDbContainerName)
+        {
+            return new TestcontainersBuilder<TestcontainersContainer>()
+                .WithImage(_identityProviderImage)
+                .WithNetwork(_dockerNetwork)
+                .WithName("identityprovidertest")
+                .WithExposedPort(IdentityProviderImage.HttpsPort)
+                .WithPortBinding(8021, IdentityProviderImage.HttpsPort)
+                .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+                .WithEnvironment("ASPNETCORE_URLS", "https://+")
+                .WithEnvironment("ASPNETCORE_HTTPS_PORT", "8000")
+                .WithEnvironment("IdentityIssuer", _configuration["IdentityProviderUrl"])
+                .WithEnvironment("ConnectionStrings:IdentityDb", BuildIdentityDbConnectionString(identityDbContainerName))
+                .WithEnvironment("WebClientUrls:CatalogApi", _configuration["CatalogApiUrl"])
+                .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", IdentityProviderImage.CertificateContainerFilePath)
+                .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", IdentityProviderImage.CertificatePassword)
+                .WithBindMount(IdentityProviderImage.IdentityProviderRootPath, "/root/Identity")
+                .WithBindMount(IdentityProviderImage.RootCertificateHostAbsoluteFilePath, "/https-root/shopping-root-cert.cer")
+                .WithBindMount($"{IdentityProviderImage.IdentityProviderCertificatesHostFilePath}\\Shopping.IDP.pfx", IdentityProviderImage.CertificateContainerFilePath)
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(IdentityProviderImage.HttpsPort))
+                .Build();
+        }
+
+        private static string BuildIdentityDbConnectionString(string identityDbContainerName) =>
+            $"Server={identityDbContainerName};Database={_identityDbContainer.Database};User Id={_identityDbContainer.Username};Password={_identityDbContainer.Password};TrustServerCertificate=True;";
+
+        private static IDockerContainer BuildCatalogApiContainer()
+        {
+            return new TestcontainersBuilder<TestcontainersContainer>()
+                  .WithImage(_catalogApiImage)
+                  .WithNetwork(_dockerNetwork)
+                  .WithName("catalogapitest")
+                  .WithExposedPort(CatalogApiImage.HttpsPort)
+                  .WithPortBinding(8000, CatalogApiImage.HttpsPort)
+                  .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+                  .WithEnvironment("ASPNETCORE_URLS", "https://+")
+                  .WithEnvironment("ASPNETCORE_HTTPS_PORT", "8000")
+                  .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", CatalogApiImage.CertificateContainerFilePath)
+                  .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", CatalogApiImage.CertificatePassword)
+                  .WithEnvironment("DatabaseSettings:ConnectionString", "mongodb://catalogdb:27017")
+                  .WithEnvironment("DatabaseSettings:DatabaseName", "CatalogDb")
+                  .WithEnvironment("IdentityProviderSettings:IdentityServiceUrl", "https://host.docker.internal:8021")
+                  .WithBindMount(CatalogApiImage.CatalogApiRootPath, "/root/Catalog")
+                  .WithBindMount(CatalogApiImage.RootCertificateHostAbsoluteFilePath, "/https-root/shopping-root-cert.cer")
+                  .WithBindMount($"{CatalogApiImage.CatalogApiCertificatesHostFilePath}\\Catalog.API.pfx", CatalogApiImage.CertificateContainerFilePath)
+                  .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(CatalogApiImage.HttpsPort))
+                  .Build();
         }
 
         [AfterTestRun]
-        public static void DockerComposeDown()
+        public static async Task DockerDisposeContainersAndImages()
         {
-            _compositeService.Stop();
-            _compositeService.Dispose();
+            // Catalog Api
+            await _catalogApiContainer.DisposeAsync()
+              .ConfigureAwait(false);
+
+            await _catalogDbContainer.DisposeAsync()
+              .ConfigureAwait(false);
+
+            await _catalogApiImage.DisposeAsync()
+                .ConfigureAwait(false);
+
+            // Identity provider
+            await _identityProviderContainer.DisposeAsync()
+                .ConfigureAwait(false);
+
+            await _identityDbContainer.DisposeAsync()
+                .ConfigureAwait(false);
+
+            await _identityProviderImage.DisposeAsync()
+                .ConfigureAwait(false);
+
+            await _dockerNetwork.DeleteAsync()
+              .ConfigureAwait(false);
         }
 
         [BeforeScenario()]
         public void AddHttpClient()
         {
-            var config = LoadConfiguration();
-            var httpClient = new HttpClient()
+            // skip validation of certificate
+            var handler = new HttpClientHandler
             {
-                BaseAddress = new Uri(config["CatalogApiUrl"])
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
             };
-            _objectCotainer.RegisterInstanceAs(httpClient);
+
+            var catalogApiHttpClient = new HttpClient(handler)
+            {
+                BaseAddress = new Uri(_configuration["CatalogApiUrl"])
+            };
+
+            var identityProviderHttpClient = new HttpClient(handler)
+            {
+                BaseAddress = new Uri(_configuration["IdentityProviderUrl"])
+            };
+
+            _objectCotainer.RegisterInstanceAs(_configuration, name: "configuration");
+            _objectCotainer.RegisterInstanceAs(catalogApiHttpClient, name: "catalogApiHttpClient");
+            _objectCotainer.RegisterInstanceAs(identityProviderHttpClient, name: "identityProviderHttpClient");
         }
 
         private static IConfiguration LoadConfiguration()
@@ -70,18 +194,6 @@ namespace Shopping.BddTests.Hooks.Catalog
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false)
                 .Build();
-        }
-
-        private static string GetDockerComposeLocation(string dockerComposeFileName)
-        {
-            var directory = Directory.GetCurrentDirectory();
-            while (!Directory.EnumerateFiles(directory, "*.yml").Any(s => s.EndsWith(dockerComposeFileName)))
-            {
-                directory = directory.Substring(0, directory.LastIndexOf(Path.DirectorySeparatorChar));
-            }
-
-            return Path.Combine(directory, dockerComposeFileName);
-
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿using FluentAssertions;
+﻿using BoDi;
+using FluentAssertions;
+using IdentityModel.Client;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Net.Http.Headers;
 using Shopping.BddTests.Models.Catalog;
 using System;
 using System.Collections.Generic;
@@ -13,59 +17,83 @@ namespace Shopping.BddTests.Steps.Catalog
     [Binding]
     public class LoggedInUsersCanSeeListOfProductsInCatalogSteps
     {
-        private readonly HttpClient _httpClient;
         private readonly ScenarioContext _scenarioContext; // put an items in this context and extract them in other steps
+        private readonly IObjectContainer _objectContainer;
 
-        public LoggedInUsersCanSeeListOfProductsInCatalogSteps(HttpClient httpClient, ScenarioContext scenarioContext)
+        public LoggedInUsersCanSeeListOfProductsInCatalogSteps(ScenarioContext scenarioContext, IObjectContainer objectContainer)
         {
-            _httpClient = httpClient;
             _scenarioContext = scenarioContext;
+            _objectContainer = objectContainer;
         }
 
         [Given(@"a user that is not logged in")]
         public void GivenAUserThatIsNotLoggedIn()
         {
-            //ScenarioContext.StepIsPending();
+            // Nothing to do
         }
 
-        [When(@"tries to see catalog")]
+        [When(@"tries to get catalog")]
         public async Task WhenTriesToSeeCatalog()
         {
-            //ScenarioContext.StepIsPending();
-            var response = await _httpClient.GetAsync("/api/v1/Catalog");
-            //var responseCatalog = await response.Content.ReadFromJsonAsync<IEnumerable<Product>>();
+            var catalogApiHttpClient = _objectContainer.Resolve<HttpClient>("catalogApiHttpClient");
+
+            var response = await catalogApiHttpClient.GetAsync("api/v1/Catalog");
+            
             _scenarioContext.Add("CatalogUnauthorizedResponse", response);
-            //_scenarioContext.Add("CatalogProducts", responseCatalog);
+            
         }
 
         [Then(@"unathorized response is returned")]
         public void ThenUnathorizedResponseIsReturned()
         {
-            //ScenarioContext.StepIsPending();
-            //var catalog = _scenarioContext.Get<IEnumerable<Product>>("Catalog");
             var response = _scenarioContext.Get<HttpResponseMessage>("CatalogUnauthorizedResponse");
-            //var catalogProducts = await response.Content.ReadFromJsonAsync<IEnumerable<Product>>();
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-            response.Content.Should().BeNull();
 
+            response.IsSuccessStatusCode.Should().BeFalse();
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Given(@"a logged in user")]
-        public void GivenALoggedInUser()
+        public async Task GivenALoggedInUser()
         {
-            ScenarioContext.StepIsPending();
+            var configuration = _objectContainer.Resolve<IConfiguration>("configuration");
+            var identityProviderHttpClient = _objectContainer.Resolve<HttpClient>("identityProviderHttpClient");
+            var discoveryDocumentResponse = await identityProviderHttpClient.GetDiscoveryDocumentAsync(
+                new DiscoveryDocumentRequest
+                {
+                    Address = configuration["IdentityProviderUrl"],
+                    Policy = { ValidateIssuerName = false }
+                });
+                
+            var tokenResponse = await identityProviderHttpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = discoveryDocumentResponse.TokenEndpoint,
+                ClientId = "shoppingm2m",
+                ClientSecret = "m2msecret",
+                Scope = "catalogapi.fullaccess" // require multiple scopes
+            });
+            _scenarioContext.Add("IdentityTokenResponse", tokenResponse);
         }
-        
-        [When(@"tries to get catalog")]
-        public void WhenUserTriesToGetCatalog()
+
+        [When(@"tries to get products from catalog")]
+        public async Task WhenUserTriesToGetProductsFromCatalog()
         {
-            ScenarioContext.StepIsPending();
+            var tokenResponse = _scenarioContext.Get<TokenResponse>("IdentityTokenResponse");
+            var catalogApiHttpClient = _objectContainer.Resolve<HttpClient>("catalogApiHttpClient");
+            catalogApiHttpClient.DefaultRequestHeaders.Clear();
+            catalogApiHttpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            catalogApiHttpClient.SetBearerToken(tokenResponse.AccessToken);
+
+            var response = await catalogApiHttpClient.GetAsync("api/v1/Catalog");
+
+            var responseCatalog = await response.Content.ReadFromJsonAsync<IEnumerable<Product>>();
+            _scenarioContext.Add("CatalogProducts", responseCatalog);
         }
-        
-        [Then(@"catalog with products is displayed")]
-        public void ThenCatalogWithProductsIsDisplayed()
+
+        [Then(@"catalog with products is returned")]
+        public void ThenCatalogWithProductsIsReturned()
         {
-            ScenarioContext.StepIsPending();
+            var catalogProducts = _scenarioContext.Get<IEnumerable<Product>>("CatalogProducts");
+            catalogProducts.Should().NotBeEmpty();
         }
     }
 }
