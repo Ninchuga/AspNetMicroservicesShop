@@ -1,6 +1,7 @@
 using Catalog.API.Data;
 using Catalog.API.Extensions;
 using Catalog.API.Filters;
+using Catalog.API.Models;
 using Catalog.API.Repositories;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
@@ -49,8 +50,9 @@ namespace Catalog.API
                 options.AddPolicy("HasFullAccess", policy => policy.RequireClaim("scope", "catalogapi.fullaccess"));
             });
 
-            services.AddScoped<ICatalogContext, CatalogContext>();
-            services.AddScoped<IProductRepository, ProductRepository>();
+            services.Configure<MongoDBSettings>(Configuration.GetSection("DatabaseSettings"));
+            services.AddSingleton<ICatalogContext, CatalogContext>();
+            services.AddTransient<IProductRepository, ProductRepository>();
 
             services.AddControllers();
 

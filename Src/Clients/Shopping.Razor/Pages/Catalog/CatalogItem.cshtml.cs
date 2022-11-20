@@ -9,7 +9,7 @@ namespace Shopping.Razor.Pages.Catalog
 {
     public class CatalogItemModel : PageModel
     {
-        public CatalogItem CatalogItem { get; set; }
+        public CatalogItem CatalogItem { get; private set; }
 
         private readonly CatalogService _catalogService;
 

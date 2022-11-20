@@ -1,13 +1,12 @@
 ﻿using Catalog.API.Entities;
 using MongoDB.Driver;
-using System;
 using System.Collections.Generic;
 
 namespace Catalog.API.Data
 {
-    internal class CatalogContextSeed
+    public static class CatalogContextSeed
     {
-        internal static void SeedData(IMongoCollection<Product> products)
+        public static void SeedData(IMongoCollection<Product> products)
         {
             bool productsExist = products.Find(p => true).Any();
             if(!productsExist)
