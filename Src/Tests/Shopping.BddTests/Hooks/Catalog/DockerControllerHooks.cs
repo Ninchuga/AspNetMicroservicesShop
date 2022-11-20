@@ -16,7 +16,6 @@ namespace Shopping.BddTests.Hooks.Catalog
     [Binding]
     public class DockerControllerHooks
     {
-        //private static readonly X509Certificate Certificate = new X509Certificate2(CatalogApiImage.CertificateFilePath, CatalogApiImage.CertificatePassword);
         private static readonly CatalogApiImage _catalogApiImage = new();
         private static readonly IdentityProviderImage _identityProviderImage = new();
         private static TestcontainerDatabase _catalogDbContainer;
@@ -37,60 +36,69 @@ namespace Shopping.BddTests.Hooks.Catalog
         {
             _configuration = LoadConfiguration();
 
-            _dockerNetwork = new TestcontainersNetworkBuilder()
-                .WithName(Guid.NewGuid().ToString("D"))  // Use random names to prevent name clashes.
-                .Build();
-
-            await _dockerNetwork.CreateAsync()
-              .ConfigureAwait(false);
+            await BuildAndCreateDockerNetwork().ConfigureAwait(false);
 
             string identityDbContainerName = "identitydbtest";
-            _identityDbContainer = new TestcontainersBuilder<MsSqlTestcontainer>()
-            .WithDatabase(new MsSqlTestcontainerConfiguration
-            {
-                Password = "September24#",
-                Database = "IdentityDb"
-            })
-            .WithNetwork(_dockerNetwork)
-            .WithName(identityDbContainerName)
-            .Build();
+            await BuildAndStartIdentityDbContainer(identityDbContainerName).ConfigureAwait(false);
 
-            await _identityDbContainer.StartAsync()
-                .ConfigureAwait(false);
-
-            _catalogDbContainer = new TestcontainersBuilder<MongoDbTestcontainer>()
-                .WithDatabase(new MongoDbTestcontainerConfiguration
-                {
-                    Database = "CatalogDb",
-                    Username = null,
-                    Password = null
-                })
-                .WithImage("mongo")
-                .WithNetwork(_dockerNetwork)
-                .WithName("catalogdb")
-                .WithPortBinding(27017, 27017)
-                .Build();
-
-            await _catalogDbContainer.StartAsync()
-              .ConfigureAwait(false);
+            await BuildAndStartCatalogDbContainer().ConfigureAwait(false);
 
             await _catalogApiImage.InitializeAsync()
                 .ConfigureAwait(false);
 
-            _catalogApiContainer = BuildCatalogApiContainer();
+            await BuildAndStartCatalogApiContainer().ConfigureAwait(false);
 
-            _identityProviderContainer = BuildIdentityContainer(identityDbContainerName);
+            await BuildAndStartIdentityContainer(identityDbContainerName).ConfigureAwait(false);
+        }
 
-            await _catalogApiContainer.StartAsync()
+        private static async Task BuildAndStartCatalogDbContainer()
+        {
+            _catalogDbContainer = new TestcontainersBuilder<MongoDbTestcontainer>()
+                            .WithDatabase(new MongoDbTestcontainerConfiguration
+                            {
+                                Database = "CatalogDb",
+                                Username = null,
+                                Password = null
+                            })
+                            .WithImage("mongo")
+                            .WithNetwork(_dockerNetwork)
+                            .WithName("catalogdbtest")
+                            .WithPortBinding(27017, 27017)
+                            .Build();
+
+            await _catalogDbContainer.StartAsync()
               .ConfigureAwait(false);
+        }
 
-            await _identityProviderContainer.StartAsync()
+        private static async Task BuildAndStartIdentityDbContainer(string identityDbContainerName)
+        {
+            _identityDbContainer = new TestcontainersBuilder<MsSqlTestcontainer>()
+                        .WithDatabase(new MsSqlTestcontainerConfiguration
+                        {
+                            Password = "September24#",
+                            Database = "IdentityDb"
+                        })
+                        .WithNetwork(_dockerNetwork)
+                        .WithName(identityDbContainerName)
+                        .Build();
+
+            await _identityDbContainer.StartAsync()
                 .ConfigureAwait(false);
         }
 
-        private static IDockerContainer BuildIdentityContainer(string identityDbContainerName)
+        private static async Task BuildAndCreateDockerNetwork()
         {
-            return new TestcontainersBuilder<TestcontainersContainer>()
+            _dockerNetwork = new TestcontainersNetworkBuilder()
+                            .WithName(Guid.NewGuid().ToString("D"))  // Use random names to prevent name clashes.
+                            .Build();
+
+            await _dockerNetwork.CreateAsync()
+              .ConfigureAwait(false);
+        }
+
+        private static async Task BuildAndStartIdentityContainer(string identityDbContainerName)
+        {
+            _identityProviderContainer = new TestcontainersBuilder<TestcontainersContainer>()
                 .WithImage(_identityProviderImage)
                 .WithNetwork(_dockerNetwork)
                 .WithName("identityprovidertest")
@@ -109,14 +117,17 @@ namespace Shopping.BddTests.Hooks.Catalog
                 .WithBindMount($"{IdentityProviderImage.IdentityProviderCertificatesHostFilePath}\\Shopping.IDP.pfx", IdentityProviderImage.CertificateContainerFilePath)
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(IdentityProviderImage.HttpsPort))
                 .Build();
+
+            await _identityProviderContainer.StartAsync()
+                .ConfigureAwait(false);
         }
 
         private static string BuildIdentityDbConnectionString(string identityDbContainerName) =>
             $"Server={identityDbContainerName};Database={_identityDbContainer.Database};User Id={_identityDbContainer.Username};Password={_identityDbContainer.Password};TrustServerCertificate=True;";
 
-        private static IDockerContainer BuildCatalogApiContainer()
+        private static async Task BuildAndStartCatalogApiContainer()
         {
-            return new TestcontainersBuilder<TestcontainersContainer>()
+            _catalogApiContainer = new TestcontainersBuilder<TestcontainersContainer>()
                   .WithImage(_catalogApiImage)
                   .WithNetwork(_dockerNetwork)
                   .WithName("catalogapitest")
@@ -127,14 +138,16 @@ namespace Shopping.BddTests.Hooks.Catalog
                   .WithEnvironment("ASPNETCORE_HTTPS_PORT", "8000")
                   .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", CatalogApiImage.CertificateContainerFilePath)
                   .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", CatalogApiImage.CertificatePassword)
-                  .WithEnvironment("DatabaseSettings:ConnectionString", "mongodb://catalogdb:27017")
-                  .WithEnvironment("DatabaseSettings:DatabaseName", "CatalogDb")
+                  .WithEnvironment("DatabaseSettings:ConnectionString", "mongodb://catalogdbtest:27017")
                   .WithEnvironment("IdentityProviderSettings:IdentityServiceUrl", "https://host.docker.internal:8021")
                   .WithBindMount(CatalogApiImage.CatalogApiRootPath, "/root/Catalog")
                   .WithBindMount(CatalogApiImage.RootCertificateHostAbsoluteFilePath, "/https-root/shopping-root-cert.cer")
                   .WithBindMount($"{CatalogApiImage.CatalogApiCertificatesHostFilePath}\\Catalog.API.pfx", CatalogApiImage.CertificateContainerFilePath)
                   .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(CatalogApiImage.HttpsPort))
                   .Build();
+
+            await _catalogApiContainer.StartAsync()
+              .ConfigureAwait(false);
         }
 
         [AfterTestRun]
