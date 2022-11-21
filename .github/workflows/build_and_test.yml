@@ -38,7 +38,7 @@ jobs:
       #uses: actions/cryptic-wizard/run-specflow-tests@v1.3.1
       uses: ./
       with: 
-        test-assembly-path: ./Src/Tests/Shopping.BddTests/bin/Debug/net5.0
+        test-assembly-path: Src/Tests/Shopping.BddTests/bin/Debug/net5.0
         test-assembly-dll: Shopping.BddTests.dll
         test-execution-json: TestExecution.json
         output-html: MyTestResults.html
