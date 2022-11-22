@@ -34,4 +34,14 @@ jobs:
       run: dotnet test ./Src/Tests/Shopping.UnitTests --no-build --verbosity normal
     - name: Run integration tests
       run: dotnet test ./Src/Tests/Shopping.IntegrationTests --no-build --verbosity normal
-    
+    - name: Run SpecFlow BDD tests
+      #uses: actions/cryptic-wizard/run-specflow-tests@v1.3.1
+      uses: ./
+      with: 
+        test-assembly-path: Src/Tests/Shopping.BddTests/bin/Debug/net5.0
+        test-assembly-dll: Shopping.BddTests.dll
+        test-execution-json: TestExecution.json
+        output-html: MyTestResults.html
+        framework: net5.0
+        no-build: true
+        upload-artifact: false
