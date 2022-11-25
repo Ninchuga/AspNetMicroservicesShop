@@ -35,7 +35,7 @@ jobs:
     - name: Run integration tests
       run: dotnet test ./Src/Tests/Shopping.IntegrationTests --no-build --verbosity normal
     - name: Run SpecFlow BDD tests
-      uses: actions/ninchuga/AspNetMicroservicesShop@v3
+      uses: actions/checkout@v3
       #default: ${{github.repository}}
       #uses: actions/Ninchuga/AspNetMicroservicesShop@main
       with: 
