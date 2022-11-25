@@ -37,7 +37,7 @@ jobs:
     - name: Run SpecFlow BDD tests
       #uses: actions/checkout@v3
       #default: ${{github.repository}}
-      uses: ./.github/actions/Ninchuga/AspNetMicroservicesShop
+      uses: ./
       with: 
         test-assembly-path: Src/Tests/Shopping.BddTests/bin/Debug/net5.0
         test-assembly-dll: Shopping.BddTests.dll
