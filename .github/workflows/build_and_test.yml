@@ -38,8 +38,9 @@ jobs:
       #run: dotnet test ./Src/Tests/Shopping.BddTests/Shopping.BddTests.csproj --no-build --verbosity normal
       uses: ./Src/Tests/Shopping.BddTests
       with: 
-        #test-assembly-path: Src/Tests/Shopping.BddTests/bin/Debug/net5.0
+        test-assembly-path: Src/Tests/Shopping.BddTests/bin/Release/net5.0
         #test-assembly-dll: Src/Tests/Shopping.BddTests/Shopping.BddTests.dll
+        test-assembly-dll: Shopping.BddTests.dll
         #test-execution-json: TestExecution.json
         output-html: MyTestResults.html
         framework: net5.0
