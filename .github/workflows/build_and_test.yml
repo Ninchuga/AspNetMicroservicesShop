@@ -35,7 +35,7 @@ jobs:
     - name: Run integration tests
       run: dotnet test ./Src/Tests/Shopping.IntegrationTests  --no-build --verbosity normal
     - name: Run SpecFlow BDD tests
-      run: dotnet test ./Src/Tests/Shopping.BddTests/bin/Debug/net5.0/Shopping.BddTests.dll --no-build --verbosity normal
+      run: dotnet test ./Src/Tests/Shopping.BddTests/Shopping.BddTests.dll --no-build --verbosity normal
       #uses: ./
       #with: 
       #  test-assembly-path: Src/Tests/Shopping.BddTests/bin/Debug/net5.0
