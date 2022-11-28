@@ -33,7 +33,7 @@ jobs:
     - name: Run unit tests
       run: dotnet test ./Src/Tests/Shopping.UnitTests --no-build --verbosity normal
     - name: Run integration tests
-      run: dotnet test ./Src/Tests/Shopping.IntegrationTests --no-build --verbosity normal
+      run: dotnet test ./Src/Tests/Shopping.BddTests/bin/Debug/net5.0/Shopping.BddTests.dll --no-build --verbosity normal
     - name: Run SpecFlow BDD tests
       run: dotnet test ./Src/Tests/Shopping.BddTests --no-build --verbosity normal
       #uses: ./
