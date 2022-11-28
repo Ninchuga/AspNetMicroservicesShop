@@ -30,7 +30,6 @@ namespace OcelotApiGateway
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-
             // Used for storing access tokens in the cache in a delegating handlers
             services.AddAccessTokenManagement();
 
