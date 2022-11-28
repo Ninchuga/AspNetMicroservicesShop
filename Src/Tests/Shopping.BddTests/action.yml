@@ -1,0 +1,102 @@
+name: 'Run SpecFlow Tests'
+description: 'A Github Action to run SpecFlow tests and create a LivingDoc'
+author: 'cryptic-wizard'
+branding:
+  icon: check-square
+  color: green
+
+inputs:
+  test-assembly-path:
+    description: "Path of the working directory for build assemblies (example: MySpecflowProject/bin/Debug/netcoreapp3.1)"
+    required: false
+    default: 'null'
+  test-assembly-dll:
+    description: "Relative path of <MySpecflowProject.dll> (example: MySpecflowProject/bin/Debug/netcoreapp3.1/MySpecflowProject.dll or MySpecflowProject.dll if using test-assembly-path)"
+    required: true
+  test-execution-json:
+    description: "Relative path of <MySpecflowProjectTestExecution(s).json> (example: MySpecflowProject/bin/Debug/netcoreapp3.1/TestExecution.json or TestExecution.json if using test-assembly-path)"
+    required: false
+    default: 'TestExecution.json'
+  output-html:
+    description: "Name of Specflow LivingDoc output file (must end with .html) (example: MyTestResults.html)"
+    required: false
+    default: 'LivingDoc.html'
+  framework:
+    description: "Framework version of dotnet (example: netcoreapp3.1, net5.0)"
+    required: false
+    default: 'null'
+  configuration:
+    description: "Build configuration (example: Debug)"
+    required: false
+    default: 'Release'
+  build-verbosity:
+    description: "Verbosity of the Dotnet App Build (default = minimal)"
+    required: false
+    default: 'minimal'
+  test-verbosity:
+    description: "Verbosity of the SpecFlow Test Execution (default = normal)"
+    required: false
+    default: 'normal'
+  no-build:
+    description: "Set to true to disable dotnet build and dotnet restore"
+    required: false
+    default: 'false'
+  logger:
+    description: "Dotnet test logger to run in addition to Specflow Test Logger (example: trx)"
+    required: false
+    default: 'null'
+  logger-file-name:
+    description: "Dotnet test log file name; required if logger is defined (example: MyTestResults.trx)"
+    required: false
+    default: 'null'
+  upload-artifact:
+    description: "Set to false to disable uploading <LivingDoc.html> artifact automatically"
+    required: false
+    default: 'true'
+runs:
+  using: composite
+  steps:
+    - name: BuildDotnetApp
+      run: |
+        _args=()
+        [ "${{ inputs.configuration }}" != 'null' ] && _args+=("-c" "${{ inputs.configuration }}")
+        [ "${{ inputs.build-verbosity }}" != 'null' ] && _args+=("-v" "${{ inputs.build-verbosity }}")
+        [ "${{ inputs.framework }}" != 'null' ] && _args+=("-f" "${{ inputs.framework }}")
+
+        [ ${{ inputs.no-build }} == 'true' ] && echo 'Build Skipped' || dotnet build "${_args[@]}"
+      shell: bash
+    - name: RunSpecFlowTests
+      run: |
+        _args=()
+        _logger_args=()
+        [ "${{ inputs.configuration }}" != 'null' ] && _args+=("-c" "${{ inputs.configuration }}")
+        [ "${{ inputs.build-verbosity }}" != 'null' ] && _args+=("-v" "${{ inputs.build-verbosity }}")
+        [ "${{ inputs.framework }}" != 'null' ] && _args+=("-f" "${{ inputs.framework }}")
+        [ "${{ inputs.test-verbosity }}" != 'null' ] && _logger_args+=(";verbosity=${{ inputs.test-verbosity }}")
+        [ "${{ inputs.logger-file-name }}" != 'null' ] && _logger_args+=(";LogFileName=${{ inputs.logger-file-name }}")
+        [ "${{ inputs.logger }}" != 'null' ] && _args+=("-l" "${{ inputs.logger }}$(IFS=; echo "${_logger_args[@]}")")
+        
+        if ! dotnet test --no-build "${_args[@]}"; then
+            echo "_EXIT=1" >> $GITHUB_ENV
+        fi
+      shell: bash
+      continue-on-error: true
+    - name: GenerateLivingSpec
+      run: |
+        [ "${{ inputs.test-assembly-path }}" != 'null' ] && _path="${{ inputs.test-assembly-path }}"
+        _dll="${_path:+$_path/}${{ inputs.test-assembly-dll }}"
+        _test="${_path:+$_path/}${{ inputs.test-execution-json }}"
+
+        dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
+        livingdoc test-assembly "$_dll" -t "$_test" -o "${{ inputs.output-html }}"
+      shell: bash
+    - name: 'Publish Specflow Test Results'
+      if: ${{ inputs.upload-artifact == 'true' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'Specflow Test Results'
+        path: ${{ inputs.output-html }}
+    - name: ReturnCode
+      run: |
+        echo "${_EXIT:-0}"
+      shell: bash
