@@ -46,5 +46,5 @@ jobs:
         test-execution-json: Src/Tests/Shopping.BddTests/bin/Release/net5.0/TestExecution.json
         output-html: MyTestResults.html
         framework: net5.0
-        no-build: true
+        #no-build: true
         upload-artifact: false
