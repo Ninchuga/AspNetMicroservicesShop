@@ -39,7 +39,7 @@ jobs:
     - uses: ./Src
     #- uses: actions/Ninchuga/AspNetMicroservicesShop@1.3.1
       with: 
-        test-assembly-path: /Tests/Shopping.BddTests/bin/Release/net5.0
+        test-assembly-path: Src/Tests/Shopping.BddTests/bin/Release/net5.0
         #test-assembly-dll: Src/Tests/Shopping.BddTests/Shopping.BddTests.dll
         test-assembly-dll: Shopping.BddTests.dll
         #test-execution-json: TestExecution.json
