@@ -43,7 +43,7 @@ jobs:
         #test-assembly-path: Src/Tests/Shopping.BddTests
         #test-assembly-dll: Src/Tests/Shopping.BddTests/Shopping.BddTests.dll
         test-assembly-dll: Src/Tests/Shopping.BddTests/bin/Release/net5.0/Shopping.BddTests.dll
-        #test-execution-json: TestExecution.json
+        test-execution-json: Src/Tests/Shopping.BddTests/bin/Release/net5.0/TestExecution.json
         output-html: MyTestResults.html
         framework: net5.0
         no-build: true
