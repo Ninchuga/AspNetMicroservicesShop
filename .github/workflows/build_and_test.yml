@@ -36,10 +36,10 @@ jobs:
       run: dotnet test ./Src/Tests/Shopping.IntegrationTests  --no-build --verbosity normal
     #- name: Run SpecFlow BDD tests
       #run: dotnet test ./Src/Tests/Shopping.BddTests/Shopping.BddTests.csproj --no-build --verbosity normal
-    - uses: ./
+    - uses: ./Src
     #- uses: Ninchuga/AspNetMicroservicesShop/Src/Tests/Shopping.BddTests@v1
       with: 
-        test-assembly-path: Src/Tests/Shopping.BddTests/bin/Release/net5.0
+        test-assembly-path: Tests/Shopping.BddTests/bin/Release/net5.0
         #test-assembly-dll: Src/Tests/Shopping.BddTests/Shopping.BddTests.dll
         test-assembly-dll: Shopping.BddTests.dll
         #test-execution-json: TestExecution.json
