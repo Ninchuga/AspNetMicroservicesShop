@@ -63,7 +63,7 @@ runs:
         [ "${{ inputs.build-verbosity }}" != 'null' ] && _args+=("-v" "${{ inputs.build-verbosity }}")
         [ "${{ inputs.framework }}" != 'null' ] && _args+=("-f" "${{ inputs.framework }}")
 
-        [ ${{ inputs.no-build }} == 'true' ] && echo 'Build Skipped' || dotnet build "${_args[@]}"
+        [ ${{ inputs.no-build }} == 'true' ] && echo 'Build Skipped' || dotnet build "${{ inputs.test-assembly-path }}" "${_args[@]}"
       shell: bash
     - name: RunSpecFlowTests
       run: |
