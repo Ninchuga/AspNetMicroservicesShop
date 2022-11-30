@@ -12,7 +12,7 @@ inputs:
     default: 'null'
   test-assembly-dll:
     description: "Relative path of <MySpecflowProject.dll> (example: MySpecflowProject/bin/Debug/netcoreapp3.1/MySpecflowProject.dll or MySpecflowProject.dll if using test-assembly-path)"
-    required: false
+    required: true
   test-execution-json:
     description: "Relative path of <MySpecflowProjectTestExecution(s).json> (example: MySpecflowProject/bin/Debug/netcoreapp3.1/TestExecution.json or TestExecution.json if using test-assembly-path)"
     required: false
