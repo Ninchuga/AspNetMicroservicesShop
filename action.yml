@@ -76,9 +76,7 @@ runs:
         [ "${{ inputs.logger-file-name }}" != 'null' ] && _logger_args+=(";LogFileName=${{ inputs.logger-file-name }}")
         [ "${{ inputs.logger }}" != 'null' ] && _args+=("-l" "${{ inputs.logger }}$(IFS=; echo "${_logger_args[@]}")")
         
-        if ! dotnet test "./${{ inputs.test-assembly-path }}/bin/${{inputs.configuration}}/${{inputs.framework}}/${{inputs.test-assembly-dll}}" --no-build "${_args[@]}"; then
-            echo "_EXIT=1" >> $GITHUB_ENV
-        fi
+        dotnet test ./Src/Tests/Shopping.BddTests/bin/Release/net5.0/Shopping.BddTests.dll --no-build --verbosity normal
       shell: bash
       continue-on-error: true
     - name: GenerateLivingSpec
