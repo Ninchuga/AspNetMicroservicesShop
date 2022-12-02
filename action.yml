@@ -69,14 +69,14 @@ runs:
       run: |
         _args=()
         _logger_args=()
-        [ "${{ inputs.configuration }}" != 'null' ] && _args+=("-c" "${{ inputs.configuration }}")
+        #[ "${{ inputs.configuration }}" != 'null' ] && _args+=("-c" "${{ inputs.configuration }}")
         [ "${{ inputs.build-verbosity }}" != 'null' ] && _args+=("-v" "${{ inputs.build-verbosity }}")
-        [ "${{ inputs.framework }}" != 'null' ] && _args+=("-f" "${{ inputs.framework }}")
+        #[ "${{ inputs.framework }}" != 'null' ] && _args+=("-f" "${{ inputs.framework }}")
         [ "${{ inputs.test-verbosity }}" != 'null' ] && _logger_args+=(";verbosity=${{ inputs.test-verbosity }}")
         [ "${{ inputs.logger-file-name }}" != 'null' ] && _logger_args+=(";LogFileName=${{ inputs.logger-file-name }}")
         [ "${{ inputs.logger }}" != 'null' ] && _args+=("-l" "${{ inputs.logger }}$(IFS=; echo "${_logger_args[@]}")")
         
-        if ! dotnet test "${{ inputs.test-assembly-path }}" --no-build "${_args[@]}"; then
+        if ! dotnet test "${{ inputs.test-assembly-path }}/bin/${{inputs.configuration}}/${{inputs.framework}}/${{inputs.test-assembly-dll}}" --no-build "${_args[@]}"; then
             echo "_EXIT=1" >> $GITHUB_ENV
         fi
       shell: bash
