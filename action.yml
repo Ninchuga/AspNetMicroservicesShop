@@ -76,7 +76,7 @@ runs:
         [ "${{ inputs.logger-file-name }}" != 'null' ] && _logger_args+=(";LogFileName=${{ inputs.logger-file-name }}")
         [ "${{ inputs.logger }}" != 'null' ] && _args+=("-l" "${{ inputs.logger }}$(IFS=; echo "${_logger_args[@]}")")
         
-        dotnet test ./Src/Tests/Shopping.BddTests --no-build --verbosity normal
+        dotnet test ./Src/Tests/Shopping.BddTests --verbosity normal
       shell: bash
       continue-on-error: true
     - name: GenerateLivingSpec
