@@ -44,10 +44,13 @@ namespace Shopping.BddTests.Hooks.Catalog
 
             await BuildAndStartCatalogDbContainer().ConfigureAwait(false);
 
-            //await _catalogApiImage.InitializeAsync()
-            //    .ConfigureAwait(false);
+            await _catalogApiImage.InitializeAsync()
+                .ConfigureAwait(false);
 
             await BuildAndStartCatalogApiContainer().ConfigureAwait(false);
+
+            await _identityProviderImage.InitializeAsync()
+                .ConfigureAwait(false);
 
             await BuildAndStartIdentityContainer(identityDbContainerName).ConfigureAwait(false);
         }
@@ -64,6 +67,7 @@ namespace Shopping.BddTests.Hooks.Catalog
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(27017))
                 .Build();
 
+            // IT WORKS LOCALLY BUT NOT IN GITHUB ACTIONS WORKFLOW
             //_catalogDbContainer = new TestcontainersBuilder<MongoDbTestcontainer>()
             //                .WithDatabase(new MongoDbTestcontainerConfiguration
             //                {
