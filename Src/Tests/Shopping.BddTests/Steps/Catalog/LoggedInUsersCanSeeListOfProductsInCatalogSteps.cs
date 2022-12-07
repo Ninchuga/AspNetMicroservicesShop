@@ -17,14 +17,14 @@ namespace Shopping.BddTests.Steps.Catalog
     [Binding]
     public class LoggedInUsersCanSeeListOfProductsInCatalogSteps
     {
-        //private readonly ScenarioContext _scenarioContext; // put an items in this context and extract them in other steps
-        //private readonly IObjectContainer _objectContainer;
+        private readonly ScenarioContext _scenarioContext; // put an items in this context and extract them in other steps
+        private readonly IObjectContainer _objectContainer;
 
-        //public LoggedInUsersCanSeeListOfProductsInCatalogSteps(ScenarioContext scenarioContext, IObjectContainer objectContainer)
-        //{
-        //    _scenarioContext = scenarioContext;
-        //    _objectContainer = objectContainer;
-        //}
+        public LoggedInUsersCanSeeListOfProductsInCatalogSteps(ScenarioContext scenarioContext, IObjectContainer objectContainer)
+        {
+            _scenarioContext = scenarioContext;
+            _objectContainer = objectContainer;
+        }
 
         [Given(@"a user that is not logged in")]
         public void GivenAUserThatIsNotLoggedIn()
