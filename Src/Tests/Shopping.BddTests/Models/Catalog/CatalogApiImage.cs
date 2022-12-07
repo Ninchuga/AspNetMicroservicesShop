@@ -30,7 +30,8 @@ namespace Shopping.BddTests.Models.Catalog
 
         private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
 
-        private readonly IDockerImage _image = new DockerImage(string.Empty, "catalogapi", "latest");
+        private readonly IDockerImage _image = new DockerImage(string.Empty, "catalogapi", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
+        //private readonly IDockerImage _image = new DockerImage("catalogapi");
 
         public string Repository => _image.Repository;
 
