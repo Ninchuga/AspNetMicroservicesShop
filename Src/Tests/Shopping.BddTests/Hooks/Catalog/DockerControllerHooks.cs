@@ -48,7 +48,7 @@ namespace Shopping.BddTests.Hooks.Catalog
 
             //await BuildAndStartCatalogApiContainer().ConfigureAwait(false);
 
-            //await BuildAndStartIdentityContainer(identityDbContainerName).ConfigureAwait(false);
+            await BuildAndStartIdentityContainer(identityDbContainerName).ConfigureAwait(false);
         }
 
         private static async Task BuildAndStartCatalogDbContainer()
