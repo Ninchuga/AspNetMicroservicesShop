@@ -41,7 +41,7 @@ namespace Shopping.BddTests.Hooks.Catalog
             //string identityDbContainerName = "identitydbtest";
             //await BuildAndStartIdentityDbContainer(identityDbContainerName).ConfigureAwait(false);
 
-            await BuildAndStartCatalogDbContainer().ConfigureAwait(false);
+            //await BuildAndStartCatalogDbContainer().ConfigureAwait(false);
 
             //await _catalogApiImage.InitializeAsync()
             //    .ConfigureAwait(false);
@@ -72,18 +72,18 @@ namespace Shopping.BddTests.Hooks.Catalog
 
         private static async Task BuildAndStartIdentityDbContainer(string identityDbContainerName)
         {
-            //_identityDbContainer = new TestcontainersBuilder<MsSqlTestcontainer>()
-            //            .WithDatabase(new MsSqlTestcontainerConfiguration
-            //            {
-            //                Password = "September24#",
-            //                Database = "IdentityDb"
-            //            })
-            //            .WithNetwork(_dockerNetwork)
-            //            .WithName(identityDbContainerName)
-            //            .Build();
+            _identityDbContainer = new TestcontainersBuilder<MsSqlTestcontainer>()
+                        .WithDatabase(new MsSqlTestcontainerConfiguration
+                        {
+                            Password = "September24#",
+                            Database = "IdentityDb"
+                        })
+                        .WithNetwork(_dockerNetwork)
+                        .WithName(identityDbContainerName)
+                        .Build();
 
-            //await _identityDbContainer.StartAsync()
-            //    .ConfigureAwait(false);
+            await _identityDbContainer.StartAsync()
+                .ConfigureAwait(false);
         }
 
         private static async Task BuildAndCreateDockerNetwork()
@@ -98,32 +98,32 @@ namespace Shopping.BddTests.Hooks.Catalog
 
         private static async Task BuildAndStartIdentityContainer(string identityDbContainerName)
         {
-            //_identityProviderContainer = new TestcontainersBuilder<TestcontainersContainer>()
-            //    .WithImage(_identityProviderImage)
-            //    .WithNetwork(_dockerNetwork)
-            //    .WithName("identityprovidertest")
-            //    .WithExposedPort(IdentityProviderImage.HttpsPort)
-            //    .WithPortBinding(8021, IdentityProviderImage.HttpsPort)
-            //    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
-            //    .WithEnvironment("ASPNETCORE_URLS", "https://+")
-            //    .WithEnvironment("ASPNETCORE_HTTPS_PORT", "8000")
-            //    .WithEnvironment("IdentityIssuer", _configuration["IdentityProviderUrl"])
-            //    .WithEnvironment("ConnectionStrings:IdentityDb", BuildIdentityDbConnectionString(identityDbContainerName))
-            //    .WithEnvironment("WebClientUrls:CatalogApi", _configuration["CatalogApiUrl"])
-            //    .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", IdentityProviderImage.CertificateContainerFilePath)
-            //    .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", IdentityProviderImage.CertificatePassword)
-            //    .WithBindMount(IdentityProviderImage.IdentityProviderRootPath, "/root/Identity")
-            //    .WithBindMount(IdentityProviderImage.RootCertificateHostAbsoluteFilePath, "/https-root/shopping-root-cert.cer")
-            //    .WithBindMount($"{IdentityProviderImage.IdentityProviderCertificatesHostFilePath}\\Shopping.IDP.pfx", IdentityProviderImage.CertificateContainerFilePath)
-            //    .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(IdentityProviderImage.HttpsPort))
-            //    .Build();
+            _identityProviderContainer = new TestcontainersBuilder<TestcontainersContainer>()
+                .WithImage(_identityProviderImage)
+                .WithNetwork(_dockerNetwork)
+                .WithName("identityprovidertest")
+                .WithExposedPort(IdentityProviderImage.HttpsPort)
+                .WithPortBinding(8021, IdentityProviderImage.HttpsPort)
+                .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+                .WithEnvironment("ASPNETCORE_URLS", "https://+")
+                .WithEnvironment("ASPNETCORE_HTTPS_PORT", "8000")
+                .WithEnvironment("IdentityIssuer", _configuration["IdentityProviderUrl"])
+                .WithEnvironment("ConnectionStrings:IdentityDb", BuildIdentityDbConnectionString(identityDbContainerName))
+                .WithEnvironment("WebClientUrls:CatalogApi", _configuration["CatalogApiUrl"])
+                .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", IdentityProviderImage.CertificateContainerFilePath)
+                .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", IdentityProviderImage.CertificatePassword)
+                .WithBindMount(IdentityProviderImage.IdentityProviderRootPath, "/root/Identity")
+                .WithBindMount(IdentityProviderImage.RootCertificateHostAbsoluteFilePath, "/https-root/shopping-root-cert.cer")
+                .WithBindMount($"{IdentityProviderImage.IdentityProviderCertificatesHostFilePath}\\Shopping.IDP.pfx", IdentityProviderImage.CertificateContainerFilePath)
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(IdentityProviderImage.HttpsPort))
+                .Build();
 
-            //await _identityProviderContainer.StartAsync()
-            //    .ConfigureAwait(false);
+            await _identityProviderContainer.StartAsync()
+                .ConfigureAwait(false);
         }
 
-        //private static string BuildIdentityDbConnectionString(string identityDbContainerName) =>
-        //    $"Server={identityDbContainerName};Database={_identityDbContainer.Database};User Id={_identityDbContainer.Username};Password={_identityDbContainer.Password};TrustServerCertificate=True;";
+        private static string BuildIdentityDbConnectionString(string identityDbContainerName) =>
+            $"Server={identityDbContainerName};Database={_identityDbContainer.Database};User Id={_identityDbContainer.Username};Password={_identityDbContainer.Password};TrustServerCertificate=True;";
 
         private static async Task BuildAndStartCatalogApiContainer()
         {
