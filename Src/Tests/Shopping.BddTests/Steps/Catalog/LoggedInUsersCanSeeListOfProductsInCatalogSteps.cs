@@ -35,24 +35,24 @@ namespace Shopping.BddTests.Steps.Catalog
         [When(@"tries to get catalog")]
         public async Task WhenTriesToSeeCatalog()
         {
-            //var catalogApiHttpClient = _objectContainer.Resolve<HttpClient>("catalogApiHttpClient");
+            var catalogApiHttpClient = _objectContainer.Resolve<HttpClient>("catalogApiHttpClient");
 
-            //var response = await catalogApiHttpClient.GetAsync("api/v1/Catalog");
-            
-            //_scenarioContext.Add("CatalogUnauthorizedResponse", response);
-            
+            var response = await catalogApiHttpClient.GetAsync("api/v1/Catalog");
+
+            _scenarioContext.Add("CatalogUnauthorizedResponse", response);
+
         }
 
         [Then(@"unathorized response is returned")]
         public void ThenUnathorizedResponseIsReturned()
         {
-            //var response = _scenarioContext.Get<HttpResponseMessage>("CatalogUnauthorizedResponse");
+            var response = _scenarioContext.Get<HttpResponseMessage>("CatalogUnauthorizedResponse");
 
-            //response.IsSuccessStatusCode.Should().BeFalse();
-            //response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            response.IsSuccessStatusCode.Should().BeFalse();
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 
-            bool itsTrue = true;
-            itsTrue.Should().BeTrue();
+            //bool itsTrue = true;
+            //itsTrue.Should().BeTrue();
         }
 
         [Given(@"a logged in user")]
