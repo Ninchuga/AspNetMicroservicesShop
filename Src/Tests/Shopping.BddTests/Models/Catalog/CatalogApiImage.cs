@@ -20,11 +20,11 @@ namespace Shopping.BddTests.Models.Catalog
 
         public const string CertificateContainerFilePath = "/https/Catalog.API.pfx";
 
-        public static string CatalogApiRootPath = $"{Path.Combine(CommonDirectoryPath.GetSolutionDirectory().DirectoryPath, @"Services\Catalog\Catalog.API")}";
+        public static string CatalogApiRootPath = $"{Path.Combine(CommonDirectoryPath.GetSolutionDirectory().DirectoryPath, @"Services/Catalog/Catalog.API")}";
 
-        public static string CatalogApiCertificatesHostFilePath = $"{CatalogApiRootPath}\\certs";
+        public static string CatalogApiCertificatesHostFilePath = $"{CatalogApiRootPath}/certs";
 
-        public static string RootCertificateHostAbsoluteFilePath = $"{Path.Combine(CommonDirectoryPath.GetSolutionDirectory().DirectoryPath, @"certs\shopping-root-cert.cer")}";
+        public static string RootCertificateHostAbsoluteFilePath = $"{Path.Combine(CommonDirectoryPath.GetSolutionDirectory().DirectoryPath, @"certs/shopping-root-cert.cer")}";
 
         public const string CertificatePassword = "password";
 

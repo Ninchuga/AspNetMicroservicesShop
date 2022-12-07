@@ -47,7 +47,7 @@ namespace Shopping.BddTests.Hooks.Catalog
             //await _catalogApiImage.InitializeAsync()
             //    .ConfigureAwait(false);
 
-            //await BuildAndStartCatalogApiContainer().ConfigureAwait(false);
+            await BuildAndStartCatalogApiContainer().ConfigureAwait(false);
 
             await BuildAndStartIdentityContainer(identityDbContainerName).ConfigureAwait(false);
         }
@@ -167,51 +167,51 @@ namespace Shopping.BddTests.Hooks.Catalog
         public static async Task DockerDisposeContainersAndImages()
         {
             // Catalog Api
-            //await _catalogApiContainer.DisposeAsync()
-            //  .ConfigureAwait(false);
+            await _catalogApiContainer.DisposeAsync()
+              .ConfigureAwait(false);
 
-            //await _catalogDbContainer.DisposeAsync()
-            //  .ConfigureAwait(false);
+            await _catalogDbContainer.DisposeAsync()
+              .ConfigureAwait(false);
 
-            //await _catalogApiImage.DisposeAsync()
-            //    .ConfigureAwait(false);
+            await _catalogApiImage.DisposeAsync()
+                .ConfigureAwait(false);
 
-            //// Identity provider
-            //await _identityProviderContainer.DisposeAsync()
-            //    .ConfigureAwait(false);
+            // Identity provider
+            await _identityProviderContainer.DisposeAsync()
+                .ConfigureAwait(false);
 
-            //await _identityDbContainer.DisposeAsync()
-            //    .ConfigureAwait(false);
+            await _identityDbContainer.DisposeAsync()
+                .ConfigureAwait(false);
 
-            //await _identityProviderImage.DisposeAsync()
-            //    .ConfigureAwait(false);
+            await _identityProviderImage.DisposeAsync()
+                .ConfigureAwait(false);
 
-            //await _dockerNetwork.DeleteAsync()
-            //  .ConfigureAwait(false);
+            await _dockerNetwork.DeleteAsync()
+              .ConfigureAwait(false);
         }
 
         [BeforeScenario()]
         public void AddHttpClient()
         {
             // skip validation of certificate
-            //var handler = new HttpClientHandler
-            //{
-            //    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
-            //};
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
+            };
 
-            //var catalogApiHttpClient = new HttpClient(handler)
-            //{
-            //    BaseAddress = new Uri(_configuration["CatalogApiUrl"])
-            //};
+            var catalogApiHttpClient = new HttpClient(handler)
+            {
+                BaseAddress = new Uri(_configuration["CatalogApiUrl"])
+            };
 
-            //var identityProviderHttpClient = new HttpClient(handler)
-            //{
-            //    BaseAddress = new Uri(_configuration["IdentityProviderUrl"])
-            //};
+            var identityProviderHttpClient = new HttpClient(handler)
+            {
+                BaseAddress = new Uri(_configuration["IdentityProviderUrl"])
+            };
 
-            //_objectCotainer.RegisterInstanceAs(_configuration, name: "configuration");
-            //_objectCotainer.RegisterInstanceAs(catalogApiHttpClient, name: "catalogApiHttpClient");
-            //_objectCotainer.RegisterInstanceAs(identityProviderHttpClient, name: "identityProviderHttpClient");
+            _objectCotainer.RegisterInstanceAs(_configuration, name: "configuration");
+            _objectCotainer.RegisterInstanceAs(catalogApiHttpClient, name: "catalogApiHttpClient");
+            _objectCotainer.RegisterInstanceAs(identityProviderHttpClient, name: "identityProviderHttpClient");
         }
 
         private static IConfiguration LoadConfiguration()
