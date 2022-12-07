@@ -114,7 +114,7 @@ namespace Shopping.BddTests.Hooks.Catalog
                 .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", IdentityProviderImage.CertificatePassword)
                 .WithBindMount(IdentityProviderImage.IdentityProviderRootPath, "/root/Identity")
                 .WithBindMount(IdentityProviderImage.RootCertificateHostAbsoluteFilePath, "/https-root/shopping-root-cert.cer")
-                .WithBindMount($"{IdentityProviderImage.IdentityProviderCertificatesHostFilePath}\\Shopping.IDP.pfx", IdentityProviderImage.CertificateContainerFilePath)
+                .WithBindMount($"{IdentityProviderImage.IdentityProviderCertificatesHostFilePath}/Shopping.IDP.pfx", IdentityProviderImage.CertificateContainerFilePath)
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(IdentityProviderImage.HttpsPort))
                 .Build();
 

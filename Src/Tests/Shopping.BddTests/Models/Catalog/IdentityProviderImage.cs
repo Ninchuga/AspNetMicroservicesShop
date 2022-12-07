@@ -16,11 +16,11 @@ namespace Shopping.BddTests.Models.Catalog
 
         public const string CertificateContainerFilePath = "/https/Shopping.IDP.pfx";
 
-        public static string IdentityProviderRootPath = $"{Path.Combine(CommonDirectoryPath.GetSolutionDirectory().DirectoryPath, @"Identity\Shopping.IDP")}";
+        public static string IdentityProviderRootPath = $"{Path.Combine(CommonDirectoryPath.GetSolutionDirectory().DirectoryPath, @"Identity/Shopping.IDP")}";
 
-        public static string IdentityProviderCertificatesHostFilePath = $"{IdentityProviderRootPath}\\certs";
+        public static string IdentityProviderCertificatesHostFilePath = $"{IdentityProviderRootPath}/certs";
 
-        public static string RootCertificateHostAbsoluteFilePath = $"{Path.Combine(CommonDirectoryPath.GetSolutionDirectory().DirectoryPath, @"certs\shopping-root-cert.cer")}";
+        public static string RootCertificateHostAbsoluteFilePath = $"{Path.Combine(CommonDirectoryPath.GetSolutionDirectory().DirectoryPath, @"certs/shopping-root-cert.cer")}";
 
         public const string CertificatePassword = "password";
 
