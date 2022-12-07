@@ -16,20 +16,20 @@ namespace Shopping.BddTests.Hooks.Catalog
     [Binding]
     public class DockerControllerHooks
     {
-        //private static readonly CatalogApiImage _catalogApiImage = new();
-        //private static readonly IdentityProviderImage _identityProviderImage = new();
-        //private static TestcontainerDatabase _catalogDbContainer;
-        //private static TestcontainerDatabase _identityDbContainer;
-        //private static IDockerNetwork _dockerNetwork;
-        //private static IDockerContainer _catalogApiContainer;
-        //private static IDockerContainer _identityProviderContainer;
-        //private IObjectContainer _objectCotainer; // DI container in SpecFlow. With it we can add dependencies in the Steps
-        //private static IConfiguration _configuration;
+        private static readonly CatalogApiImage _catalogApiImage = new();
+        private static readonly IdentityProviderImage _identityProviderImage = new();
+        private static TestcontainerDatabase _catalogDbContainer;
+        private static TestcontainerDatabase _identityDbContainer;
+        private static IDockerNetwork _dockerNetwork;
+        private static IDockerContainer _catalogApiContainer;
+        private static IDockerContainer _identityProviderContainer;
+        private IObjectContainer _objectCotainer; // DI container in SpecFlow. With it we can add dependencies in the Steps
+        private static IConfiguration _configuration;
 
-        //public DockerControllerHooks(IObjectContainer objectCotainer)
-        //{
-        //    _objectCotainer = objectCotainer;
-        //}
+        public DockerControllerHooks(IObjectContainer objectCotainer)
+        {
+            _objectCotainer = objectCotainer;
+        }
 
         [BeforeTestRun]
         public static async Task CreateAndStartDockerContainers()
