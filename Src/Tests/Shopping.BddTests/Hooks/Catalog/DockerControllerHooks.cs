@@ -41,7 +41,7 @@ namespace Shopping.BddTests.Hooks.Catalog
             string identityDbContainerName = "identitydbtest";
             await BuildAndStartIdentityDbContainer(identityDbContainerName).ConfigureAwait(false);
 
-            //await BuildAndStartCatalogDbContainer().ConfigureAwait(false);
+            await BuildAndStartCatalogDbContainer().ConfigureAwait(false);
 
             //await _catalogApiImage.InitializeAsync()
             //    .ConfigureAwait(false);
