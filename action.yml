@@ -80,15 +80,15 @@ runs:
         dotnet test ./Src/Tests/Shopping.BddTests -c Release --verbosity detailed -f net5.0
       shell: bash
       continue-on-error: true
-    - name: GenerateLivingSpec
-      run: |
-        [ "${{ inputs.test-assembly-path }}" != 'null' ] && _path="${{ inputs.test-assembly-path }}"
-        _dll="${_path:+$_path/}${{ inputs.test-assembly-dll }}"
-        _test="${_path:+$_path/}${{ inputs.test-execution-json }}"
+    #- name: GenerateLivingSpec
+    #  run: |
+    #    [ "${{ inputs.test-assembly-path }}" != 'null' ] && _path="${{ inputs.test-assembly-path }}"
+    #    _dll="${_path:+$_path/}${{ inputs.test-assembly-dll }}"
+    #    _test="${_path:+$_path/}${{ inputs.test-execution-json }}"
 
-        dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
-        livingdoc test-assembly "$_dll" -t "$_test" -o "${{ inputs.output-html }}"
-      shell: bash
+    #    dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
+    #    livingdoc test-assembly "$_dll" -t "$_test" -o "${{ inputs.output-html }}"
+    #  shell: bash
     - name: 'Publish Specflow Test Results'
       if: ${{ inputs.upload-artifact == 'true' }}
       uses: actions/upload-artifact@v2
