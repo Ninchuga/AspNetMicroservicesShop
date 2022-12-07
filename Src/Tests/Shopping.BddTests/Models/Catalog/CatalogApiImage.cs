@@ -48,7 +48,7 @@ namespace Shopping.BddTests.Models.Catalog
             try
             {
                 _ = await new ImageFromDockerfileBuilder()
-                  .WithName(Guid.NewGuid().ToString("D"))
+                  .WithName("catalogapi")
                   .WithDockerfileDirectory(CatalogApiRootPath)
                   .WithDockerfile("Dockerfile")
                   .WithBuildArgument("RESOURCE_REAPER_SESSION_ID", ResourceReaper.DefaultSessionId.ToString("D")) // https://github.com/testcontainers/testcontainers-dotnet/issues/602.
