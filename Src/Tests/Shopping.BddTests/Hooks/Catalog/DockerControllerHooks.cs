@@ -18,7 +18,8 @@ namespace Shopping.BddTests.Hooks.Catalog
     {
         private static readonly CatalogApiImage _catalogApiImage = new();
         private static readonly IdentityProviderImage _identityProviderImage = new();
-        private static TestcontainerDatabase _catalogDbContainer;
+        //private static TestcontainerDatabase _catalogDbContainer;
+        private static IDockerContainer _catalogDbContainer;
         private static TestcontainerDatabase _identityDbContainer;
         private static IDockerNetwork _dockerNetwork;
         private static IDockerContainer _catalogApiContainer;
@@ -53,18 +54,30 @@ namespace Shopping.BddTests.Hooks.Catalog
 
         private static async Task BuildAndStartCatalogDbContainer()
         {
-            _catalogDbContainer = new TestcontainersBuilder<MongoDbTestcontainer>()
-                            .WithDatabase(new MongoDbTestcontainerConfiguration
-                            {
-                                Database = "CatalogDb",
-                                Username = null,
-                                Password = null
-                            })
-                            .WithImage("mongo")
-                            .WithNetwork(_dockerNetwork)
-                            .WithName("catalogdbtest")
-                            .WithPortBinding(27017, 27017)
-                            .Build();
+            _catalogDbContainer = new TestcontainersBuilder<TestcontainersContainer>()
+                .WithImage("mongo")
+                .WithEnvironment("MONGO_INITDB_DATABASE", "CatalogDb")
+                .WithNetwork(_dockerNetwork)
+                .WithName("catalogdbtest")
+                .WithPortBinding(27017, 27017)
+                .WithExposedPort(27017)
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(27017))
+                .Build();
+
+            //_catalogDbContainer = new TestcontainersBuilder<MongoDbTestcontainer>()
+            //                .WithDatabase(new MongoDbTestcontainerConfiguration
+            //                {
+            //                    Database = "CatalogDb",
+            //                    Username = null,
+            //                    Password = null
+            //                })
+            //                .WithImage("mongo")
+            //                .WithNetwork(_dockerNetwork)
+            //                .WithName("catalogdbtest")
+            //                .WithPortBinding(27017, 27017)
+            //                .WithExposedPort(27017)
+            //                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(27017))
+            //                .Build();
 
             await _catalogDbContainer.StartAsync()
               .ConfigureAwait(false);
