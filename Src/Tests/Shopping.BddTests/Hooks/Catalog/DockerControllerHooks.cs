@@ -36,7 +36,7 @@ namespace Shopping.BddTests.Hooks.Catalog
         {
             _configuration = LoadConfiguration();
 
-            await BuildAndCreateDockerNetwork().ConfigureAwait(false);
+            //await BuildAndCreateDockerNetwork().ConfigureAwait(false);
 
             //string identityDbContainerName = "identitydbtest";
             //await BuildAndStartIdentityDbContainer(identityDbContainerName).ConfigureAwait(false);
