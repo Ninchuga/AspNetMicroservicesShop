@@ -38,17 +38,17 @@ namespace Shopping.BddTests.Hooks.Catalog
 
             await BuildAndCreateDockerNetwork().ConfigureAwait(false);
 
-            string identityDbContainerName = "identitydbtest";
-            await BuildAndStartIdentityDbContainer(identityDbContainerName).ConfigureAwait(false);
+            //string identityDbContainerName = "identitydbtest";
+            //await BuildAndStartIdentityDbContainer(identityDbContainerName).ConfigureAwait(false);
 
             await BuildAndStartCatalogDbContainer().ConfigureAwait(false);
 
-            await _catalogApiImage.InitializeAsync()
-                .ConfigureAwait(false);
+            //await _catalogApiImage.InitializeAsync()
+            //    .ConfigureAwait(false);
 
-            await BuildAndStartCatalogApiContainer().ConfigureAwait(false);
+            //await BuildAndStartCatalogApiContainer().ConfigureAwait(false);
 
-            await BuildAndStartIdentityContainer(identityDbContainerName).ConfigureAwait(false);
+            //await BuildAndStartIdentityContainer(identityDbContainerName).ConfigureAwait(false);
         }
 
         private static async Task BuildAndStartCatalogDbContainer()
