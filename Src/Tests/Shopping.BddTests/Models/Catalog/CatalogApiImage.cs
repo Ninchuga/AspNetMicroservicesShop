@@ -1,14 +1,17 @@
 ﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Shopping.BddTests.Models.Catalog
 {
@@ -49,8 +52,7 @@ namespace Shopping.BddTests.Models.Catalog
             try
             {
                 _ = await new ImageFromDockerfileBuilder()
-                  //.WithName("catalogapi")
-                  .WithName(_image)
+                  .WithName(this)
                   .WithDockerfileDirectory(CatalogApiRootPath)
                   .WithDockerfile("Dockerfile")
                   .WithBuildArgument("RESOURCE_REAPER_SESSION_ID", ResourceReaper.DefaultSessionId.ToString("D")) // https://github.com/testcontainers/testcontainers-dotnet/issues/602.

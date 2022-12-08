@@ -77,7 +77,9 @@ runs:
         [ "${{ inputs.logger }}" != 'null' ] && _args+=("-l" "${{ inputs.logger }}$(IFS=; echo "${_logger_args[@]}")")
         
 
-        dotnet test ./Src/Tests/Shopping.BddTests -c Release --verbosity normal -f net5.0
+        if ! dotnet test "${{ inputs.test-assembly-path }}" --no-build "${_args[@]}"; then
+            echo "_EXIT=1" >> $GITHUB_ENV
+        fi
       shell: bash
       continue-on-error: true
     #- name: GenerateLivingSpec
